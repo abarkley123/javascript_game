@@ -23,8 +23,7 @@ var canvas, ctx, engine, fpsInterval, now, then, elapsed;
     function startRunner() {
         canvas = document.getElementById('runner_container');
         ctx = canvas.getContext("2d");
-        ctx.canvas.width  = document.querySelector("#Runner").offsetWidth;
-        ctx.canvas.height = ctx.canvas.offsetHeight / 1.7;
+        setSize();
         engine = new GameEngine();
         fpsInterval = 25; // 25 fps
         then = Date.now();
@@ -48,7 +47,7 @@ var canvas, ctx, engine, fpsInterval, now, then, elapsed;
                 this.jumpCount = 0;
                 this.acceleration = ctx.canvas.width / 400;
                 this.accelerationTweening = ctx.canvas.width / 400;
-                this.player = new Player({x: ctx.canvas.offsetWidth / 5, y : ctx.canvas.offsetHeight/4, width: ctx.canvas.offsetWidth / 25, height: ctx.canvas.offsetHeight / 25});
+                this.player = new Player({x: ctx.canvas.offsetWidth / 5, y : ctx.canvas.offsetHeight/4, width: ctx.canvas.offsetWidth / 25, height: ctx.canvas.offsetWidth / 25});
                 this.platformManager = new PlatformManager();
                 this.particles = [];
                 this.particlesIndex = 0;
@@ -166,9 +165,6 @@ var canvas, ctx, engine, fpsInterval, now, then, elapsed;
             this.collidedPlatform = null;
             this.scoreColor = '#fff';
             this.maxSpikes = 0;
-        }
-
-        resize() {
         }
 
         spawn_particles(position_x, position_y, tolerance, collider) {
@@ -469,4 +465,13 @@ var canvas, ctx, engine, fpsInterval, now, then, elapsed;
       
     window.onload = function() {
         document.querySelector("#start_runner_btn").addEventListener("click", this.start_handler);
+    }
+
+    window.onresize = function() {
+        setSize();
+    }
+
+    function setSize() {
+        ctx.canvas.width  = document.querySelector("#Runner").offsetWidth;
+        ctx.canvas.height = ctx.canvas.width
     }
