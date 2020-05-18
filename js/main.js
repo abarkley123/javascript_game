@@ -33,6 +33,7 @@ function run() {
     if (elapsed > fpsInterval) {
         then = now - (elapsed % fpsInterval);
         engine.step();
+        document.querySelector("#score").innerHTML = engine.score;
     }
 }
 
@@ -66,8 +67,7 @@ function start_handler() {
 // make sure the player can jump, then adjust velocity.
 function do_jump() {
     try {
-        let vel = engine.player.velocityY;
-        if (engine.player.jumpsLeft > 0) {
+        if (engine.velocityX > 0 && engine.player.jumpsLeft > 0) {
             engine.player.velocityY = engine.player.jumpSize;
             // now update the score
             engine.jumpCount++;

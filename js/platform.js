@@ -16,16 +16,14 @@ class Platform extends Vector2 {
     createSpikes(number) {
         this.spikes = [];
         try {
-            if (engine.jumpCount > 1) {
-                for (let i = 0; i < number; i++) {
-                    const spike = new Spike({
-                        x: this.x + random(this.width / 10, this.width / 1.25),
-                        y: this.y - (25 + ctx.canvas.width / 50),
-                        width: 25 + ctx.canvas.width / 50,
-                        height: 25 + ctx.canvas.width / 50
-                    });
-                    this.spikes.push(spike);
-                }
+            for (let i = 0; i < number; i++) {
+                const spike = new Spike({
+                    x: this.x + random((25 + ctx.canvas.width / 50), this.width - ((25 + ctx.canvas.width / 50))),
+                    y: this.y - (25 + ctx.canvas.width / 50),
+                    width: 25 + ctx.canvas.width / 50,
+                    height: 25 + ctx.canvas.width / 50
+                });
+                this.spikes.push(spike);
             }
         } catch (UninitialisedException) {
             console.log("Not spawning spikes: " + UninitialisedException);

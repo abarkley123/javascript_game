@@ -47,7 +47,7 @@ class PlatformManager {
         }
     }
 
-    updateOnDeath() {
+    updateOnDeath(dist_between) {
         let counter = -1;
         this.maxDistanceBetween = Math.min(32, ctx.canvas.offsetWidth / 25)  + dist_between/2;
         this.minDistanceBetween = Math.min(32, ctx.canvas.offsetWidth / 25);

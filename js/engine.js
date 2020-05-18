@@ -2,6 +2,7 @@ class GameEngine {
 
     constructor() {
         if (!GameEngine.instance) {
+            this.score = 0;
             this.jumpCount = 0;
             this.velocityX = ctx.canvas.width / 100;
             this.accelerationTweening = ctx.canvas.width / 100;
@@ -34,10 +35,13 @@ class GameEngine {
 
     update() {
         this.player.update();
+
+        if (engine.velocityX > 0) // game still playing.
+            this.score += Math.floor((1000/40) * (1 + (this.jumpCount > 0 ? this.jumpCount / 100 : 0)));
+
         if (this.updated === false && this.jumpCount % 10 === 0 && this.jumpCount > 0) {
             this.updated = true;
-            this.velocityX *= 1.2;
-            this.accelerationTweening *= 1.2;
+            this.accelerationTweening *= 1.1;
             this.platformManager.minDistanceBetween *= 1.25;
             this.platformManager.maxDistanceBetween = this.player.calculate_jump_distance(this.velocityX, Math.abs(this.player.jumpSize));
             if (this.jumpCount % 20 === 0) this.maxSpikes++;
@@ -45,18 +49,20 @@ class GameEngine {
             this.updated = false;
         }
 
+        this.velocityX += this.accelerationTweening / 2500;
         for (let platform of this.platformManager.platforms) {
             if (this.player.intersects(platform)) {
 
                 this.collidedPlatform = platform;
                 this.player.jumpsLeft = 2;
-                this.spawn_particles(this.player.x * 1.1, this.player.y + this.player.height * 0.975, 0, this.collidedPlatform);
+                // game still playing
+                if (engine.velocityX > 0) this.spawn_particles(this.player.x * 1.1, this.player.y + this.player.height * 0.975, 0, this.collidedPlatform);
 
                 if (this.player.intersectsLeft(platform)) {
                     this.player.x = this.collidedPlatform.x - 64;
                     this.spawn_particles(this.player.x, this.player.y, this.player.height, this.collidedPlatform);
                     this.player.velocityY = -10 + -(this.velocityX * 4);
-                    this.player.velocityX = -20 + -(this.velocityX * 4);
+                    this.player.velocityX = -1;
                 } else {
                     this.player.x = this.player.previousX;
                     this.player.y = platform.y - this.player.height;
@@ -67,9 +73,12 @@ class GameEngine {
             for (let spike of platform.spikes) {
                 if (this.player.intersects(spike)) {
                     this.player.x = spike.x - 64;
+                    this.player.velocityY = 0;
+                    engine.velocityX = 0;
+                    engine.accelerationTweening = 0;
                     this.spawn_particles(this.player.x, this.player.y, this.player.height, spike);
-                    this.player.velocityY = -10 + -(this.velocityX* 4);
-                    this.player.velocityX = -20 + -(this.velocityX* 4);
+                    this.player.velocityY = -10 + -(this.velocityX * 4);
+                    this.player.velocityX = 0; 
                 }
             }
 
@@ -98,17 +107,18 @@ class GameEngine {
     }
 
     restart() {
+        this.score = 0;
         this.jumpCount = 0;
+        this.maxSpikes = 0;
         this.velocityX = ctx.canvas.width / 100;
         this.accelerationTweening = ctx.canvas.width / 100;
         this.player.restart();
-        this.platformManager.updateOnDeath();
+        this.platformManager.updateOnDeath(this.player.calculate_jump_distance(this.velocityX, Math.abs(this.player.jumpSize)));
         this.particles = [];
         this.particlesIndex = 0;
         this.particlesMax = 15;
         this.collidedPlatform = null;
         this.scoreColor = '#fff';
-        this.maxSpikes = 0;
     }
 
     spawn_particles(position_x, position_y, tolerance, collider) {
