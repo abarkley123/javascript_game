@@ -2,10 +2,10 @@
   "name": "javascript_game",
   "version": "1.0.0",
   "description": "Javascript platformer",
-  "main":"main.js",
+  "main": "server.js",
   "scripts": {
-    "test": "mocha js/test/ --exit",
-    "start":"node server.js"
+    "test": "mocha -r esm",
+    "start": "node server.js"
   },
   "repository": {
     "type": "git",
@@ -23,6 +23,8 @@
   },
   "homepage": "https://github.com/abarkley123/javascript_game#readme",
   "dependencies": {
+    "esm": "^3.2.25",
+    "express": "^4.17.1",
     "mocha": "^7.1.2"
   }
 }

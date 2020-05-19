@@ -1,6 +1,7 @@
-var Vector2 = require("./vector2.js"); 
+import {Vector2} from "./vector2.js";
+import {random} from "./util.js";
 
-class Platform extends Vector2 {
+export class Platform extends Vector2 {
 
     constructor(options) {
         super(options.x, options.y, options.width, options.height);
@@ -61,5 +62,3 @@ class Spike extends Vector2 {
         this.x -= velocity;
     }
 }
-
-module.exports = Platform

@@ -1,5 +1,5 @@
 var assert = require('assert');
-var GameEngine = require("../app/engine.js"); 
+import GameEngine from "../public/js/engine.js"; 
 var TestContext = require("./context.js");
 
 describe('Engine', function() {

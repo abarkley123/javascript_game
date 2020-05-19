@@ -1,4 +1,4 @@
-class Vector2 {
+export class Vector2 {
 
     constructor(x, y, width, height) {
         this.x = x;
@@ -35,5 +35,3 @@ class Vector2 {
         return this.y + this.height > obj.y + 1.5 * this.velocityY
     }
 }
-
-module.exports = Vector2

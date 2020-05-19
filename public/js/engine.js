@@ -1,5 +1,7 @@
-var Player = require("../app/player.js"); 
-var PlatformManager = require("../app/platform_manager.js"); 
+import {Player} from "./player.js";
+import {PlatformManager} from "./platform_manager.js";
+import {Particle} from "./particle.js";
+import {random, randomChoice} from "./util.js";
 
 class GameEngine {
 
@@ -41,7 +43,7 @@ class GameEngine {
         this.player.update();
 
         // game still playing.
-        if (engine.velocityX > 0) {
+        if (this.velocityX > 0) {
             this.score += Math.floor((1000/40) * (1 + (this.jumpCount > 0 ? this.jumpCount / 100 : 0)));
         }
 
@@ -62,7 +64,7 @@ class GameEngine {
                 this.collidedPlatform = platform;
                 this.player.jumpsLeft = 2;
                 // game still playing
-                if (engine.velocityX > 0) this.spawn_particles(this.player.x * 1.1, this.player.y + this.player.height * 0.975, 0, this.collidedPlatform);
+                if (this.velocityX > 0) this.spawn_particles(this.player.x * 1.1, this.player.y + this.player.height * 0.975, 0, this.collidedPlatform);
 
                 if (this.player.intersectsLeft(platform)) {
                     this.handle_collision(platform);
@@ -136,10 +138,12 @@ class GameEngine {
                 x: position_x,
                 y: tolerance == 0 ? position_y : random(position_y, position_y + tolerance),
                 velocityY: random(-30, 30),
-                color: collider.color
+                color: collider.color,
+                engineVelocity: this.velocityX,
+                size: Math.min(32, this.ctx.canvas.offsetWidth / 25)/10
             });
         }
     }
 }
 
-module.exports = GameEngine
+export default GameEngine

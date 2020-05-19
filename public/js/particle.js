@@ -1,12 +1,13 @@
+import {random} from "./util.js";
 
-class Particle {
+export class Particle {
 
     constructor(options) {
         this.x = options.x;
         this.y = options.y;
-        this.size = 10;
-        this.velocityX = options.velocityX || 2 * random(-(engine.velocityX * 3) + -8, -(engine.velocityX * 3));
-        this.velocityY = options.velocityY || random(-(engine.velocityX * 3) + -8, -(engine.velocityX * 3));
+        this.size = options.size;
+        this.velocityX = options.velocityX || 2 * random(-(options.engineVelocity * 3) + -8, -(options.engineVelocity * 3));
+        this.velocityY = options.velocityY || random(-(options.engineVelocity * 3) + -8, -(options.engineVelocity * 3));
         this.color = options.color;
     }
 

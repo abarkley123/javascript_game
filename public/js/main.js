@@ -1,3 +1,5 @@
+import GameEngine from "./engine.js";
+
 // rendering tools for cross browser support
 window.requestAnimationFrame = window.requestAnimationFrame ||
     window.mozRequestAnimationFrame ||
@@ -13,15 +15,12 @@ window.cancelAnimationFrame = window.cancelAnimationFrame ||
         clearTimeout(requestID)
     } //fall back
 
-
-var canvas, ctx, engine, fpsInterval, now, then, elapsed;
+var engine, ctx, runnerAnimation, then, now;
 
 function startRunner() {
-    canvas = document.getElementById('runner_container');
-    ctx = canvas.getContext("2d");
-    setSize();
+    ctx = document.getElementById('runner_container').getContext("2d");
     engine = new GameEngine(ctx);
-    fpsInterval = 25; // 40 fps
+    setSize();
     then = Date.now();
     run();
 }
@@ -29,9 +28,9 @@ function startRunner() {
 function run() {
     runnerAnimation = window.requestAnimationFrame(run);
     now = Date.now();
-    elapsed = now - then;
-    if (elapsed > fpsInterval) {
-        then = now - (elapsed % fpsInterval);
+    let elapsed = Date.now() - then;
+    if (elapsed > 25) {
+        then = now - (elapsed % 25);
         engine.step();
         document.querySelector("#score").innerHTML = engine.score;
     }
@@ -61,8 +60,6 @@ function start_handler() {
     document.querySelector("#runner_container").style.display = "block";
     document.querySelector("#runner_before").style.display = "none";
     startRunner();
-    hasStarted = true;
-    engineRunning = true;
 }
 
 function restart_handler() {
@@ -95,20 +92,3 @@ function setSize() {
     ctx.canvas.width = size;
     ctx.canvas.height = size;
 }
-
-'use strict';
-
-const express = require('express');
-
-// Constants
-const PORT = 8080;
-const HOST = '0.0.0.0';
-
-// App
-const app = express();
-app.get('/', (req, res) => {
-  res.send('Hello World');
-});
-
-app.listen(PORT, HOST);
-console.log(`Running on http://${HOST}:${PORT}`);

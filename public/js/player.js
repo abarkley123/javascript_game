@@ -1,6 +1,6 @@
-var Vector2 = require("./vector2.js"); 
+import {Vector2} from "./vector2.js";
 
-class Player extends Vector2 {
+export class Player extends Vector2 {
 
     constructor(options) {
         super(options.x, options.y, options.width, options.height);
@@ -43,5 +43,3 @@ class Player extends Vector2 {
         return ((actual_velocity * actual_velocity) * Math.sin(2 * angle))/(this.gravity * 40);
     }
 }
-
-module.exports = Player
