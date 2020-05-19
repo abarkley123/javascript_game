@@ -52,7 +52,6 @@ function startRunner() {
 function setSize() {
     const size = Math.min(document.querySelector("#Runner").offsetWidth, document.querySelector("#Runner").offsetHeight);
     let original_size = [ctx.canvas.width, ctx.canvas.height];
-    console.log("Resizing canvas from " + original_size + " to " + [size, size]);
     ctx.canvas.width = size;
     ctx.canvas.height = size;
     if (engine) engine.resize_entities(ctx, original_size);

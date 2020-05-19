@@ -57,8 +57,17 @@ class GameEngine {
             this.updated = false;
         }
 
-        let intersectionCount = 0;
         this.velocityX += this.accelerationTweening / 2500;
+        // update all the platforms (and spikes)
+        this.update_platforms();
+        // update all the particles.
+        for (let particle of this.particles) {
+            particle.update();
+        }
+    }
+
+    update_platforms() {
+        let intersectionCount = 0;
         for (let platform of this.platformManager.platforms) {
             if (this.player.intersects(platform)) {
 
@@ -69,8 +78,6 @@ class GameEngine {
                 if (this.velocityX > 0) this.spawn_particles(this.player.x * 1.1, this.player.y + this.player.height * 0.975, 0, this.collidedPlatform);
 
                 if (this.player.intersectsLeft(platform, this.velocityX)) {
-                    console.log(platform.x + " " + platform.y);
-                    console.log(this.player.x + " " + this.player.y + " " + this.player.velocityY + " " + this.player.height);
                     this.handle_collision(platform);
                 } else {
                     this.player.x = this.player.previousX;
@@ -85,18 +92,19 @@ class GameEngine {
                     this.handle_collision(spike);
                 }
             }
+
+            if (this.player.y >= this.ctx.canvas.height) {
+                this.handle_collision(platform); 
+            }
         }
         // not on a platform.
         if (intersectionCount === 0) this.player.onPlatform = false;
         // update each platform i.e. move them
         this.platformManager.update(this.ctx.canvas, this.velocityX, this.maxSpikes);
-        // update all the particles.
-        for (let particle of this.particles) {
-            particle.update();
-        }
     }
 
     handle_collision(obj) {
+        console.log(this.player.x + " " + this.player.y + " " + this.player.velocityY + " " + obj.x + " " + obj.y);
         // stop the screen moving, trigger restart screen
         this.velocityX = 0;
         this.accelerationTweening = 0;
@@ -130,7 +138,7 @@ class GameEngine {
         this.maxSpikes = 0;
         this.velocityX = this.ctx.canvas.width / 100;
         this.accelerationTweening = this.ctx.canvas.width / 100;
-        this.player.restart(this.ctx);
+        this.player.restart(this.ctx, this.velocityX);
         this.platformManager.updateOnDeath(this.ctx.canvas, this.player.calculate_jump_distance(this.velocityX, Math.abs(this.player.jumpSize)));
         this.particles = [];
         this.particlesIndex = 0;
@@ -154,12 +162,19 @@ class GameEngine {
 
     resize_entities(ctx, original_size) {
         this.ctx = ctx;
-        let width_ratio = ctx.canvas.width / original_size[0];
-        this.velocityX *= width_ratio;
-        this.accelerationTweening *= width_ratio;
+        // it's a square canvas, so if one side changes then so does the other -> only check one side.
+        if (ctx.width !== original_size[0]) {
+            console.log("Resizing canvas from " + original_size + " to " + [ctx.canvas.width, ctx.canvas.width]);
+            console.log(this.player.x + " " + this.player.y + " " + this.player.velocityY);
+            let width_ratio = ctx.canvas.width / original_size[0];
+            this.velocityX *= width_ratio;
+            this.accelerationTweening *= width_ratio;
 
-        this.player.resize(ctx, original_size, this.velocityX);
-        this.platformManager.resize(ctx, original_size, this.player.calculate_jump_distance(this.velocityX, Math.abs(this.player.jumpSize)));
+            this.player.resize(ctx, original_size, this.velocityX);
+            this.platformManager.resize(ctx, original_size, this.player.calculate_jump_distance(this.velocityX, Math.abs(this.player.jumpSize)));
+        } else {
+            console.log("Canvas size unchanged. Not resizing..");
+        }
     }
 
     // make sure the player can jump, then adjust velocity.

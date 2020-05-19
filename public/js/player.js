@@ -29,12 +29,15 @@ export class Player extends Vector2 {
         ctx.stroke();
     }
 
-    restart(ctx) {
+    restart(ctx, velocity) {
         this.x = ctx.canvas.offsetWidth / 5;
         this.y = ctx.canvas.offsetHeight / 4;
         this.velocityX = 0;
         this.velocityY = 0;
         this.onPlatform = false;
+        // fix jump and gravity
+        this.jumpSize = -2 * velocity;
+        this.gravity = this.jumpSize / -20;
     }
 
     calculate_jump_distance(vel_x, vel_y) {
@@ -50,12 +53,11 @@ export class Player extends Vector2 {
         this.height = Math.min(32, ctx.canvas.offsetWidth / 25);
 
         // fix x and y 
-        let heightRatio = ctx.canvas.height / original_sizes[0];
-
+        let heightRatio = ctx.canvas.height / original_sizes[1];
         this.x = ctx.canvas.offsetWidth / 5;
-        this.y = ctx.canvas.offsetHeight / 4;
+        this.y *= heightRatio;
         // set velocity
-        if (this.onPlatform === true) {
+        if (this.onPlatform === false) {
             this.velocityY *= heightRatio;
         } else {
             this.velocityY = 0;
