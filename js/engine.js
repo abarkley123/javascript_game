@@ -36,8 +36,10 @@ class GameEngine {
     update() {
         this.player.update();
 
-        if (engine.velocityX > 0) // game still playing.
+        // game still playing.
+        if (engine.velocityX > 0) {
             this.score += Math.floor((1000/40) * (1 + (this.jumpCount > 0 ? this.jumpCount / 100 : 0)));
+        }
 
         if (this.updated === false && this.jumpCount % 10 === 0 && this.jumpCount > 0) {
             this.updated = true;
@@ -59,10 +61,7 @@ class GameEngine {
                 if (engine.velocityX > 0) this.spawn_particles(this.player.x * 1.1, this.player.y + this.player.height * 0.975, 0, this.collidedPlatform);
 
                 if (this.player.intersectsLeft(platform)) {
-                    this.player.x = this.collidedPlatform.x - 64;
-                    this.spawn_particles(this.player.x, this.player.y, this.player.height, this.collidedPlatform);
-                    this.player.velocityY = -10 + -(this.velocityX * 4);
-                    this.player.velocityX = -1;
+                    this.handle_collision(platform);
                 } else {
                     this.player.x = this.player.previousX;
                     this.player.y = platform.y - this.player.height;
@@ -72,16 +71,9 @@ class GameEngine {
 
             for (let spike of platform.spikes) {
                 if (this.player.intersects(spike)) {
-                    this.player.x = spike.x - 64;
-                    this.player.velocityY = 0;
-                    engine.velocityX = 0;
-                    engine.accelerationTweening = 0;
-                    this.spawn_particles(this.player.x, this.player.y, this.player.height, spike);
-                    this.player.velocityY = -10 + -(this.velocityX * 4);
-                    this.player.velocityX = 0; 
+                    this.handle_collision(spike);
                 }
             }
-
         }
 
         this.platformManager.update();
@@ -89,6 +81,19 @@ class GameEngine {
         for (let particle of this.particles) {
             particle.update();
         }
+    }
+
+    handle_collision(obj) {
+        // stop the screen moving, trigger restart screen
+        this.velocityX = 0;
+        this.accelerationTweening = 0;
+        // reset the player variables.
+        this.player.velocityX = 0; 
+        this.player.x = obj.x - 48;
+        this.player.velocityY = this.player.jumpSize/2;
+        this.spawn_particles(this.player.x, this.player.y, this.player.height, obj);
+        // make the restart screen visible.
+        document.querySelector("#runner_after").style.display = "block";
     }
 
     draw() {

@@ -19,10 +19,6 @@ class Player extends Vector2 {
     update() {
         this.velocityY += this.gravity; // falling - terminal velocity
         this.setPosition(this.x + this.velocityX, this.y + this.velocityY);
-        //beyond screen bounds 
-        if (this.velocityX < 0) {
-            engine.restart();
-        }
     }
 
     draw() {

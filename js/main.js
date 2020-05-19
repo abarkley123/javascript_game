@@ -40,6 +40,7 @@ function run() {
 // add event handlers
 window.onload = function() {
     document.querySelector("#start_runner_btn").addEventListener("click", start_handler);
+    document.querySelector("#restart_runner_btn").addEventListener("click", restart_handler);
     // process a jump
     document.querySelector("#runner_container").addEventListener("click", do_jump); // click
     document.onkeypress = function(event) {  // spacebar
@@ -62,6 +63,11 @@ function start_handler() {
     startRunner();
     hasStarted = true;
     engineRunning = true;
+}
+
+function restart_handler() {
+    document.querySelector("#runner_after").style.display = "none";
+    engine.restart();
 }
 
 // make sure the player can jump, then adjust velocity.
