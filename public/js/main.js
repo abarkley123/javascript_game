@@ -17,23 +17,6 @@ window.cancelAnimationFrame = window.cancelAnimationFrame ||
 
 var ctx = document.getElementById('runner_container').getContext("2d"), engine = new GameEngine(ctx), runnerAnimation, then, now;
 
-function startRunner() {
-    setSize();
-    then = Date.now();
-    run();
-}
-
-function run() {
-    runnerAnimation = window.requestAnimationFrame(run);
-    now = Date.now();
-    let elapsed = Date.now() - then;
-    if (elapsed > 25) {
-        then = now - (elapsed % 25);
-        engine.step();
-        document.querySelector("#score").innerHTML = engine.score;
-    }
-}
-
 // add event handlers
 window.onload = function() {
     document.querySelector("#start_runner_btn").addEventListener("click", start_handler);
@@ -60,9 +43,10 @@ function start_handler() {
     startRunner();
 }
 
-function restart_handler() {
-    document.querySelector("#runner_after").style.display = "none";
-    engine.restart();
+function startRunner() {
+    setSize();
+    then = Date.now();
+    run();
 }
 
 function setSize() {
@@ -72,4 +56,20 @@ function setSize() {
     ctx.canvas.width = size;
     ctx.canvas.height = size;
     if (engine) engine.resize_entities(ctx, original_size);
+}
+
+function run() {
+    runnerAnimation = window.requestAnimationFrame(run);
+    now = Date.now();
+    let elapsed = Date.now() - then;
+    if (elapsed > 25) {
+        then = now - (elapsed % 25);
+        engine.step();
+        document.querySelector("#score").innerHTML = engine.score;
+    }
+}
+
+function restart_handler() {
+    document.querySelector("#runner_after").style.display = "none";
+    engine.restart();
 }
