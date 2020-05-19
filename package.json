@@ -1,0 +1,26 @@
+{
+  "name": "javascript_game",
+  "version": "1.0.0",
+  "description": "Javascript platformer",
+  "scripts": {
+    "test": "mocha js/test/ --exit"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/abarkley123/javascript_game.git"
+  },
+  "keywords": [
+    "javascript",
+    "html",
+    "css"
+  ],
+  "author": "Andrew Barkley",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/abarkley123/javascript_game/issues"
+  },
+  "homepage": "https://github.com/abarkley123/javascript_game#readme",
+  "dependencies": {
+    "mocha": "^7.1.2"
+  }
+}
