@@ -57,23 +57,28 @@ class GameEngine {
             this.updated = false;
         }
 
+        let intersectionCount = 0;
         this.velocityX += this.accelerationTweening / 2500;
         for (let platform of this.platformManager.platforms) {
             if (this.player.intersects(platform)) {
 
+                intersectionCount++;
                 this.collidedPlatform = platform;
                 this.player.jumpsLeft = 2;
                 // game still playing
                 if (this.velocityX > 0) this.spawn_particles(this.player.x * 1.1, this.player.y + this.player.height * 0.975, 0, this.collidedPlatform);
 
-                if (this.player.intersectsLeft(platform)) {
+                if (this.player.intersectsLeft(platform, this.velocityX)) {
+                    console.log(platform.x + " " + platform.y);
+                    console.log(this.player.x + " " + this.player.y + " " + this.player.velocityY + " " + this.player.height);
                     this.handle_collision(platform);
                 } else {
                     this.player.x = this.player.previousX;
                     this.player.y = platform.y - this.player.height;
                     this.player.velocityY = 0;
+                    this.player.onPlatform = true;
                 }
-            }
+            } 
 
             for (let spike of platform.spikes) {
                 if (this.player.intersects(spike)) {
@@ -81,9 +86,11 @@ class GameEngine {
                 }
             }
         }
-
+        // not on a platform.
+        if (intersectionCount === 0) this.player.onPlatform = false;
+        // update each platform i.e. move them
         this.platformManager.update(this.ctx.canvas, this.velocityX, this.maxSpikes);
-
+        // update all the particles.
         for (let particle of this.particles) {
             particle.update();
         }
@@ -142,6 +149,37 @@ class GameEngine {
                 engineVelocity: this.velocityX,
                 size: Math.min(32, this.ctx.canvas.offsetWidth / 25)/10
             });
+        }
+    }
+
+    resize_entities(ctx, original_size) {
+        this.ctx = ctx;
+        let width_ratio = ctx.canvas.width / original_size[0];
+        this.velocityX *= width_ratio;
+        this.accelerationTweening *= width_ratio;
+
+        this.player.resize(ctx, original_size, this.velocityX);
+        this.platformManager.resize(ctx, original_size, this.player.calculate_jump_distance(this.velocityX, Math.abs(this.player.jumpSize)));
+    }
+
+    // make sure the player can jump, then adjust velocity.
+    do_jump() {
+        try {
+            if (this.velocityX > 0 && this.player.jumpsLeft > 0) {
+                this.player.velocityY = this.player.jumpSize;
+                // now update the score
+                this.jumpCount++;
+                if (this.jumpCount > this.jumpCountRecord) {
+                    this.jumpCountRecord = this.jumpCount;
+                    let multiplerText = Math.floor((this.jumpCountRecord + 100) / 100) + '.';
+                    document.querySelector("#runner_multiplier").innerHTML = (this.jumpCountRecord < 10 ? multiplerText + "0" :  multiplerText) + this.jumpCountRecord;
+                }
+                
+                this.player.jumpsLeft--;
+                this.player.onPlatform = false;
+            }
+        } catch (UninitialisedException) {
+            console.log("Exception encountered when attempting to process a jump: \n" + UninitialisedException);
         }
     }
 }

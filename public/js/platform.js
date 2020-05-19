@@ -44,18 +44,16 @@ class Spike extends Vector2 {
     }
 
     draw(ctx) {
-        if (engine.maxSpikes >= 1) {
-            ctx.beginPath();
-            ctx.fillStyle = this.color;
-            ctx.strokeStyle = "#000";
-            ctx.lineWidth = 1;
-            ctx.moveTo(this.x, this.y);
-            ctx.lineTo(this.x + this.width / 2, this.y + this.height);
-            ctx.lineTo(this.x - this.width / 2, this.y + this.height);
-            ctx.lineTo(this.x, this.y);
-            ctx.stroke();
-            ctx.fill();
-        }
+        ctx.beginPath();
+        ctx.fillStyle = this.color;
+        ctx.strokeStyle = "#000";
+        ctx.lineWidth = 1;
+        ctx.moveTo(this.x, this.y);
+        ctx.lineTo(this.x + this.width / 2, this.y + this.height);
+        ctx.lineTo(this.x - this.width / 2, this.y + this.height);
+        ctx.lineTo(this.x, this.y);
+        ctx.stroke();
+        ctx.fill();
     }
 
     update(velocity) {

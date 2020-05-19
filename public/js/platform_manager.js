@@ -55,7 +55,7 @@ export class PlatformManager {
         this.minDistanceBetween = Math.min(32, canvas.offsetWidth / 25);
         for (let platform of this.platforms) {
             platform.spikes = [];
-            platform.x = ++counter > 0 ? this.platforms[counter - 1].x + this.platforms[counter - 1].width +random(this.maxDistanceBetween * 0.5, this.maxDistanceBetween) : ctx.canvas.offsetWidth / 8;
+            platform.x = ++counter > 0 ? this.platforms[counter - 1].x + this.platforms[counter - 1].width +random(this.maxDistanceBetween * 0.5, this.maxDistanceBetween) : canvas.offsetWidth / 8;
             platform.y = canvas.height / 1.25;
             platform.width = random(canvas.width / 2, canvas.width / 1.25),
             platform.height = random(canvas.height/3, canvas.height / 5),
@@ -63,5 +63,20 @@ export class PlatformManager {
         }
 
         this.colliding = false;
+    }
+
+    resize(ctx, original_sizes, dist_between) {
+        let width_ratio = ctx.canvas.width / original_sizes[0];
+        let height_ratio = ctx.canvas.height / original_sizes[1];
+
+        for (let platform of this.platforms) {
+            platform.width *= width_ratio;
+            platform.x *= width_ratio;
+            platform.height *= height_ratio;
+            platform.y *= height_ratio;
+        }
+
+        this.maxDistanceBetween = Math.min(32, ctx.canvas.offsetWidth / 25)  + dist_between * 0.8;
+        this.minDistanceBetween = Math.min(32, ctx.canvas.offsetWidth / 25) + 1; //force a jump
     }
 }

@@ -15,11 +15,9 @@ window.cancelAnimationFrame = window.cancelAnimationFrame ||
         clearTimeout(requestID)
     } //fall back
 
-var engine, ctx, runnerAnimation, then, now;
+var ctx = document.getElementById('runner_container').getContext("2d"), engine = new GameEngine(ctx), runnerAnimation, then, now;
 
 function startRunner() {
-    ctx = document.getElementById('runner_container').getContext("2d");
-    engine = new GameEngine(ctx);
     setSize();
     then = Date.now();
     run();
@@ -41,9 +39,9 @@ window.onload = function() {
     document.querySelector("#start_runner_btn").addEventListener("click", start_handler);
     document.querySelector("#restart_runner_btn").addEventListener("click", restart_handler);
     // process a jump
-    document.querySelector("#runner_container").addEventListener("click", do_jump); // click
+    document.querySelector("#runner_container").addEventListener("click", () => engine.do_jump()); // click
     document.onkeypress = function(event) {  // spacebar
-        if (event.which == "32") do_jump();
+        if (event.which == "32") engine.do_jump();
     };
 
     // resize the window
@@ -67,28 +65,11 @@ function restart_handler() {
     engine.restart();
 }
 
-// make sure the player can jump, then adjust velocity.
-function do_jump() {
-    try {
-        if (engine.velocityX > 0 && engine.player.jumpsLeft > 0) {
-            engine.player.velocityY = engine.player.jumpSize;
-            // now update the score
-            engine.jumpCount++;
-            if (engine.jumpCount > engine.jumpCountRecord) {
-                engine.jumpCountRecord = engine.jumpCount;
-                let multiplerText = Math.floor((engine.jumpCountRecord + 100) / 100) + '.';
-                document.querySelector("#runner_multiplier").innerHTML = (engine.jumpCountRecord < 10 ? multiplerText + "0" :  multiplerText) + engine.jumpCountRecord;
-            }
-
-            engine.player.jumpsLeft--;
-        }
-    } catch (UninitialisedException) {
-        console.log(UninitialisedException);
-    }
-}
-
 function setSize() {
     const size = Math.min(document.querySelector("#Runner").offsetWidth, document.querySelector("#Runner").offsetHeight);
+    let original_size = [ctx.canvas.width, ctx.canvas.height];
+    console.log("Resizing canvas from " + original_size + " to " + [size, size]);
     ctx.canvas.width = size;
     ctx.canvas.height = size;
+    if (engine) engine.resize_entities(ctx, original_size);
 }

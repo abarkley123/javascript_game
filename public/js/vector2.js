@@ -30,7 +30,7 @@ export class Vector2 {
         return obj.x <= this.x + this.width && obj.y <= this.y + this.height && obj.x + obj.width > this.x && obj.y + obj.height >= this.y
     }
 
-    intersectsLeft(obj) {
+    intersectsLeft(obj, velocity) {
         // the only way this is true is if there is an interaction between the side of the platform and the player
         return this.y + this.height > obj.y + 1.5 * this.velocityY
     }
