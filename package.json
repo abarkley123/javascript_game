@@ -2,8 +2,10 @@
   "name": "javascript_game",
   "version": "1.0.0",
   "description": "Javascript platformer",
+  "main":"main.js",
   "scripts": {
-    "test": "mocha js/test/ --exit"
+    "test": "mocha js/test/ --exit",
+    "start":"node server.js"
   },
   "repository": {
     "type": "git",

@@ -1,3 +1,5 @@
+var Vector2 = require("./vector2.js"); 
+
 class Platform extends Vector2 {
 
     constructor(options) {
@@ -8,20 +10,20 @@ class Platform extends Vector2 {
         this.spikes = [];
     }
 
-    draw() {
+    draw(ctx) {
         ctx.fillStyle = this.color;
         ctx.fillRect(this.x, this.y, this.width, this.height);
     }
 
-    createSpikes(number) {
+    createSpikes(canvas, number) {
         this.spikes = [];
         try {
             for (let i = 0; i < number; i++) {
                 const spike = new Spike({
-                    x: this.x + random((25 + ctx.canvas.width / 50), this.width - ((25 + ctx.canvas.width / 50))),
-                    y: this.y - (25 + ctx.canvas.width / 50),
-                    width: 25 + ctx.canvas.width / 50,
-                    height: 25 + ctx.canvas.width / 50
+                    x: this.x + random((25 + canvas.width / 50), this.width - ((25 + canvas.width / 50))),
+                    y: this.y - (25 + canvas.width / 50),
+                    width: 25 + canvas.width / 50,
+                    height: 25 + canvas.width / 50
                 });
                 this.spikes.push(spike);
             }
@@ -40,7 +42,7 @@ class Spike extends Vector2 {
         this.color = "#880E4F";
     }
 
-    draw() {
+    draw(ctx) {
         if (engine.maxSpikes >= 1) {
             ctx.beginPath();
             ctx.fillStyle = this.color;
@@ -55,7 +57,9 @@ class Spike extends Vector2 {
         }
     }
 
-    update() {
-        this.x -= engine.velocityX;
+    update(velocity) {
+        this.x -= velocity;
     }
 }
+
+module.exports = Platform

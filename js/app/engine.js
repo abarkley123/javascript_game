@@ -1,7 +1,11 @@
+var Player = require("../app/player.js"); 
+var PlatformManager = require("../app/platform_manager.js"); 
+
 class GameEngine {
 
-    constructor() {
+    constructor(ctx) {
         if (!GameEngine.instance) {
+            this.ctx = ctx;
             this.score = 0;
             this.jumpCount = 0;
             this.velocityX = ctx.canvas.width / 100;
@@ -13,7 +17,7 @@ class GameEngine {
                 height: Math.min(32, ctx.canvas.offsetWidth / 25),
                 jumpSize: this.velocityX * -2
             });
-            this.platformManager = new PlatformManager(this.player.calculate_jump_distance(this.velocityX, Math.abs(this.velocityX * -2)));
+            this.platformManager = new PlatformManager(ctx, this.player.calculate_jump_distance(this.velocityX, Math.abs(this.velocityX * -2)));
             this.particles = [];
             this.particlesIndex = 0;
             this.particlesMax = 15;
@@ -76,7 +80,7 @@ class GameEngine {
             }
         }
 
-        this.platformManager.update();
+        this.platformManager.update(this.ctx.canvas, this.velocityX, this.maxSpikes);
 
         for (let particle of this.particles) {
             particle.update();
@@ -97,17 +101,17 @@ class GameEngine {
     }
 
     draw() {
-        this.player.draw();
+        this.player.draw(this.ctx);
 
         for (let platform of this.platformManager.platforms) {
-            platform.draw();
+            platform.draw(this.ctx);
             for (let spike of platform.spikes) {
-                spike.draw();
+                spike.draw(this.ctx);
             }
         }
 
         for (let particle of this.particles) {
-            particle.draw();
+            particle.draw(this.ctx);
         }
     }
 
@@ -115,10 +119,10 @@ class GameEngine {
         this.score = 0;
         this.jumpCount = 0;
         this.maxSpikes = 0;
-        this.velocityX = ctx.canvas.width / 100;
-        this.accelerationTweening = ctx.canvas.width / 100;
-        this.player.restart();
-        this.platformManager.updateOnDeath(this.player.calculate_jump_distance(this.velocityX, Math.abs(this.player.jumpSize)));
+        this.velocityX = this.ctx.canvas.width / 100;
+        this.accelerationTweening = this.ctx.canvas.width / 100;
+        this.player.restart(this.ctx);
+        this.platformManager.updateOnDeath(this.ctx.canvas, this.player.calculate_jump_distance(this.velocityX, Math.abs(this.player.jumpSize)));
         this.particles = [];
         this.particlesIndex = 0;
         this.particlesMax = 15;
@@ -137,3 +141,5 @@ class GameEngine {
         }
     }
 }
+
+module.exports = GameEngine

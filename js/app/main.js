@@ -20,7 +20,7 @@ function startRunner() {
     canvas = document.getElementById('runner_container');
     ctx = canvas.getContext("2d");
     setSize();
-    engine = new GameEngine();
+    engine = new GameEngine(ctx);
     fpsInterval = 25; // 40 fps
     then = Date.now();
     run();
@@ -95,3 +95,20 @@ function setSize() {
     ctx.canvas.width = size;
     ctx.canvas.height = size;
 }
+
+'use strict';
+
+const express = require('express');
+
+// Constants
+const PORT = 8080;
+const HOST = '0.0.0.0';
+
+// App
+const app = express();
+app.get('/', (req, res) => {
+  res.send('Hello World');
+});
+
+app.listen(PORT, HOST);
+console.log(`Running on http://${HOST}:${PORT}`);

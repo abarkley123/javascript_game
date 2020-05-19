@@ -16,7 +16,7 @@ class Particle {
         this.size *= 0.89;
     }
 
-    draw() {
+    draw(ctx) {
         ctx.fillStyle = this.color;
         ctx.fillRect(this.x * 0.9, this.y, this.size, this.size);
     }

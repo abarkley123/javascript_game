@@ -1,3 +1,4 @@
+var Vector2 = require("./vector2.js"); 
 
 class Player extends Vector2 {
 
@@ -11,7 +12,6 @@ class Player extends Vector2 {
             this.color = "#fff";
             this.jumpsLeft = 2;
             Player.instance = this;
-            // this.gravity = 0.5 + ctx.canvas.width / 1000;
             this.gravity = this.jumpSize / -20; // 40 frames per second target
         }
     }
@@ -21,14 +21,14 @@ class Player extends Vector2 {
         this.setPosition(this.x + this.velocityX, this.y + this.velocityY);
     }
 
-    draw() {
+    draw(ctx) {
         ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
         ctx.fillStyle = this.color;
         ctx.fillRect(this.x, this.y, this.width, this.height);
         ctx.stroke();
     }
 
-    restart() {
+    restart(ctx) {
         this.x = ctx.canvas.offsetWidth / 5;
         this.y = ctx.canvas.offsetHeight / 4;
         this.velocityX = 0;
@@ -43,3 +43,5 @@ class Player extends Vector2 {
         return ((actual_velocity * actual_velocity) * Math.sin(2 * angle))/(this.gravity * 40);
     }
 }
+
+module.exports = Player
