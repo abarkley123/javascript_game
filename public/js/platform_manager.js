@@ -51,8 +51,8 @@ export class PlatformManager {
 
     updateOnDeath(canvas, dist_between) {
         let counter = -1;
-        this.maxDistanceBetween = Math.min(32, canvas.offsetWidth / 25)  + dist_between/2;
-        this.minDistanceBetween = Math.min(32, canvas.offsetWidth / 25);
+        this.maxDistanceBetween = Math.min(32, canvas.offsetWidth / 25)  + dist_between * 0.8;
+        this.minDistanceBetween = Math.min(32, canvas.offsetWidth / 25) + 1;
         for (let platform of this.platforms) {
             platform.spikes = [];
             platform.x = ++counter > 0 ? this.platforms[counter - 1].x + this.platforms[counter - 1].width + random(this.maxDistanceBetween * 0.5, this.maxDistanceBetween) : canvas.offsetWidth / 3;

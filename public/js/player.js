@@ -31,7 +31,7 @@ export class Player extends Vector2 {
 
     restart(ctx, velocity) {
         this.x = ctx.canvas.offsetWidth / 5;
-        this.y = ctx.canvas.offsetHeight / 4;
+        this.y = ctx.canvas.offsetHeight / 3;
         this.velocityX = 0;
         this.velocityY = 0;
         this.onPlatform = false;

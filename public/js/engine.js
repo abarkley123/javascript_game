@@ -141,10 +141,9 @@ class GameEngine {
         this.accelerationTweening = this.ctx.canvas.width / 100;
         this.player.restart(this.ctx, this.velocityX);
         this.platformManager.updateOnDeath(this.ctx.canvas, this.player.calculate_jump_distance(this.velocityX, Math.abs(this.player.jumpSize)));
-        this.particles = [];
-        this.particlesIndex = 0;
-        this.particlesMax = 15;
+        this.particlesIndex = -1;
         this.collidedPlatform = null;
+        this.particlesMax = 40;
         this.scoreColor = '#fff';
     }
 
