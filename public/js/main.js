@@ -15,7 +15,20 @@ window.cancelAnimationFrame = window.cancelAnimationFrame ||
         clearTimeout(requestID)
     } //fall back
 
-var ctx = document.getElementById('runner_container').getContext("2d"), engine = new GameEngine(ctx), runnerAnimation, then, now;
+var ctx, engine, runnerAnimation, then, now;
+
+(() => {
+    // expose the canvas for a short time so that the game engine can resolve the offsetWidth.
+    document.querySelector("#runner_container").style.display = "block";
+    document.querySelector("#runner_before").style.display = "none";
+
+    ctx = document.getElementById('runner_container').getContext("2d");
+    setSize(); // pre-set the size of the canvas.
+    engine = new GameEngine(ctx); // create the game engine object, using the resized canvas.
+    // hide the canvas to present the title screen.
+    document.querySelector("#runner_container").style.display = "none";
+    document.querySelector("#runner_before").style.display = "block";
+})();
 
 // add event handlers
 window.onload = function() {

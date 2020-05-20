@@ -21,8 +21,8 @@ class GameEngine {
             });
             this.platformManager = new PlatformManager(ctx, this.player.calculate_jump_distance(this.velocityX, Math.abs(this.velocityX * -2)));
             this.particles = [];
-            this.particlesIndex = 0;
-            this.particlesMax = 15;
+            this.particlesIndex = -1;
+            this.particlesMax = 40;
             this.collidedPlatform = null;
             this.scoreColor = '#fff';
             this.jumpCountRecord = 0;
@@ -40,26 +40,28 @@ class GameEngine {
     }
 
     update() {
+        // always update the player, so death animation can trigger.
         this.player.update();
 
         // game still playing.
         if (this.velocityX > 0) {
+
             this.score += Math.floor((1000/40) * (1 + (this.jumpCount > 0 ? this.jumpCount / 100 : 0)));
-        }
 
-        if (this.updated === false && this.jumpCount % 10 === 0 && this.jumpCount > 0) {
-            this.updated = true;
-            this.accelerationTweening *= 1.1;
-            this.platformManager.minDistanceBetween *= 1.25;
-            this.platformManager.maxDistanceBetween = this.player.calculate_jump_distance(this.velocityX, Math.abs(this.player.jumpSize));
-            if (this.jumpCount % 20 === 0) this.maxSpikes++;
-        } else if (this.jumpCount % 10 !== 0) {
-            this.updated = false;
-        }
+            if (this.updated === false && this.jumpCount % 10 === 0 && this.jumpCount > 0) {
+                this.updated = true;
+                this.accelerationTweening *= 1.1;
+                this.platformManager.minDistanceBetween *= 1.25;
+                this.platformManager.maxDistanceBetween = this.player.calculate_jump_distance(this.velocityX, Math.abs(this.player.jumpSize));
+                if (this.jumpCount % 20 === 0) this.maxSpikes++;
+            } else if (this.jumpCount % 10 !== 0) {
+                this.updated = false;
+            }
 
-        this.velocityX += this.accelerationTweening / 2500;
-        // update all the platforms (and spikes)
-        this.update_platforms();
+            this.velocityX += this.accelerationTweening / 2500;
+            // update all the platforms (and spikes)
+            this.update_platforms();
+        }
         // update all the particles.
         for (let particle of this.particles) {
             particle.update();
@@ -104,7 +106,6 @@ class GameEngine {
     }
 
     handle_collision(obj) {
-        console.log(this.player.x + " " + this.player.y + " " + this.player.velocityY + " " + obj.x + " " + obj.y);
         // stop the screen moving, trigger restart screen
         this.velocityX = 0;
         this.accelerationTweening = 0;
@@ -148,15 +149,21 @@ class GameEngine {
     }
 
     spawn_particles(position_x, position_y, tolerance, collider) {
+        let particle_size = Math.min(32, this.ctx.canvas.offsetWidth / 25)/6;
         for (let i = 0; i < 10; i++) {
-            this.particles[(this.particlesIndex++) % this.particlesMax] = new Particle({
-                x: position_x,
-                y: tolerance == 0 ? position_y : random(position_y, position_y + tolerance),
-                velocityY: random(-30, 30),
-                color: collider.color,
-                engineVelocity: this.velocityX,
-                size: Math.min(32, this.ctx.canvas.offsetWidth / 25)/10
-            });
+            this.particlesIndex = this.particlesIndex === this.particlesMax ? 0 : this.particlesIndex + 1;
+            // create new particle object if it hasn't been created before
+            if (this.particles.length <= this.particlesMax) {
+                this.particles[this.particlesIndex] = new Particle({
+                    x: position_x,
+                    y: tolerance == 0 ? position_y : random(position_y, position_y + tolerance),
+                    color: collider.color,
+                    size: particle_size
+                });
+            } else {
+                // if we have already created a particle object, just change its position and velocities (don't create unnecessary objects).
+                this.particles[this.particlesIndex].set(position_x, tolerance == 0 ? position_y : random(position_y, position_y + tolerance), collider.color);
+            }
         }
     }
 
@@ -165,7 +172,6 @@ class GameEngine {
         // it's a square canvas, so if one side changes then so does the other -> only check one side.
         if (ctx.width !== original_size[0]) {
             console.log("Resizing canvas from " + original_size + " to " + [ctx.canvas.width, ctx.canvas.width]);
-            console.log(this.player.x + " " + this.player.y + " " + this.player.velocityY);
             let width_ratio = ctx.canvas.width / original_size[0];
             this.velocityX *= width_ratio;
             this.accelerationTweening *= width_ratio;
@@ -177,21 +183,17 @@ class GameEngine {
         }
     }
 
-    // make sure the player can jump, then adjust velocity.
     do_jump() {
         try {
-            if (this.velocityX > 0 && this.player.jumpsLeft > 0) {
-                this.player.velocityY = this.player.jumpSize;
+            // if the game is running and the player is elligible to jump, process it.
+            if (this.velocityX > 0 && this.player.canJump()) {
+                this.player.doJump();
                 // now update the score
-                this.jumpCount++;
-                if (this.jumpCount > this.jumpCountRecord) {
+                if (++this.jumpCount > this.jumpCountRecord) {
                     this.jumpCountRecord = this.jumpCount;
                     let multiplerText = Math.floor((this.jumpCountRecord + 100) / 100) + '.';
                     document.querySelector("#runner_multiplier").innerHTML = (this.jumpCountRecord < 10 ? multiplerText + "0" :  multiplerText) + this.jumpCountRecord;
                 }
-                
-                this.player.jumpsLeft--;
-                this.player.onPlatform = false;
             }
         } catch (UninitialisedException) {
             console.log("Exception encountered when attempting to process a jump: \n" + UninitialisedException);
