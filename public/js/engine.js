@@ -40,9 +40,10 @@ class GameEngine {
     }
 
     update() {
-        // always update the player, so death animation can trigger.
+        // always update the player & particles, so death animation can trigger.
         this.player.update();
-
+        for (let particle of this.particles) particle.update();
+        
         // game still playing.
         if (this.velocityX > 0) {
 
@@ -58,13 +59,10 @@ class GameEngine {
                 this.updated = false;
             }
 
-            this.velocityX += this.accelerationTweening / 2500;
             // update all the platforms (and spikes)
             this.update_platforms();
-        }
-        // update all the particles.
-        for (let particle of this.particles) {
-            particle.update();
+            // accelerate
+            this.velocityX += this.accelerationTweening / 2500;
         }
     }
 

@@ -11,7 +11,7 @@ export class Particle {
 
     update() {
         this.x += this.velocityX;
-        this.y += this.velocityY / 4;
+        this.y += (this.velocityY / 4);
         this.size *= 0.9;
     }
 

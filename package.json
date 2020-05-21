@@ -4,12 +4,22 @@
   "description": "Javascript platformer",
   "main": "server.js",
   "scripts": {
-    "test": "nyc --reporter=text mocha",
+    "test": "nyc --reporter=html mocha",
     "start": "node server.js"
   },
-  "mocha": { "require": [ "esm" ] },
-  "esm": { "cjs": true },
-  "nyc": { "require": [ "esm" ] },
+  "mocha": {
+    "require": [
+      "esm"
+    ]
+  },
+  "esm": {
+    "cjs": true
+  },
+  "nyc": {
+    "require": [
+      "esm"
+    ]
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/abarkley123/javascript_game.git"
@@ -30,5 +40,9 @@
     "express": "^4.17.1",
     "mocha": "^7.1.2",
     "nyc": "^15.0.1"
+  },
+  "devDependencies": {
+    "jsdom": "16.2.2",
+    "jsdom-global": "3.0.2"
   }
 }
