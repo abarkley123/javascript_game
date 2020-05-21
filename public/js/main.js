@@ -15,7 +15,7 @@ window.cancelAnimationFrame = window.cancelAnimationFrame ||
         clearTimeout(requestID)
     } //fall back
 
-var ctx, engine, runnerAnimation, then, now;
+var ctx, engine, runnerAnimation, then, now, fpsInterval;
 
 (() => {
     // expose the canvas for a short time so that the game engine can resolve the offsetWidth.
@@ -63,10 +63,12 @@ function startRunner() {
 }
 
 function setSize() {
-    const size = Math.min(document.querySelector("#Runner").offsetWidth, document.querySelector("#Runner").offsetHeight);
     let original_size = [ctx.canvas.width, ctx.canvas.height];
-    ctx.canvas.width = size;
-    ctx.canvas.height = size;
+    ctx.canvas.width = window.innerWidth;
+    fpsInterval = 30 - (2 * Math.floor(ctx.canvas.width / 500)); 
+    console.log(ctx.canvas.width + " " + (1000/fpsInterval));
+    const last_element = document.querySelectorAll("#Runner h3")[1];
+    ctx.canvas.height = window.innerHeight - (last_element.offsetHeight + last_element.getBoundingClientRect().bottom);
     if (engine) engine.resize_entities(ctx, original_size);
 }
 
@@ -74,8 +76,8 @@ function run() {
     runnerAnimation = window.requestAnimationFrame(run);
     now = Date.now();
     let elapsed = Date.now() - then;
-    if (elapsed > 25) {
-        then = now - (elapsed % 25);
+    if (elapsed > fpsInterval) {
+        then = now - (elapsed % fpsInterval);
         engine.step();
         document.querySelector("#score").innerHTML = engine.score;
     }

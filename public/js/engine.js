@@ -10,19 +10,20 @@ class GameEngine {
             this.ctx = ctx;
             this.score = 0;
             this.jumpCount = 0;
-            this.velocityX = ctx.canvas.width / 100;
+            this.velocityX = 5;
             this.accelerationTweening = ctx.canvas.width / 100;
             this.player = new Player({
                 x: ctx.canvas.offsetWidth / 5,
                 y: ctx.canvas.offsetHeight / 3,
                 width: Math.min(32, ctx.canvas.offsetWidth / 25),
                 height: Math.min(32, ctx.canvas.offsetWidth / 25),
-                jumpSize: this.velocityX * -2
+                jumpSize: - Math.min(32, ctx.canvas.offsetWidth / 25)
             });
-            this.platformManager = new PlatformManager(ctx, this.player.calculate_jump_distance(this.velocityX, Math.abs(this.velocityX * -2)));
+            this.platformManager = new PlatformManager(ctx, this.player.calculate_jump_distance(this.velocityX, this.player.jumpSize));
             this.particles = [];
             this.particlesIndex = -1;
-            this.particlesMax = 40;
+            this.particlesMax = Math.ceil(10 * (ctx.canvas.width / 500));
+            console.log(this.particlesMax);
             this.collidedPlatform = null;
             this.scoreColor = '#fff';
             this.jumpCountRecord = 0;
@@ -137,7 +138,7 @@ class GameEngine {
         this.maxSpikes = 0;
         this.velocityX = this.ctx.canvas.width / 100;
         this.accelerationTweening = this.ctx.canvas.width / 100;
-        this.player.restart(this.ctx, this.velocityX);
+        this.player.restart(this.ctx);
         this.platformManager.updateOnDeath(this.ctx.canvas, this.player.calculate_jump_distance(this.velocityX, Math.abs(this.player.jumpSize)));
         this.particlesIndex = -1;
         this.collidedPlatform = null;
@@ -166,14 +167,14 @@ class GameEngine {
 
     resize_entities(ctx, original_size) {
         this.ctx = ctx;
-        // it's a square canvas, so if one side changes then so does the other -> only check one side.
-        if (ctx.width !== original_size[0]) {
+        // check to see if the canvas was actually resized.
+        if (ctx.width !== original_size[0] || ctx.height != original_size[1]) {
             console.log("Resizing canvas from " + original_size + " to " + [ctx.canvas.width, ctx.canvas.width]);
             let width_ratio = ctx.canvas.width / original_size[0];
             this.velocityX *= width_ratio;
             this.accelerationTweening *= width_ratio;
 
-            this.player.resize(ctx, original_size, this.velocityX);
+            this.player.resize(ctx, original_size);
             this.platformManager.resize(ctx, original_size, this.player.calculate_jump_distance(this.velocityX, Math.abs(this.player.jumpSize)));
         } else {
             console.log("Canvas size unchanged. Not resizing..");
