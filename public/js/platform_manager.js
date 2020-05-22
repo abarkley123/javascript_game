@@ -6,7 +6,7 @@ export class PlatformManager {
     constructor(ctx, dist_between, jump_height) {
         this.maxDistanceBetween = Math.min(32, ctx.canvas.offsetWidth / 25)  + dist_between * 0.8;
         this.minDistanceBetween = 0; // don't force a jump
-        this.maxHeightDistance = jump_height;
+        this.maxHeightDistance = jump_height * 0.8;
         this.colors = ["#4169E1", "#27B810"];
 
         this.platforms = []
@@ -48,6 +48,11 @@ export class PlatformManager {
                 for (let spike of this.platforms[platform].spikes) spike.update(velocity);
             }
         }
+    }
+
+    update_platform_gaps(jump_distance, jump_height) {
+        this.maxDistanceBetween = jump_distance;
+        this.maxHeightDistance = jump_height;
     }
 
     updateOnDeath(canvas, dist_between) {
