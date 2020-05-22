@@ -18,7 +18,7 @@ export class Player extends Vector2 {
     }
 
     update() {
-        if (this.onPlatform === false) this.velocityY += this.gravity; // falling - terminal velocity
+        if (this.onPlatform === false && this.velocityY < 100) this.velocityY += this.gravity; // falling - terminal velocity
         this.setPosition(this.x + this.velocityX, this.y + this.velocityY);
     }
 
@@ -35,11 +35,10 @@ export class Player extends Vector2 {
         this.velocityX = 0;
         this.velocityY = 0;
         this.onPlatform = false;
-        // fix jump and gravity
-        this.jumpSize = -this.height;
-        this.gravity = this.jumpSize / -20;
     }
 
+    // adjust the x and y positions to maintain the player's position on screen. 
+    // adjust y velocity to maintain jump size.
     resize(ctx, original_sizes) {
         this.width = 32;
         this.height = 32;
@@ -54,10 +53,13 @@ export class Player extends Vector2 {
         } else {
             this.velocityY = 0;
         }
+    }
 
-        // fix jump and gravity
-        this.jumpSize = -Math.min(this.height, ctx.canvas.height / 25);
-        this.gravity = this.jumpSize / -20;
+    // adjust the jump height and gravity so that the player moves consistently.
+    adjust_for_fps(ctx, new_fps) {
+        const jump_height = ctx.canvas.height / 2;
+        this.jumpSize = -jump_height/ (new_fps/2);
+        this.gravity = this.jumpSize / - (new_fps/2);
     }
 
     // Functions to consider jumps - may extend to multiple jumps/flight in future //
@@ -87,5 +89,10 @@ export class Player extends Vector2 {
         // Substituting the values above into the equation for range, the jump distance can be determined.
         // As with x velocity, gravity is processed by the engine per-frame, so it must be adjusted to a per-second value.
         return ((actual_velocity * actual_velocity) * Math.sin(2 * angle))/(this.gravity * 40);
+    }
+
+    // This function models the players jump using projectile motion, where the range is given by: (velocity^2 * sin (2*angle)) / gravity
+    calculate_jump_height(vel_x, vel_y) {
+
     }
 }

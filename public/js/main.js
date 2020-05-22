@@ -24,7 +24,7 @@ var ctx, engine, runnerAnimation, then, now, fpsInterval;
 
     ctx = document.getElementById('runner_container').getContext("2d");
     setSize(); // pre-set the size of the canvas.
-    engine = new GameEngine(ctx); // create the game engine object, using the resized canvas.
+    engine = new GameEngine(ctx, 1000/fpsInterval); // create the game engine object, using the resized canvas.
     // hide the canvas to present the title screen.
     document.querySelector("#runner_container").style.display = "none";
     document.querySelector("#runner_before").style.display = "block";
@@ -53,23 +53,25 @@ window.onload = function() {
 function start_handler() {
     document.querySelector("#runner_container").style.display = "block";
     document.querySelector("#runner_before").style.display = "none";
-    startRunner();
-}
-
-function startRunner() {
-    setSize();
+    setSize(); //make sure canvas is sized properly.
     then = Date.now();
-    run();
+    run(); //start the animation loop.
 }
 
 function setSize() {
     let original_size = [ctx.canvas.width, ctx.canvas.height];
     ctx.canvas.width = window.innerWidth;
     fpsInterval = 30 - (2 * Math.floor(ctx.canvas.width / 500)); 
-    console.log(ctx.canvas.width + " " + (1000/fpsInterval));
+
     const last_element = document.querySelectorAll("#Runner h3")[1];
     ctx.canvas.height = window.innerHeight - (last_element.offsetHeight + last_element.getBoundingClientRect().bottom);
-    if (engine) engine.resize_entities(ctx, original_size);
+    if (engine) {
+        // Resize each of the entities to maintain the same scale
+        engine.resize_entities(ctx, original_size);
+        // Increase the fps for higher pixel counts to prevent ghosting.
+        // Higher pixel counts also necessitate faster CPUs and GPUs, so a higher framerate is more tolerable.
+        engine.adjust_for_fps(1000/fpsInterval);
+    }
 }
 
 function run() {

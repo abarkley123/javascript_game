@@ -21,10 +21,10 @@ export class Platform extends Vector2 {
         try {
             for (let i = 0; i < number; i++) {
                 const spike = new Spike({
-                    x: this.x + random(32, this.width - 32),
-                    y: this.y - (32),
-                    width: 32,
-                    height: 32
+                    x: this.x + random(48, this.width - 48),
+                    y: this.y - (48),
+                    width: 48,
+                    height: 48
                 });
                 this.spikes.push(spike);
             }
