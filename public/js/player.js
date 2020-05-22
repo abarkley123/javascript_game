@@ -10,7 +10,8 @@ export class Player extends Vector2 {
             this.velocityY = 0;
             this.jumpSize = options.jumpSize;
             this.color = "#fff";
-            this.jumpsLeft = 2;
+            // player starts mid-air, so only 1 extra jump should be permitted.
+            this.jumpsLeft = 1;
             this.onPlatform = false;
             Player.instance = this;
             this.gravity = this.jumpSize / -20; // 40 frames per second target
