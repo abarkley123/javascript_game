@@ -36,6 +36,10 @@ class GameEngine {
             this.restart();
         }
     }
+    // TODO - define this function to avoid the duplicated code between the constructor and the restart function
+    setup() {
+
+    }
 
     step() {
         this.update();
