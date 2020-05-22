@@ -60,7 +60,6 @@ export class PlatformManager {
             platform.y = random(canvas.offsetHeight / 1.1, canvas.offsetHeight/ 1.1 - this.maxHeightDistance);
             platform.width = random(Math.min(canvas.width, 1000), Math.min(canvas.width, 2000));
             platform.height =  random(canvas.offsetHeight/5, canvas.offsetHeight/2.5);
-            platform.spikes = [] // delete
         }
 
         this.colliding = false;

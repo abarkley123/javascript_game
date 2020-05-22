@@ -61,16 +61,16 @@ function start_handler() {
 function setSize() {
     let original_size = [ctx.canvas.width, ctx.canvas.height];
     ctx.canvas.width = window.innerWidth;
-    fpsInterval = 30 - (2 * Math.floor(ctx.canvas.width / 500)); 
+    fpsInterval = 30 - (ctx.canvas.width / 250); 
 
     const last_element = document.querySelectorAll("#Runner h3")[1];
     ctx.canvas.height = window.innerHeight - (last_element.offsetHeight + last_element.getBoundingClientRect().bottom);
     if (engine) {
-        // Resize each of the entities to maintain the same scale
-        engine.resize_entities(ctx, original_size);
         // Increase the fps for higher pixel counts to prevent ghosting.
         // Higher pixel counts also necessitate faster CPUs and GPUs, so a higher framerate is more tolerable.
         engine.adjust_for_fps(1000/fpsInterval);
+        // Resize each of the entities to maintain the same scale
+        engine.resize_entities(ctx, original_size);
     }
 }
 

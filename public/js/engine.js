@@ -25,7 +25,7 @@ class GameEngine {
             this.platformManager = new PlatformManager(ctx, jump_distance, jump_height);
             this.particles = [];
             this.particlesIndex = -1;
-            this.particlesMax = Math.ceil(10 * (ctx.canvas.width / 500));
+            this.particlesMax = 10;
             this.collidedPlatform = null;
             this.scoreColor = '#fff';
             this.jumpCountRecord = 0;
@@ -56,6 +56,7 @@ class GameEngine {
                 this.accelerationTweening *= 1.05;
                 this.platformManager.minDistanceBetween *= 1.1;
                 if (this.jumpCount % 10 === 0) this.maxSpikes++;
+                this.particlesMax = Math.min(25, this.particlesMax + 5);
             } else if (this.jumpCount % 10 !== 0) {
                 this.updated = false;
             }
@@ -64,7 +65,6 @@ class GameEngine {
             this.update_platforms();
             // accelerate
             this.velocityX += this.accelerationTweening / 2500;
-            console.log(this.velocityX * this.fpsInterval);
         }
     }
 
@@ -74,8 +74,8 @@ class GameEngine {
             if (this.player.intersects(platform)) {
 
                 intersectionCount++;
-                this.collidedPlatform = platform;
                 this.player.jumpsLeft = 2;
+                this.collidedPlatform = platform;
                 // game still playing
                 if (this.velocityX > 0) this.spawn_particles(this.player.x * 1.1, this.player.y + this.player.height * 0.975, 0, this.collidedPlatform);
 
@@ -127,6 +127,7 @@ class GameEngine {
         for (let platform of this.platformManager.platforms) {
             platform.draw(this.ctx);
             for (let spike of platform.spikes) {
+                console.log("op");
                 spike.draw(this.ctx);
             }
         }
@@ -143,6 +144,7 @@ class GameEngine {
         // reset x velocity.
         this.velocityX = 200/this.fpsInterval;
         this.particlesIndex = -1;
+        this.particlesMax = 10;
         this.collidedPlatform = null;
         this.scoreColor = '#fff';
         // Set the velocity and acceleration for this FPS.
@@ -156,20 +158,22 @@ class GameEngine {
     }
 
     spawn_particles(position_x, position_y, tolerance, collider) {
-        let particle_size = 4 + this.ctx.canvas.offsetWidth / 200;
+        let particle_size = 3 + this.ctx.canvas.offsetWidth / 200;
         for (let i = 0; i < 10; i++) {
             this.particlesIndex = this.particlesIndex === this.particlesMax ? 0 : this.particlesIndex + 1;
+            let x_velocity = -(random(particle_size/2, particle_size * 2) + random(this.velocityX, 4 * this.velocityX)/5);
             // create new particle object if it hasn't been created before
             if (this.particles.length <= this.particlesMax) {
                 this.particles[this.particlesIndex] = new Particle({
                     x: position_x,
                     y: tolerance == 0 ? position_y : random(position_y, position_y + tolerance),
                     color: collider.color,
-                    size: particle_size
+                    size: particle_size,
+                    vel_x: x_velocity
                 });
             } else {
                 // if we have already created a particle object, just change its position and velocities (don't create unnecessary objects).
-                this.particles[this.particlesIndex].set(position_x, tolerance == 0 ? position_y : random(position_y, position_y + tolerance), collider.color);
+                this.particles[this.particlesIndex].set(position_x, tolerance == 0 ? position_y : random(position_y, position_y + tolerance), collider.color, x_velocity);
             }
         }
     }
@@ -179,17 +183,9 @@ class GameEngine {
         // check to see if the canvas was actually resized.
         if (ctx.width !== original_size[0] || ctx.height != original_size[1]) {
             console.log("Resizing canvas from " + original_size + " to " + [ctx.canvas.width, ctx.canvas.height]);
-            let width_ratio = ctx.canvas.width / original_size[0];
-            this.particlesMax = Math.ceil(10 * (ctx.canvas.width / 500));
             // prevent NPE
             this.particlesIndex = -1;
-
-            // only change the velocity if the game is still playing.
-            if (this.velocityX > 0) {
-                this.velocityX *= width_ratio;
-                this.accelerationTweening *= width_ratio;
-            }
-
+            // resize player and platforms (incl spikes).
             this.player.resize(ctx, original_size);
             this.platformManager.resize(ctx, original_size, this.player.calculate_jump_distance(this.velocityX, Math.abs(this.player.jumpSize), this.fpsInterval));
         } else {
@@ -219,11 +215,9 @@ class GameEngine {
         if (this.velocityX && this.velocityX > 0) {
             // get the current velocity, expressed as pixels per second.
             const pixels_per_second = this.fpsInterval ? this.velocityX * this.fpsInterval : 200;
-
             this.fpsInterval = new_fps;
             // update the velocity to move the same number of pixels for new fps
             this.velocityX = pixels_per_second /  this.fpsInterval;
-
             // Hardcoded acceleration means that the increase is logarithmic.
             // i.e. doubles in the first 30 seconds and increases by 50% in next 30.
             this.accelerationTweening = (2500 * (200 / new_fps))/(30 * new_fps);
