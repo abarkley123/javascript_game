@@ -20,7 +20,9 @@ class GameEngine {
                 height: Math.min(32, ctx.canvas.offsetWidth / 25),
                 jumpSize: - Math.min(32, ctx.canvas.offsetWidth / 25)
             });
-            this.platformManager = new PlatformManager(ctx, this.player.calculate_jump_distance(this.velocityX, this.player.jumpSize));
+            let jump_distance = this.player.calculate_jump_distance(this.velocityX, Math.abs(this.player.jumpSize), fpsInterval);
+            let jump_height = this.player.calculate_jump_height(this.velocityX, Math.abs(this.player.jumpSize), fpsInterval);
+            this.platformManager = new PlatformManager(ctx, jump_distance, jump_height);
             this.particles = [];
             this.particlesIndex = -1;
             this.particlesMax = Math.ceil(10 * (ctx.canvas.width / 500));
@@ -53,7 +55,6 @@ class GameEngine {
                 this.updated = true;
                 this.accelerationTweening *= 1.05;
                 this.platformManager.minDistanceBetween *= 1.1;
-                this.platformManager.maxDistanceBetween = this.player.calculate_jump_distance(this.velocityX, Math.abs(this.player.jumpSize));
                 if (this.jumpCount % 10 === 0) this.maxSpikes++;
             } else if (this.jumpCount % 10 !== 0) {
                 this.updated = false;
@@ -63,6 +64,7 @@ class GameEngine {
             this.update_platforms();
             // accelerate
             this.velocityX += this.accelerationTweening / 2500;
+            console.log(this.velocityX * this.fpsInterval);
         }
     }
 
@@ -139,7 +141,7 @@ class GameEngine {
         this.jumpCount = 0;
         this.maxSpikes = 0;
         // reset x velocity.
-        this.velocityX = null;
+        this.velocityX = 200/this.fpsInterval;
         this.particlesIndex = -1;
         this.collidedPlatform = null;
         this.scoreColor = '#fff';
@@ -148,11 +150,13 @@ class GameEngine {
         // Reset the player's x, y and velocities.
         this.player.restart(this.ctx);
         // Reset all the platforms, to account for reset player jump size & gravity.
-        this.platformManager.updateOnDeath(this.ctx.canvas, this.player.calculate_jump_distance(this.velocityX, Math.abs(this.player.jumpSize)));
+        let jump_distance = this.player.calculate_jump_distance(this.velocityX, Math.abs(this.player.jumpSize), this.fpsInterval);
+        let jump_height = this.player.calculate_jump_height(this.velocityX, Math.abs(this.player.jumpSize), this.fpsInterval);
+        this.platformManager.updateOnDeath(this.ctx.canvas, jump_distance, jump_height);
     }
 
     spawn_particles(position_x, position_y, tolerance, collider) {
-        let particle_size = Math.min(32, this.ctx.canvas.offsetWidth / 25)/6;
+        let particle_size = 4 + this.ctx.canvas.offsetWidth / 200;
         for (let i = 0; i < 10; i++) {
             this.particlesIndex = this.particlesIndex === this.particlesMax ? 0 : this.particlesIndex + 1;
             // create new particle object if it hasn't been created before
@@ -176,6 +180,9 @@ class GameEngine {
         if (ctx.width !== original_size[0] || ctx.height != original_size[1]) {
             console.log("Resizing canvas from " + original_size + " to " + [ctx.canvas.width, ctx.canvas.height]);
             let width_ratio = ctx.canvas.width / original_size[0];
+            this.particlesMax = Math.ceil(10 * (ctx.canvas.width / 500));
+            // prevent NPE
+            this.particlesIndex = -1;
 
             // only change the velocity if the game is still playing.
             if (this.velocityX > 0) {
@@ -184,7 +191,7 @@ class GameEngine {
             }
 
             this.player.resize(ctx, original_size);
-            this.platformManager.resize(ctx, original_size, this.player.calculate_jump_distance(this.velocityX, Math.abs(this.player.jumpSize)));
+            this.platformManager.resize(ctx, original_size, this.player.calculate_jump_distance(this.velocityX, Math.abs(this.player.jumpSize), this.fpsInterval));
         } else {
             console.log("Canvas size unchanged. Not resizing..");
         }

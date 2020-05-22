@@ -3,9 +3,10 @@ import {random, randomChoice} from "./util.js";
 
 export class PlatformManager {
 
-    constructor(ctx, dist_between) {
+    constructor(ctx, dist_between, jump_height) {
         this.maxDistanceBetween = Math.min(32, ctx.canvas.offsetWidth / 25)  + dist_between * 0.8;
         this.minDistanceBetween = 0; // don't force a jump
+        this.maxHeightDistance = jump_height;
         this.colors = ["#4169E1", "#27B810"];
 
         this.platforms = []
@@ -14,7 +15,7 @@ export class PlatformManager {
             let last = this.platforms[this.platforms.length - 1];
             this.platforms[this.platforms.length] = new Platform({
                 x: this.platforms.length > 0 ? last.x + last.width + random(this.minDistanceBetween, this.maxDistanceBetween) : ctx.canvas.offsetWidth / 5,
-                y: random(ctx.canvas.offsetHeight / 2, ctx.canvas.offsetHeight/ 1.1),
+                y: random(ctx.canvas.offsetHeight / 1.1, ctx.canvas.offsetHeight/ 1.1 - this.maxHeightDistance),
                 width: random(Math.min(ctx.canvas.width, 1000), Math.min(ctx.canvas.width, 2000)),
                 height: random(ctx.canvas.offsetHeight/5, ctx.canvas.offsetHeight/2.5),
                 color: randomChoice(this.colors)
@@ -33,7 +34,7 @@ export class PlatformManager {
 
                 this.platforms[platform].width = random(Math.min(canvas.width, 1000), Math.min(canvas.width, 2000));
                 this.platforms[platform].x = (endPlatform.x + endPlatform.width) + random(this.minDistanceBetween, this.maxDistanceBetween);
-                this.platforms[platform].y =  random(canvas.offsetHeight / 2, canvas.offsetHeight/ 1.1);
+                this.platforms[platform].y =  random(canvas.offsetHeight / 1.1, canvas.offsetHeight/ 1.1 - this.maxHeightDistance);
                 this.platforms[platform].height = canvas.offsetHeight - this.platforms[platform].y;
 
                 // create new spikes if at that stage.
@@ -56,7 +57,7 @@ export class PlatformManager {
         for (let platform of this.platforms) {
             platform.spikes = [];
             platform.x = ++counter > 0 ? this.platforms[counter - 1].x + this.platforms[counter - 1].width + random(this.minDistanceBetween, this.maxDistanceBetween) : canvas.offsetWidth / 5;
-            platform.y = random(canvas.offsetHeight / 2, canvas.offsetHeight/ 1.1);
+            platform.y = random(canvas.offsetHeight / 1.1, canvas.offsetHeight/ 1.1 - this.maxHeightDistance);
             platform.width = random(Math.min(canvas.width, 1000), Math.min(canvas.width, 2000));
             platform.height =  random(canvas.offsetHeight/5, canvas.offsetHeight/2.5);
             platform.spikes = [] // delete

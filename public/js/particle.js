@@ -20,7 +20,7 @@ export class Particle {
         ctx.fillRect(this.x * 0.9, this.y, this.size, this.size);
     }
 
-    set(x, y, color, velocityX = -random(this.originalSize/2, this.originalSize * 4), velocityY =  -random(this.originalSize/2, this.originalSize * 4)) {
+    set(x, y, color, velocityX = -random(this.originalSize/2, this.originalSize * 4), velocityY =  -2 - random(this.originalSize/2, this.originalSize * 4)) {
         this.x = x;
         this.y = y;
         this.color = color;

@@ -74,11 +74,11 @@ export class Player extends Vector2 {
     }
 
     // This function models the players jump using projectile motion, where the range is given by: (velocity^2 * sin (2*angle)) / gravity
-    calculate_jump_distance(vel_x, vel_y) {
+    calculate_jump_distance(vel_x, vel_y, fps) {
         vel_y = Math.abs(vel_y);
         // The x velocity used by the engine is processed each frame, however the equation 
         // requires a per-second estimate. The frame target is 40 fps, so this should be reasonable.
-        const adjusted_vel_x = 40 * vel_x
+        const adjusted_vel_x = fps * vel_x
         // Using Pythagoras' theorem, the jump angle can be determined. tan(angle) = opposite / adjacent. 
         // So, plugging in the values for the y component of velocity and x component of velocity.
         // Therefore, the actual angle (in radians) is the arctan (or inverse tan) of this value.
@@ -91,8 +91,21 @@ export class Player extends Vector2 {
         return ((actual_velocity * actual_velocity) * Math.sin(2 * angle))/(this.gravity * 40);
     }
 
-    // This function models the players jump using projectile motion, where the range is given by: (velocity^2 * sin (2*angle)) / gravity
-    calculate_jump_height(vel_x, vel_y) {
-
+    // This function models the players jump using projectile motion, where the height is given by: h2 = (u^2 * sin^2(angle))/2*gravity
+    calculate_jump_height(vel_x, vel_y, fps) {
+        vel_y = Math.abs(vel_y);
+        // The x velocity used by the engine is processed each frame, however the equation requires a per-second estimate.
+        const adjusted_vel_x = fps * vel_x;
+        const adjusted_vel_y = fps * vel_y;
+        // Using Pythagoras' theorem, the jump angle can be determined. tan(angle) = opposite / adjacent. 
+        // So, plugging in the values for the y component of velocity and x component of velocity.
+        // Therefore, the actual angle (in radians) is the arctan (or inverse tan) of this value.
+        const angle = Math.atan(vel_y / adjusted_vel_x)
+        // Again, using Pythagoras' theorem the composite velocity can be determined. This uses the
+        // Equations for a right-angled triangle i.e. c^2 = a^2 + b^2 (where a = x velocity and b = y velocity).
+        const actual_velocity = Math.sqrt((adjusted_vel_x * adjusted_vel_x) + ((adjusted_vel_y) * (adjusted_vel_y)));
+        // Substituting the values above into the equation for range, the maximum height can be determined.
+        // As with x velocity, gravity is processed by the engine per-frame, so it must be adjusted to a per-second value.
+        return Math.pow(actual_velocity, 2) * Math.pow(Math.sin(angle), 2) / (80 * this.gravity);
     }
 }
