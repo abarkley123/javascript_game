@@ -53,6 +53,7 @@ window.onload = function() {
 function start_handler() {
     document.querySelector("#runner_container").style.display = "block";
     document.querySelector("#runner_before").style.display = "none";
+    toggleFullScreen();
     setSize(); //make sure canvas is sized properly.
     then = Date.now();
     run(); //start the animation loop.
@@ -88,4 +89,20 @@ function run() {
 function restart_handler() {
     document.querySelector("#runner_after").style.display = "none";
     engine.restart();
+}
+
+// fullscreen
+function toggleFullScreen() {
+    var doc = window.document;
+    var docEl = doc.documentElement;
+  
+    var requestFullScreen = docEl.requestFullscreen || docEl.mozRequestFullScreen || docEl.webkitRequestFullScreen || docEl.msRequestFullscreen;
+    var cancelFullScreen = doc.exitFullscreen || doc.mozCancelFullScreen || doc.webkitExitFullscreen || doc.msExitFullscreen;
+  
+    if(!doc.fullscreenElement && !doc.mozFullScreenElement && !doc.webkitFullscreenElement && !doc.msFullscreenElement) {
+      requestFullScreen.call(docEl);
+    }
+    else {
+      cancelFullScreen.call(doc);
+    }
 }
