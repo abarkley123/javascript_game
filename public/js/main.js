@@ -48,12 +48,17 @@ window.onload = function() {
     } else {
         window.onresize = setSize();
     }
+
+    document.addEventListener('fullscreenchange', toggleFullScreen, false);
+    document.addEventListener('mozfullscreenchange', toggleFullScreen, false);
+    document.addEventListener('MSFullscreenChange', toggleFullScreen, false);
+    document.addEventListener('webkitfullscreenchange', toggleFullScreen, false);
 }
 
 function start_handler() {
+    toggleFullScreen(true);
     document.querySelector("#runner_container").style.display = "block";
     document.querySelector("#runner_before").style.display = "none";
-    toggleFullScreen();
     setSize(); //make sure canvas is sized properly.
     then = Date.now();
     run(); //start the animation loop.
@@ -88,21 +93,21 @@ function run() {
 
 function restart_handler() {
     document.querySelector("#runner_after").style.display = "none";
+    toggleFullScreen(true);
+    setSize();
     engine.restart();
 }
 
 // fullscreen
-function toggleFullScreen() {
+function toggleFullScreen(restart = false) {
     var doc = window.document;
     var docEl = doc.documentElement;
   
     var requestFullScreen = docEl.requestFullscreen || docEl.mozRequestFullScreen || docEl.webkitRequestFullScreen || docEl.msRequestFullscreen;
     var cancelFullScreen = doc.exitFullscreen || doc.mozCancelFullScreen || doc.webkitExitFullscreen || doc.msExitFullscreen;
-  
-    if(!doc.fullscreenElement && !doc.mozFullScreenElement && !doc.webkitFullscreenElement && !doc.msFullscreenElement) {
-      requestFullScreen.call(docEl);
-    }
-    else {
+    if (restart == true && !doc.fullscreenElement && !doc.mozFullScreenElement && !doc.webkitFullscreenElement && !doc.msFullscreenElement) {
+      requestFullScreen.call(docEl)
+    } else if (restart === false) {
       cancelFullScreen.call(doc);
     }
 }
