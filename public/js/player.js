@@ -14,7 +14,7 @@ export class Player extends Vector2 {
             this.jumpsLeft = 1;
             this.onPlatform = false;
             Player.instance = this;
-            this.gravity = this.jumpSize / -20; // 40 frames per second target
+            this.gravity = this.jumpSize / -20; // placeholder
         }
     }
 
@@ -59,8 +59,10 @@ export class Player extends Vector2 {
     // adjust the jump height and gravity so that the player moves consistently.
     adjust_for_fps(ctx, new_fps) {
         const jump_height = ctx.canvas.height / 2;
-        this.jumpSize = -jump_height/ (new_fps/2);
-        this.gravity = this.jumpSize / - (new_fps/2);
+        // the constants here adjust for large width - height ratios.
+        this.jumpSize = -(5 + jump_height/ (new_fps/2));
+        this.gravity = 0.25 + this.jumpSize / - (new_fps/2);
+
     }
 
     // Functions to consider jumps - may extend to multiple jumps/flight in future //
