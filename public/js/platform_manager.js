@@ -55,16 +55,18 @@ export class PlatformManager {
         this.maxHeightDistance = jump_height;
     }
 
-    updateOnDeath(canvas, dist_between) {
+    updateOnDeath(canvas, dist_between, jump_height) {
         let counter = -1;
         this.maxDistanceBetween = Math.min(32, canvas.offsetWidth / 25)  + dist_between * 0.8;
         this.minDistanceBetween = 0;
+        this.maxHeightDistance = jump_height * 0.8;
+
         for (let platform of this.platforms) {
             platform.spikes = [];
             platform.x = ++counter > 0 ? this.platforms[counter - 1].x + this.platforms[counter - 1].width + random(this.minDistanceBetween, this.maxDistanceBetween) : canvas.offsetWidth / 5;
             platform.y = random(canvas.offsetHeight / 1.1, canvas.offsetHeight/ 1.1 - this.maxHeightDistance);
             platform.width = random(Math.min(canvas.width, 1000), Math.min(canvas.width, 2000));
-            platform.height =  random(canvas.offsetHeight/5, canvas.offsetHeight/2.5);
+            platform.height = canvas.offsetHeight - platform.y;
         }
 
         this.colliding = false;
