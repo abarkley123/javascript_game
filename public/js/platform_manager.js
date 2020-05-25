@@ -39,6 +39,7 @@ export class PlatformManager {
 
                 // create new spikes if at that stage.
                 if (maxSpikes >= 1) {
+                    this.platforms[platform].spikes = [];
                     this.platforms[platform].createSpikes(canvas,random(0, maxSpikes));
                 }
             }

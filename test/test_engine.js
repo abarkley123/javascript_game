@@ -12,24 +12,25 @@ describe('Engine', function() {
   describe('constructor()', function() {
     afterEach(() => reset_instances());
     it('should successfully initialise the game engine.', function() {
-        let engine = new GameEngine(new TestContext(100, 99));
+        let fps = 40;
+        let engine = new GameEngine(new TestContext(100, 99), fps);
         assert.strictEqual(engine.score, 0);
         assert.strictEqual(engine.jumpCount, 0);
-        assert.strictEqual(engine.velocityX, 1);
-        assert.strictEqual(engine.accelerationTweening, 1);
+        assert.strictEqual(engine.velocityX, 5);
+        assert.strictEqual(engine.accelerationTweening, (2500 * (200 / fps))/(20 * fps));
         assert.strictEqual(engine.player.x, 20);
         assert.strictEqual(engine.player.y, 33);
         assert.strictEqual(engine.player.width, 4);
         assert.strictEqual(engine.player.height, 4);
-        assert.strictEqual(engine.player.jumpSize, -2);
+        assert.strictEqual(engine.player.jumpSize, - Math.min(32, engine.ctx.canvas.offsetWidth / 25));
         assert.strictEqual(engine.player.onPlatform, false);
-        assert.strictEqual(Math.floor(engine.platformManager.maxDistanceBetween), 36);
-        assert.strictEqual(Math.floor(engine.platformManager.minDistanceBetween), 5);
+        assert.strictEqual(Math.floor(engine.platformManager.maxDistanceBetween), 164);
+        assert.strictEqual(Math.floor(engine.platformManager.minDistanceBetween), 0);
         assert.strictEqual(engine.platformManager.platforms.length, 3);
         assert.strictEqual(engine.platformManager.colliding, false);
         assert.strictEqual(engine.particles.length, 0);
         assert.strictEqual(engine.particlesIndex, -1);
-        assert.strictEqual(engine.particlesMax, 40);
+        assert.strictEqual(engine.particlesMax, 10);
         assert.strictEqual(engine.collidedPlatform, null);
         assert.strictEqual(engine.scoreColor, "#fff");
         assert.strictEqual(engine.jumpCountRecord, 0);
@@ -51,7 +52,8 @@ describe('Engine', function() {
   describe('restart()', function() {
     after(() => reset_instances());
     it('should successfully restart the game engine.', function() {
-        let engine = new GameEngine(new TestContext(100, 99));
+        let fps = 40;
+        let engine = new GameEngine(new TestContext(100, 99), fps);
         engine.score = 10;
         engine.jumpCount = 10;
         engine.maxSpikes = 10;
@@ -65,20 +67,22 @@ describe('Engine', function() {
         // assert everything is the same as initial state.
         assert.strictEqual(engine.score, 0);
         assert.strictEqual(engine.jumpCount, 0);
-        assert.strictEqual(engine.velocityX, 1);
-        assert.strictEqual(engine.accelerationTweening, 1);
+        assert.strictEqual(engine.velocityX, 5);
+        assert.strictEqual(engine.accelerationTweening, (2500 * (200 / fps))/(20 * fps));
         assert.strictEqual(engine.player.x, 20);
         assert.strictEqual(engine.player.y, 33);
         assert.strictEqual(engine.player.width, 4);
         assert.strictEqual(engine.player.height, 4);
-        assert.strictEqual(engine.player.jumpSize, -2);
-        assert.strictEqual(Math.floor(engine.platformManager.maxDistanceBetween), 36);
-        assert.strictEqual(Math.floor(engine.platformManager.minDistanceBetween), 5);
+        assert.strictEqual(engine.player.jumpSize, -(5 + (engine.ctx.canvas.height / 2) / (fps/2)));
+        let jump_distance = engine.player.calculate_jump_distance(engine.velocityX, Math.abs(engine.player.jumpSize), engine.fpsInterval);
+        let min_dist = Math.floor(Math.min(32, engine.ctx.canvas.offsetWidth / 25)  + jump_distance * 0.8);
+        assert.strictEqual(Math.floor(engine.platformManager.maxDistanceBetween), min_dist);
+        assert.strictEqual(Math.floor(engine.platformManager.minDistanceBetween), 0);
         assert.strictEqual(engine.platformManager.platforms.length, 3);
         assert.strictEqual(engine.platformManager.colliding, false);
         assert.strictEqual(engine.particles.length, 0);
         assert.strictEqual(engine.particlesIndex, -1);
-        assert.strictEqual(engine.particlesMax, 40);
+        assert.strictEqual(engine.particlesMax, 10);
         assert.strictEqual(engine.collidedPlatform, null);
         assert.strictEqual(engine.scoreColor, "#fff");
         assert.strictEqual(engine.jumpCountRecord, 0);
@@ -91,8 +95,10 @@ describe('Engine', function() {
   describe('update()', function() {
     afterEach(() => reset_instances());
     it('should successfully update player, platforms and particles.', function() {
-        let engine = new GameEngine(new TestContext(100, 99));
+      let fps = 40;
+      let engine = new GameEngine(new TestContext(100, 99), fps);
         engine.jumpCount = 1;
+        engine.velocityX = 1;
         engine.player.velocityY = 1;
         // create one platform for testing
         engine.platformManager.platforms = [];
@@ -129,7 +135,8 @@ describe('Engine', function() {
     });
 
     it('should create new platform and spikes when out of bounds.', function() {
-      let engine = new GameEngine(new TestContext(100, 99));
+      let fps = 40;
+      let engine = new GameEngine(new TestContext(100, 99), fps);
       engine.maxSpikes = 100; // make sure a spike is created (random between 0-MAX).
       // create one platform for testing
       engine.platformManager.platforms = [];
@@ -146,14 +153,13 @@ describe('Engine', function() {
       // check the platforms moved
       assert.notStrictEqual(engine.platformManager.platforms[0].x, -11);
       assert.notStrictEqual(engine.platformManager.platforms[0].y, 100);
-      assert.notStrictEqual(engine.platformManager.platforms[0].width, 10);
-      assert.notStrictEqual(engine.platformManager.platforms[0].height, 10);
       assert.strictEqual(engine.platformManager.platforms[0].spikes[0].color, "#880E4F");
       assert.strictEqual(engine.platformManager.platforms[0].spikes[0].color, "#880E4F");
-      assert.ok(engine.platformManager.platforms[0].spikes[0].x > 0);
-      assert.strictEqual(engine.platformManager.platforms[0].spikes[0].y, engine.platformManager.platforms[0].y - 27);
-      assert.strictEqual(engine.platformManager.platforms[0].spikes[0].width, 27);
-      assert.strictEqual(engine.platformManager.platforms[0].spikes[0].height, 27);
+      assert.ok(engine.platformManager.platforms[0].spikes[0].x >= 48);
+      assert.ok(engine.platformManager.platforms[0].spikes[0].x <= engine.platformManager.platforms[0].x + engine.platformManager.platforms[0].width - 48);
+      assert.strictEqual(engine.platformManager.platforms[0].spikes[0].y, engine.platformManager.platforms[0].y - 48);
+      assert.strictEqual(engine.platformManager.platforms[0].spikes[0].width, 48);
+      assert.strictEqual(engine.platformManager.platforms[0].spikes[0].height, 48);
 
       let original_spike_x = engine.platformManager.platforms[0].spikes[0].x;
       // check that the spike moves
@@ -162,29 +168,34 @@ describe('Engine', function() {
   });
 
     it('should increase difficulty based on jump count.', function() {
-        let engine = new GameEngine(new TestContext(100, 99));
+      let fps = 40;
+      let engine = new GameEngine(new TestContext(100, 99), fps);
         engine.jumpCount = 20;
+        let original_distance = engine.platformManager.maxDistanceBetween;
         engine.update();
         // check that acceleration was updated when jump count % 10 === 0
         assert.strictEqual(engine.updated, true);
-        assert.strictEqual(engine.accelerationTweening, 1.1);
-        let max_dist = Math.floor(engine.player.calculate_jump_distance(engine.velocityX, Math.abs(engine.player.jumpSize)));
-        assert.strictEqual(Math.floor(engine.platformManager.maxDistanceBetween), max_dist);
-        assert.strictEqual(engine.platformManager.minDistanceBetween, 5 * 1.25);
+        assert.ok(engine.accelerationTweening > (2500 * (200 / fps))/(20 * fps));
+        assert.ok(engine.platformManager.maxDistanceBetween > original_distance);
+        assert.ok(engine.platformManager.minDistanceBetween > 0);
         assert.strictEqual(engine.maxSpikes, 1);
+        assert.strictEqual(engine.particlesMax, 15);
     });
 
     it('should increase velocity using acceleration tweening.', function() {
-        let engine = new GameEngine(new TestContext(100, 99));
+      let fps = 40;
+      let engine = new GameEngine(new TestContext(100, 99), fps);
+      // increments by tween/2500 per frame.
         engine.accelerationTweening = 2500;
 
         engine.update();
         // check that acceleration tweening was used to update velocityX
-        assert.strictEqual(engine.velocityX, 2);
+        assert.ok(engine.velocityX, 6);
     });
 
     it('should not update when game stopped.', function() {
-        let engine = new GameEngine(new TestContext(100, 99));
+        let fps = 40;
+        let engine = new GameEngine(new TestContext(100, 99), fps);
         engine.velocityX = 0;
         engine.player.velocityY = 1;
         // create one platform for testing
@@ -220,7 +231,7 @@ describe('Engine', function() {
     });
 
     it('should end game when player goes out of bounds.', function() {
-        let engine = new GameEngine(new TestContext(100, 99));
+        let engine = new GameEngine(new TestContext(100, 99), 40);
         engine.player.y = 100;
         // create mock div
         var div = document.createElement('div');
