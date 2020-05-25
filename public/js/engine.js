@@ -5,24 +5,27 @@ import {random, randomChoice} from "./util.js";
 
 class GameEngine {
 
-    constructor(ctx) {
+    constructor(ctx, fpsInterval) {
         if (!GameEngine.instance) {
             this.ctx = ctx;
+            this.velocityX = 200/fpsInterval;
+            this.adjust_for_fps(fpsInterval);
+
             this.score = 0;
             this.jumpCount = 0;
-            this.velocityX = ctx.canvas.width / 100;
-            this.accelerationTweening = ctx.canvas.width / 100;
             this.player = new Player({
                 x: ctx.canvas.offsetWidth / 5,
                 y: ctx.canvas.offsetHeight / 3,
                 width: Math.min(32, ctx.canvas.offsetWidth / 25),
                 height: Math.min(32, ctx.canvas.offsetWidth / 25),
-                jumpSize: this.velocityX * -2
+                jumpSize: - Math.min(32, ctx.canvas.offsetWidth / 25)
             });
-            this.platformManager = new PlatformManager(ctx, this.player.calculate_jump_distance(this.velocityX, Math.abs(this.velocityX * -2)));
+            let jump_distance = this.player.calculate_jump_distance(this.velocityX, Math.abs(this.player.jumpSize), fpsInterval);
+            let jump_height = this.player.calculate_jump_height(this.velocityX, Math.abs(this.player.jumpSize), fpsInterval);
+            this.platformManager = new PlatformManager(ctx, jump_distance, jump_height);
             this.particles = [];
-            this.particlesIndex = 0;
-            this.particlesMax = 15;
+            this.particlesIndex = -1;
+            this.particlesMax = 10;
             this.collidedPlatform = null;
             this.scoreColor = '#fff';
             this.jumpCountRecord = 0;
@@ -33,6 +36,10 @@ class GameEngine {
             this.restart();
         }
     }
+    // TODO - define this function to avoid the duplicated code between the constructor and the restart function
+    setup() {
+
+    }
 
     step() {
         this.update();
@@ -40,29 +47,32 @@ class GameEngine {
     }
 
     update() {
+        // always update the player & particles, so death animation can trigger.
         this.player.update();
-
+        for (let particle of this.particles) particle.update();
         // game still playing.
         if (this.velocityX > 0) {
+
             this.score += Math.floor((1000/40) * (1 + (this.jumpCount > 0 ? this.jumpCount / 100 : 0)));
-        }
 
-        if (this.updated === false && this.jumpCount % 10 === 0 && this.jumpCount > 0) {
-            this.updated = true;
-            this.accelerationTweening *= 1.1;
-            this.platformManager.minDistanceBetween *= 1.25;
-            this.platformManager.maxDistanceBetween = this.player.calculate_jump_distance(this.velocityX, Math.abs(this.player.jumpSize));
-            if (this.jumpCount % 20 === 0) this.maxSpikes++;
-        } else if (this.jumpCount % 10 !== 0) {
-            this.updated = false;
-        }
+            if (this.updated === false && this.jumpCount % 10 === 0 && this.jumpCount > 0 && this.jumpCount < 40) {
+                this.updated = true;
+                this.accelerationTweening *= 1.05;
+                this.platformManager.minDistanceBetween += this.platformManager.maxDistanceBetween/16;
+                if (this.jumpCount % 20 === 0) this.maxSpikes++;
+                this.particlesMax = Math.min(25, this.particlesMax + 5);
+                // update jump height and distance
+                let jump_distance = this.player.calculate_jump_distance(this.velocityX, Math.abs(this.player.jumpSize), this.fpsInterval);
+                let jump_height = this.player.calculate_jump_height(this.velocityX, Math.abs(this.player.jumpSize), this.fpsInterval);
+                this.platformManager.update_platform_gaps(jump_distance, jump_height);
+            } else if (this.jumpCount % 10 !== 0) {
+                this.updated = false;
+            }
 
-        this.velocityX += this.accelerationTweening / 2500;
-        // update all the platforms (and spikes)
-        this.update_platforms();
-        // update all the particles.
-        for (let particle of this.particles) {
-            particle.update();
+            // update all the platforms (and spikes)
+            this.update_platforms();
+            // accelerate, but only up to a point
+            if (this.jumpCount < 40) this.velocityX += this.accelerationTweening / 2500;
         }
     }
 
@@ -72,8 +82,8 @@ class GameEngine {
             if (this.player.intersects(platform)) {
 
                 intersectionCount++;
-                this.collidedPlatform = platform;
                 this.player.jumpsLeft = 2;
+                this.collidedPlatform = platform;
                 // game still playing
                 if (this.velocityX > 0) this.spawn_particles(this.player.x * 1.1, this.player.y + this.player.height * 0.975, 0, this.collidedPlatform);
 
@@ -104,13 +114,12 @@ class GameEngine {
     }
 
     handle_collision(obj) {
-        console.log(this.player.x + " " + this.player.y + " " + this.player.velocityY + " " + obj.x + " " + obj.y);
         // stop the screen moving, trigger restart screen
         this.velocityX = 0;
         this.accelerationTweening = 0;
         // reset the player variables.
-        this.player.velocityX = 0; 
         this.player.x = obj.x - 48;
+        this.player.onPlatform = false;
         this.player.velocityY = this.player.jumpSize/2;
         this.spawn_particles(this.player.x, this.player.y, this.player.height, obj);
         // make the restart screen visible.
@@ -118,6 +127,9 @@ class GameEngine {
     }
 
     draw() {
+        // prevent ghosting
+        this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
+        // draw the player
         this.player.draw(this.ctx);
 
         for (let platform of this.platformManager.platforms) {
@@ -136,65 +148,92 @@ class GameEngine {
         this.score = 0;
         this.jumpCount = 0;
         this.maxSpikes = 0;
-        this.velocityX = this.ctx.canvas.width / 100;
-        this.accelerationTweening = this.ctx.canvas.width / 100;
-        this.player.restart(this.ctx, this.velocityX);
-        this.platformManager.updateOnDeath(this.ctx.canvas, this.player.calculate_jump_distance(this.velocityX, Math.abs(this.player.jumpSize)));
-        this.particles = [];
-        this.particlesIndex = 0;
-        this.particlesMax = 15;
+        // reset x velocity.
+        this.velocityX = 200/this.fpsInterval;
+        this.particlesIndex = -1;
+        this.particlesMax = 10;
         this.collidedPlatform = null;
         this.scoreColor = '#fff';
+        // Set the velocity and acceleration for this FPS.
+        this.adjust_for_fps(this.fpsInterval);
+        // Reset the player's x, y and velocities.
+        this.player.restart(this.ctx);
+        // Reset all the platforms, to account for reset player jump size & gravity.
+        let jump_distance = this.player.calculate_jump_distance(this.velocityX, Math.abs(this.player.jumpSize), this.fpsInterval);
+        let jump_height = this.player.calculate_jump_height(this.velocityX, Math.abs(this.player.jumpSize), this.fpsInterval);
+        this.platformManager.updateOnDeath(this.ctx.canvas, jump_distance, jump_height);
     }
 
     spawn_particles(position_x, position_y, tolerance, collider) {
-        for (let i = 0; i < 10; i++) {
-            this.particles[(this.particlesIndex++) % this.particlesMax] = new Particle({
-                x: position_x,
-                y: tolerance == 0 ? position_y : random(position_y, position_y + tolerance),
-                velocityY: random(-30, 30),
-                color: collider.color,
-                engineVelocity: this.velocityX,
-                size: Math.min(32, this.ctx.canvas.offsetWidth / 25)/10
-            });
+        let particle_size = 3 + this.ctx.canvas.offsetWidth / 200;
+        for (let i = 0; i < 5; i++) {
+            this.particlesIndex = this.particlesIndex === this.particlesMax ? 0 : this.particlesIndex + 1;
+            let x_velocity = -(random(particle_size/2, particle_size * 2) + random(this.velocityX, 4 * this.velocityX)/5);
+            // create new particle object if it hasn't been created before
+            if (this.particles.length <= this.particlesMax) {
+                this.particles[this.particlesIndex] = new Particle({
+                    x: position_x - 6,
+                    y: tolerance == 0 ? position_y : random(position_y, position_y + tolerance),
+                    color: collider.color,
+                    size: particle_size,
+                    vel_x: x_velocity
+                });
+            } else {
+                // if we have already created a particle object, just change its position and velocities (don't create unnecessary objects).
+                this.particles[this.particlesIndex].set(position_x - 6, tolerance == 0 ? position_y : random(position_y, position_y + tolerance), collider.color, x_velocity);
+            }
         }
     }
 
     resize_entities(ctx, original_size) {
         this.ctx = ctx;
-        // it's a square canvas, so if one side changes then so does the other -> only check one side.
-        if (ctx.width !== original_size[0]) {
-            console.log("Resizing canvas from " + original_size + " to " + [ctx.canvas.width, ctx.canvas.width]);
-            console.log(this.player.x + " " + this.player.y + " " + this.player.velocityY);
-            let width_ratio = ctx.canvas.width / original_size[0];
-            this.velocityX *= width_ratio;
-            this.accelerationTweening *= width_ratio;
-
-            this.player.resize(ctx, original_size, this.velocityX);
-            this.platformManager.resize(ctx, original_size, this.player.calculate_jump_distance(this.velocityX, Math.abs(this.player.jumpSize)));
+        // check to see if the canvas was actually resized.
+        if (ctx.width !== original_size[0] || ctx.height != original_size[1]) {
+            console.log("Resizing canvas from " + original_size + " to " + [ctx.canvas.width, ctx.canvas.height]);
+            // prevent NPE
+            this.particlesIndex = -1;
+            // resize player and platforms (incl spikes).
+            this.player.resize(ctx, original_size);
+            this.platformManager.resize(ctx, original_size, this.player.calculate_jump_distance(this.velocityX, Math.abs(this.player.jumpSize), this.fpsInterval));
+            // now update the gaps (vertically and horizontally) between platforms.
+            let jump_distance = this.player.calculate_jump_distance(this.velocityX, Math.abs(this.player.jumpSize), this.fpsInterval);
+            let jump_height = this.player.calculate_jump_height(this.velocityX, Math.abs(this.player.jumpSize), this.fpsInterval);
+            this.platformManager.update_platform_gaps(jump_distance, jump_height);
         } else {
             console.log("Canvas size unchanged. Not resizing..");
         }
     }
 
-    // make sure the player can jump, then adjust velocity.
     do_jump() {
         try {
-            if (this.velocityX > 0 && this.player.jumpsLeft > 0) {
-                this.player.velocityY = this.player.jumpSize;
+            // if the game is running and the player is elligible to jump, process it.
+            if (this.velocityX > 0 && this.player.canJump()) {
+                this.player.doJump();
                 // now update the score
-                this.jumpCount++;
-                if (this.jumpCount > this.jumpCountRecord) {
+                if (++this.jumpCount > this.jumpCountRecord) {
                     this.jumpCountRecord = this.jumpCount;
                     let multiplerText = Math.floor((this.jumpCountRecord + 100) / 100) + '.';
                     document.querySelector("#runner_multiplier").innerHTML = (this.jumpCountRecord < 10 ? multiplerText + "0" :  multiplerText) + this.jumpCountRecord;
                 }
-                
-                this.player.jumpsLeft--;
-                this.player.onPlatform = false;
             }
         } catch (UninitialisedException) {
             console.log("Exception encountered when attempting to process a jump: \n" + UninitialisedException);
+        }
+    }
+
+    // Adjust the velocities based on the fps
+    adjust_for_fps(new_fps) {
+        if (this.velocityX && this.velocityX > 0) {
+            // get the current velocity, expressed as pixels per second.
+            const pixels_per_second = this.fpsInterval ? this.velocityX * this.fpsInterval : 200;
+            this.fpsInterval = new_fps;
+            // update the velocity to move the same number of pixels for new fps
+            this.velocityX = pixels_per_second /  this.fpsInterval;
+            // Hardcoded acceleration means that the increase is logarithmic.
+            // i.e. doubles in the first 30 seconds and increases by 50% in next 30.
+            this.accelerationTweening = (2500 * (200 / new_fps))/(20 * new_fps);
+            // Adjust player jump height and gravity to maintain proportions.
+            if (this.player) this.player.adjust_for_fps(this.ctx, new_fps);
         }
     }
 }

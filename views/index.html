@@ -16,12 +16,13 @@
 </head>
 <body>
 	<div id="Runner" class="tabcontent">
-        <h3 style="color:#fff">
-            <span style="margin: 1%;">Score</span>
-            <span style="margin: 1%;"><strong id="score" style="text-align: center; color: #880E3F">0</strong></span>
-        </h3>
-        <h3 style="color:#fff">Base Multiplier <strong id="runner_multiplier" style="text-align: center; color: #880E3F">1.0</strong>x</h3>
-        
+        <div id="score_div">
+            <h3 style="color:#fff; float: left;">
+                <span style="margin: 1%;">Score</span>
+                <span style="margin: 1%;"><strong id="score" style="text-align: center; color: #880E3F">0</strong></span>
+            </h3>
+            <h3 style="color:#fff; float: right;">Multiplier <strong id="runner_multiplier" style="text-align: center; color: #880E3F">1.0</strong>x</h3>
+        </div>
         <canvas id="runner_container">
         </canvas>
         <div class="runner_overlay" id="runner_before">

@@ -7,7 +7,7 @@ html, body {
     text-align: center; 
     height:100vh; 
     width:100vw; 
-    position: relative
+    position: relative;
 }
 
 #Runner canvas {
@@ -21,12 +21,36 @@ html, body {
     transform: translate(-50%, -50%);
 }
 
+#Runner div, h3 {
+    font-size: 2.75rem;
+}
+
+/* Div that houses the score and base multiplier. */
+
+#score_div {
+    width: 100%;
+    display:inline-block;
+}
+
+#score_div h3 {
+    color: #fff;
+    width: 50%;
+    margin: 0;
+}
+
+/* Div that houses the start and restart screen. */
 .runner_overlay {
     width: 100%; 
-    border: 1em solid #000; 
     background: #000; 
-    position: relative;
     z-index: 1;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.runner_overlay h2, h4 {
+    margin: 0.1em;
 }
 
 .main_button {
@@ -37,7 +61,7 @@ html, body {
     text-align: center;
     text-decoration: none;
     display: inline-block;
-    font-size: 1em;
+    font-size: 2rem;
     border-radius: 2px;
 }
 
@@ -45,4 +69,38 @@ html, body {
     border: 1px solid #880E3F;
     border-radius: 2px;
     padding: 7px 7px;
+}
+
+/* prevent double click */
+canvas {
+    touch-action: manipulation;
+}
+
+/* media rules */
+
+/* very high height -width ratio */
+@media only screen and (max-width: 400px) and (orientation: portrait) {
+  #Runner div, h3 {
+    font-size: 1.25rem;
+  }
+}
+
+/* high width - height ratio */
+@media only screen and (max-height: 500px) and (orientation: landscape) {
+  #Runner div, h3 {
+    font-size: 1.25rem;
+  }
+}
+
+/* moderate width - height ratio */
+@media only screen and (min-height: 500px) and (max-height: 750px) and (orientation: landscape) {
+  #Runner div, h3 {
+    font-size: 2.25rem;
+  }
+}
+
+@media only screen and (display-mode: fullscreen) {
+  #Runner div, h3 {
+    font-size: 1.25rem !important;
+  }
 }

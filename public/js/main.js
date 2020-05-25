@@ -15,7 +15,20 @@ window.cancelAnimationFrame = window.cancelAnimationFrame ||
         clearTimeout(requestID)
     } //fall back
 
-var ctx = document.getElementById('runner_container').getContext("2d"), engine = new GameEngine(ctx), runnerAnimation, then, now;
+var ctx, engine, runnerAnimation, then, now, fpsInterval;
+
+(() => {
+    // expose the canvas for a short time so that the game engine can resolve the offsetWidth.
+    document.querySelector("#runner_container").style.display = "block";
+    document.querySelector("#runner_before").style.display = "none";
+
+    ctx = document.getElementById('runner_container').getContext("2d");
+    setSize(); // pre-set the size of the canvas.
+    engine = new GameEngine(ctx, 1000/fpsInterval); // create the game engine object, using the resized canvas.
+    // hide the canvas to present the title screen.
+    document.querySelector("#runner_container").style.display = "none";
+    document.querySelector("#runner_before").style.display = "block";
+})();
 
 // add event handlers
 window.onload = function() {
@@ -35,34 +48,44 @@ window.onload = function() {
     } else {
         window.onresize = setSize();
     }
+
+    document.addEventListener('fullscreenchange', toggleFullScreen, false);
+    document.addEventListener('mozfullscreenchange', toggleFullScreen, false);
+    document.addEventListener('MSFullscreenChange', toggleFullScreen, false);
+    document.addEventListener('webkitfullscreenchange', toggleFullScreen, false);
 }
 
 function start_handler() {
+    toggleFullScreen(true);
     document.querySelector("#runner_container").style.display = "block";
     document.querySelector("#runner_before").style.display = "none";
-    startRunner();
-}
-
-function startRunner() {
-    setSize();
+    setSize(); //make sure canvas is sized properly.
     then = Date.now();
-    run();
+    run(); //start the animation loop.
 }
 
 function setSize() {
-    const size = Math.min(document.querySelector("#Runner").offsetWidth, document.querySelector("#Runner").offsetHeight);
     let original_size = [ctx.canvas.width, ctx.canvas.height];
-    ctx.canvas.width = size;
-    ctx.canvas.height = size;
-    if (engine) engine.resize_entities(ctx, original_size);
+    ctx.canvas.width = window.innerWidth;
+    fpsInterval = 30 - (ctx.canvas.width / 250); 
+
+    const last_element = document.querySelectorAll("#Runner h3")[1];
+    ctx.canvas.height = window.innerHeight - (last_element.offsetHeight + last_element.getBoundingClientRect().bottom);
+    if (engine) {
+        // Increase the fps for higher pixel counts to prevent ghosting.
+        // Higher pixel counts also necessitate faster CPUs and GPUs, so a higher framerate is more tolerable.
+        engine.adjust_for_fps(1000/fpsInterval);
+        // Resize each of the entities to maintain the same scale
+        engine.resize_entities(ctx, original_size);
+    }
 }
 
 function run() {
     runnerAnimation = window.requestAnimationFrame(run);
     now = Date.now();
     let elapsed = Date.now() - then;
-    if (elapsed > 25) {
-        then = now - (elapsed % 25);
+    if (elapsed > fpsInterval) {
+        then = now - (elapsed % fpsInterval);
         engine.step();
         document.querySelector("#score").innerHTML = engine.score;
     }
@@ -70,5 +93,21 @@ function run() {
 
 function restart_handler() {
     document.querySelector("#runner_after").style.display = "none";
+    toggleFullScreen(true);
+    setSize();
     engine.restart();
+}
+
+// fullscreen
+function toggleFullScreen(restart = false) {
+    var doc = window.document;
+    var docEl = doc.documentElement;
+  
+    var requestFullScreen = docEl.requestFullscreen || docEl.mozRequestFullScreen || docEl.webkitRequestFullScreen || docEl.msRequestFullscreen;
+    var cancelFullScreen = doc.exitFullscreen || doc.mozCancelFullScreen || doc.webkitExitFullscreen || doc.msExitFullscreen;
+    if (restart == true && !doc.fullscreenElement && !doc.mozFullScreenElement && !doc.webkitFullscreenElement && !doc.msFullscreenElement) {
+      requestFullScreen.call(docEl)
+    } else if (restart === false) {
+      cancelFullScreen.call(doc);
+    }
 }
