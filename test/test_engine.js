@@ -36,16 +36,6 @@ describe('Engine', function() {
         assert.strictEqual(engine.jumpCountRecord, 0);
         assert.strictEqual(engine.maxSpikes, 0);
         assert.strictEqual(engine.updated, false);
-        assert.strictEqual(GameEngine.instance, engine); // singleton
-    });
-    it('should not duplicate instances of singleton object.', function() {
-      let engine = new GameEngine(new TestContext(100, 99));
-      try {
-        let engine2 = new GameEngine(new TestContext(100, 99));
-        assert.fail(); //should fail
-      } catch (Exception) {
-        assert.ok(GameEngine.instance, engine);
-      }
     });
   });
 
@@ -76,7 +66,6 @@ describe('Engine', function() {
         assert.strictEqual(engine.jumpCountRecord, 0);
         assert.strictEqual(engine.maxSpikes, 0);
         assert.strictEqual(engine.updated, false);
-        assert.strictEqual(GameEngine.instance, engine); // singleton
     });
   });
 
