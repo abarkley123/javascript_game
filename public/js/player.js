@@ -4,7 +4,6 @@ export class Player extends Vector2 {
 
     constructor(options) {
         super(options.x, options.y, options.width, options.height);
-        if (!Player.instance) {
             this.setPosition(options.x, options.y);
             this.velocityX = 0;
             this.velocityY = 0;
@@ -15,27 +14,18 @@ export class Player extends Vector2 {
             this.onPlatform = false;
             Player.instance = this;
             this.gravity = this.jumpSize / -20; // placeholder
-        }
     }
 
     update() {
-        if (this.onPlatform === false && this.velocityY < 100) this.velocityY += this.gravity; // falling - terminal velocity
+        // Applying 'gravity' up to a maximum i.e. terminal velocity
+        if (this.onPlatform === false && this.velocityY < 117) this.velocityY += this.gravity;
         this.setPosition(this.x + this.velocityX, this.y + this.velocityY);
     }
 
     draw(ctx) {
-        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
         ctx.fillStyle = this.color;
         ctx.fillRect(this.x, this.y, this.width, this.height);
         ctx.stroke();
-    }
-
-    restart(ctx) {
-        this.x = ctx.canvas.offsetWidth / 5;
-        this.y = ctx.canvas.offsetHeight / 3;
-        this.velocityX = 0;
-        this.velocityY = 0;
-        this.onPlatform = false;
     }
 
     // adjust the x and y positions to maintain the player's position on screen. 

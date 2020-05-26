@@ -94,8 +94,8 @@ function run() {
 function restart_handler() {
     document.querySelector("#runner_after").style.display = "none";
     toggleFullScreen(true);
-    setSize();
     engine.restart();
+    setSize();
 }
 
 // fullscreen
@@ -105,7 +105,7 @@ function toggleFullScreen(restart = false) {
   
     var requestFullScreen = docEl.requestFullscreen || docEl.mozRequestFullScreen || docEl.webkitRequestFullScreen || docEl.msRequestFullscreen;
     var cancelFullScreen = doc.exitFullscreen || doc.mozCancelFullScreen || doc.webkitExitFullscreen || doc.msExitFullscreen;
-    if (restart == true && !doc.fullscreenElement && !doc.mozFullScreenElement && !doc.webkitFullscreenElement && !doc.msFullscreenElement) {
+    if (restart === true && !doc.fullscreenElement && !doc.mozFullScreenElement && !doc.webkitFullscreenElement && !doc.msFullscreenElement) {
       requestFullScreen.call(docEl)
     } else if (restart === false) {
       cancelFullScreen.call(doc);

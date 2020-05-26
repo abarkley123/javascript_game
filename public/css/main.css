@@ -41,8 +41,8 @@ html, body {
 /* Div that houses the start and restart screen. */
 .runner_overlay {
     width: 100%; 
-    background: #000; 
-    z-index: 1;
+    background: transparent;
+    z-index: 2;
     position: absolute;
     top: 50%;
     left: 50%;
@@ -53,22 +53,45 @@ html, body {
     margin: 0.1em;
 }
 
+/* define the css for a button with hover characteristics */
+/* inspired by: https://www.w3schools.com/css/tryit.asp?filename=trycss_buttons_animate1 */
 .main_button {
-    border: none;
-    background-color: #000;
-    color: white;
-    padding: 8px 8px;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 2rem;
-    border-radius: 2px;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: #ff4655;
+  border: none;
+  color: #FFFFFF;
+  text-align: center;
+  font-size: inherit;
+  padding: 2.5%;
+  transition: all 0.5s;
+  cursor: pointer;
+  margin: 2.5%;
 }
 
-.main_button:hover {
-    border: 1px solid #880E3F;
-    border-radius: 2px;
-    padding: 7px 7px;
+.main_button span {
+  cursor: pointer;
+  display: inline-block;
+  position: relative;
+  transition: 0.5s;
+}
+
+.main_button span:after {
+  content: '\00bb';
+  position: absolute;
+  opacity: 0;
+  top: 0;
+  right: -20px;
+  transition: 0.5s;
+}
+
+.main_button:hover span {
+  padding-right: 25px;
+}
+
+.main_button:hover span:after {
+  opacity: 1;
+  right: 0;
 }
 
 /* prevent double click */

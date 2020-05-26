@@ -16,20 +16,19 @@ export class Platform extends Vector2 {
         ctx.fillRect(this.x, this.y, this.width, this.height);
     }
 
-    createSpikes(canvas, number) {
+    createSpikes(number) {
         this.spikes = [];
         try {
             for (let i = 0; i < number; i++) {
-                const spike = new Spike({
+                this.spikes.push(new Spike({
                     x: this.x + random(48, this.width - 48),
                     y: this.y - (48),
                     width: 48,
                     height: 48
-                });
-                this.spikes.push(spike);
+                }));
             }
         } catch (UninitialisedException) {
-            console.log("Not spawning spikes: " + UninitialisedException);
+            console.log("Exception encountered when trying to spawn spikes:\n" + UninitialisedException);
         }
     }
 }

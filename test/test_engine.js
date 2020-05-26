@@ -54,17 +54,6 @@ describe('Engine', function() {
     it('should successfully restart the game engine.', function() {
         let fps = 40;
         let engine = new GameEngine(new TestContext(100, 99), fps);
-        engine.score = 10;
-        engine.jumpCount = 10;
-        engine.maxSpikes = 10;
-        engine.velocityX = 10;
-        engine.accelerationTweening = 10;
-        engine.particles = [];
-        engine.particlesIndex = 1;
-        engine.particlesMax = 15;
-
-        engine.restart();
-        // assert everything is the same as initial state.
         assert.strictEqual(engine.score, 0);
         assert.strictEqual(engine.jumpCount, 0);
         assert.strictEqual(engine.velocityX, 5);
@@ -73,10 +62,9 @@ describe('Engine', function() {
         assert.strictEqual(engine.player.y, 33);
         assert.strictEqual(engine.player.width, 4);
         assert.strictEqual(engine.player.height, 4);
-        assert.strictEqual(engine.player.jumpSize, -(5 + (engine.ctx.canvas.height / 2) / (fps/2)));
-        let jump_distance = engine.player.calculate_jump_distance(engine.velocityX, Math.abs(engine.player.jumpSize), engine.fpsInterval);
-        let min_dist = Math.floor(Math.min(32, engine.ctx.canvas.offsetWidth / 25)  + jump_distance * 0.8);
-        assert.strictEqual(Math.floor(engine.platformManager.maxDistanceBetween), min_dist);
+        assert.strictEqual(engine.player.jumpSize, - Math.min(32, engine.ctx.canvas.offsetWidth / 25));
+        assert.strictEqual(engine.player.onPlatform, false);
+        assert.strictEqual(Math.floor(engine.platformManager.maxDistanceBetween), 164);
         assert.strictEqual(Math.floor(engine.platformManager.minDistanceBetween), 0);
         assert.strictEqual(engine.platformManager.platforms.length, 3);
         assert.strictEqual(engine.platformManager.colliding, false);

@@ -6,44 +6,43 @@ import {random, randomChoice} from "./util.js";
 class GameEngine {
 
     constructor(ctx, fpsInterval) {
-        if (!GameEngine.instance) {
-            this.ctx = ctx;
-            this.velocityX = 200/fpsInterval;
-            this.adjust_for_fps(fpsInterval);
-
-            this.score = 0;
-            this.jumpCount = 0;
-            this.player = new Player({
-                x: ctx.canvas.offsetWidth / 5,
-                y: ctx.canvas.offsetHeight / 3,
-                width: Math.min(32, ctx.canvas.offsetWidth / 25),
-                height: Math.min(32, ctx.canvas.offsetWidth / 25),
-                jumpSize: - Math.min(32, ctx.canvas.offsetWidth / 25)
-            });
-            let jump_distance = this.player.calculate_jump_distance(this.velocityX, Math.abs(this.player.jumpSize), fpsInterval);
-            let jump_height = this.player.calculate_jump_height(this.velocityX, Math.abs(this.player.jumpSize), fpsInterval);
-            this.platformManager = new PlatformManager(ctx, jump_distance, jump_height);
-            this.particles = [];
-            this.particlesIndex = -1;
-            this.particlesMax = 10;
-            this.collidedPlatform = null;
-            this.scoreColor = '#fff';
-            this.jumpCountRecord = 0;
-            this.maxSpikes = 0;
-            this.updated = false;
-            GameEngine.instance = this;
-        } else {
-            this.restart();
-        }
+        this.setup(ctx, fpsInterval);
+        GameEngine.instance = this;
     }
     // TODO - define this function to avoid the duplicated code between the constructor and the restart function
-    setup() {
+    setup(ctx, fpsInterval) {
+        this.ctx = ctx;
+        this.velocityX = 200/fpsInterval;
+        this.adjust_for_fps(fpsInterval);
 
+        this.score = 0;
+        this.jumpCount = 0;
+        this.player = new Player({
+            x: ctx.canvas.offsetWidth / 5,
+            y: ctx.canvas.offsetHeight / 3,
+            width: Math.min(32, ctx.canvas.offsetWidth / 25),
+            height: Math.min(32, ctx.canvas.offsetWidth / 25),
+            jumpSize: - Math.min(32, ctx.canvas.offsetWidth / 25)
+        });
+        let jump_distance = this.player.calculate_jump_distance(this.velocityX, Math.abs(this.player.jumpSize), fpsInterval);
+        let jump_height = this.player.calculate_jump_height(this.velocityX, Math.abs(this.player.jumpSize), fpsInterval);
+        this.platformManager = new PlatformManager(ctx, jump_distance, jump_height);
+        this.particles = [];
+        this.particlesIndex = -1;
+        this.particlesMax = 10;
+        this.collidedPlatform = null;
+        this.scoreColor = '#fff';
+        this.jumpCountRecord = 0;
+        this.maxSpikes = 0;
+        this.updated = false;
     }
 
     step() {
-        this.update();
-        this.draw();
+        // don't waste cpu resources if the game isn't running.
+        if (this.velocityX > 0 || this.player.velocityY < 117) {
+            this.update();
+            this.draw();
+        }
     }
 
     update() {
@@ -145,23 +144,7 @@ class GameEngine {
     }
 
     restart() {
-        this.score = 0;
-        this.jumpCount = 0;
-        this.maxSpikes = 0;
-        // reset x velocity.
-        this.velocityX = 200/this.fpsInterval;
-        this.particlesIndex = -1;
-        this.particlesMax = 10;
-        this.collidedPlatform = null;
-        this.scoreColor = '#fff';
-        // Set the velocity and acceleration for this FPS.
-        this.adjust_for_fps(this.fpsInterval);
-        // Reset the player's x, y and velocities.
-        this.player.restart(this.ctx);
-        // Reset all the platforms, to account for reset player jump size & gravity.
-        let jump_distance = this.player.calculate_jump_distance(this.velocityX, Math.abs(this.player.jumpSize), this.fpsInterval);
-        let jump_height = this.player.calculate_jump_height(this.velocityX, Math.abs(this.player.jumpSize), this.fpsInterval);
-        this.platformManager.updateOnDeath(this.ctx.canvas, jump_distance, jump_height);
+        this.setup(this.ctx, this.fpsInterval);
     }
 
     spawn_particles(position_x, position_y, tolerance, collider) {
