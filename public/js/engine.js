@@ -7,9 +7,8 @@ class GameEngine {
 
     constructor(ctx, fpsInterval) {
         this.setup(ctx, fpsInterval);
-        GameEngine.instance = this;
     }
-    // TODO - define this function to avoid the duplicated code between the constructor and the restart function
+
     setup(ctx, fpsInterval) {
         this.ctx = ctx;
         this.velocityX = 200/fpsInterval;
