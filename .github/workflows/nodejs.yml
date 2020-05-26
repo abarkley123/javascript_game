@@ -1,5 +1,6 @@
 # This workflow will do a clean install of node dependencies, build the source code and run tests across different versions of node
 # For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
+# this file allow builds and pushes the docker image to the registry.
 
 name: Node.js CI
 
@@ -27,4 +28,13 @@ jobs:
     - run: npm ci
     - run: npm run build --if-present
     - run: npm test | echo https://htmlpreview.github.io/?https://github.com/abarkley123/javascript_game/blob/mobile_compat/coverage/index.html
-    
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Build the Docker image
+        run: |
+          VERSION = docker.pkg.github.com/abarkley123/${{github.event.repository.name}}/${GITHUB_REF##*/}
+          docker login docker.pkg.github.com --username ${GITHUB_ACTOR} --password ${{secrets.GITHUB_TOKEN}}
+          docker build -t ${VERSION}:latest .
+          docker push ${VERSION}:latest
