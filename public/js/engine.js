@@ -34,7 +34,6 @@ class GameEngine {
         this.jumpCountRecord = 0;
         this.maxSpikes = 0;
         this.updated = false;
-        this.prevTransform = 0;
     }
 
     step() {
@@ -46,14 +45,11 @@ class GameEngine {
     }
 
     update() {
-        document.querySelector(".parallax__layer--base").style.transform = "translateZ(0) translate(" + this.prevTransform-- + "px)";
-        document.querySelector(".parallax__layer--back").style.transform = "translateZ(-1px) scale(2) translate(" + this.prevTransform/2 + "px)";
         // always update the player & particles, so death animation can trigger.
         this.player.update();
         for (let particle of this.particles) particle.update();
         // game still playing.
         if (this.velocityX > 0) {
-
             this.score += Math.floor((1000/40) * (1 + (this.jumpCount > 0 ? this.jumpCount / 100 : 0)));
 
             if (this.updated === false && this.jumpCount % 10 === 0 && this.jumpCount > 0 && this.jumpCount <= 60) {
@@ -62,7 +58,7 @@ class GameEngine {
                 this.platformManager.minDistanceBetween += this.platformManager.maxDistanceBetween/16;
                 if (this.jumpCount % 20 === 0) this.maxSpikes++;
                 this.particlesMax = Math.min(25, this.particlesMax + 5);
-                // update jump height and distance
+                // update jump height and distance so that the platforms are appropriately spaced.
                 let jump_distance = this.player.calculate_jump_distance(this.velocityX, Math.abs(this.player.jumpSize), this.fpsInterval);
                 let jump_height = this.player.calculate_jump_height(this.velocityX, Math.abs(this.player.jumpSize), this.fpsInterval);
                 this.platformManager.update_platform_gaps(jump_distance, jump_height);
@@ -125,6 +121,7 @@ class GameEngine {
         this.spawn_particles(this.player.x, this.player.y, this.player.height, obj);
         // make the restart screen visible.
         document.querySelector("#runner_after").style.display = "block";
+        document.querySelector(".parallax__layer--base .background").style.backgroundImage = 'url("public/images/forefront_background_ambient.svg")';
     }
 
     draw() {
@@ -159,13 +156,13 @@ class GameEngine {
                 this.particles[this.particlesIndex] = new Particle({
                     x: position_x - 6,
                     y: tolerance == 0 ? position_y : random(position_y, position_y + tolerance),
-                    color: collider.color,
+                    color: randomChoice([collider.color, "#ff4655"]),
                     size: particle_size,
                     vel_x: x_velocity
                 });
             } else {
                 // if we have already created a particle object, just change its position and velocities (don't create unnecessary objects).
-                this.particles[this.particlesIndex].set(position_x - 6, tolerance == 0 ? position_y : random(position_y, position_y + tolerance), collider.color, x_velocity);
+                this.particles[this.particlesIndex].set(position_x - 6, tolerance == 0 ? position_y : random(position_y, position_y + tolerance), randomChoice([collider.color, "#ff4655"]), x_velocity);
             }
         }
     }

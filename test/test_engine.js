@@ -84,7 +84,8 @@ describe('Engine', function() {
           y: 100,
           width: 10,
           height: 10,
-          color: "#fff"
+          color: "#fff",
+          ctx: engine.ctx
         }));
         // create a particle so it can be updated.
         engine.particles.push(new Particle({
@@ -102,7 +103,7 @@ describe('Engine', function() {
         assert.strictEqual(Math.floor(engine.player.y), 34);
         // check the particle moved
         assert.strictEqual(engine.particles[0].x, 9);
-        assert.strictEqual(engine.particles[0].y, 9); // update uses velocityY/4
+        assert.strictEqual(engine.particles[0].y, 4); // update uses velocityY/4
         assert.strictEqual(Math.floor(engine.particles[0].size), 9);
         // check the platforms moved
         assert.strictEqual(engine.platformManager.platforms[0].x, 99);
@@ -122,7 +123,8 @@ describe('Engine', function() {
         y: 100,
         width: 10,
         height: 10,
-        color: "#fff"
+        color: "#fff",
+        ctx: engine.ctx
       }));
       
       engine.update();
@@ -130,8 +132,7 @@ describe('Engine', function() {
       // check the platforms moved
       assert.notStrictEqual(engine.platformManager.platforms[0].x, -11);
       assert.notStrictEqual(engine.platformManager.platforms[0].y, 100);
-      assert.strictEqual(engine.platformManager.platforms[0].spikes[0].color, "#880E4F");
-      assert.strictEqual(engine.platformManager.platforms[0].spikes[0].color, "#880E4F");
+      assert.strictEqual(engine.platformManager.platforms[0].spikes[0].color, "#9E111C");
       assert.ok(engine.platformManager.platforms[0].spikes[0].x >= 48);
       assert.ok(engine.platformManager.platforms[0].spikes[0].x <= engine.platformManager.platforms[0].x + engine.platformManager.platforms[0].width - 48);
       assert.strictEqual(engine.platformManager.platforms[0].spikes[0].y, engine.platformManager.platforms[0].y - 48);
@@ -182,7 +183,8 @@ describe('Engine', function() {
           y: 100,
           width: 10,
           height: 10,
-          color: "#fff"
+          color: "#fff",
+          ctx: engine.ctx
         }));
         // create a particle so it can be updated.
         engine.particles.push(new Particle({
@@ -198,7 +200,7 @@ describe('Engine', function() {
         assert.strictEqual(Math.floor(engine.player.y), 34);
         // check the particle still moves
         assert.strictEqual(engine.particles[0].x, 9);
-        assert.strictEqual(engine.particles[0].y, 9); 
+        assert.strictEqual(engine.particles[0].y, 4); 
         assert.strictEqual(Math.floor(engine.particles[0].size), 9);
         // check the platforms didn't move
         assert.strictEqual(engine.platformManager.platforms[0].x, 100);
@@ -210,10 +212,14 @@ describe('Engine', function() {
     it('should end game when player goes out of bounds.', function() {
         let engine = new GameEngine(new TestContext(100, 99), 40);
         engine.player.y = 100;
-        // create mock div
+        // create mock divs
         var div = document.createElement('div');
         div.setAttribute('id', 'runner_after');
         div.style.display = "none";
+        div.setAttribute('class', 'parallax__layer--base');
+        var child_div = document.createElement('div');
+        child_div.setAttribute('class', 'background');
+        div.appendChild(child_div)
         document.body.appendChild(div);
         engine.update();
         // check the player moved
@@ -222,6 +228,7 @@ describe('Engine', function() {
         assert.strictEqual(engine.player.velocityY, engine.player.jumpSize/2); 
         assert.strictEqual(engine.accelerationTweening, 0);
         assert.strictEqual(document.querySelector("#runner_after").style.display, "block");
+        assert.strictEqual(document.querySelector(".parallax__layer--base .background").style.backgroundImage, 'url(public/images/forefront_background_ambient.svg)');
     });
   });
 });

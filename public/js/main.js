@@ -15,7 +15,7 @@ window.cancelAnimationFrame = window.cancelAnimationFrame ||
         clearTimeout(requestID)
     } //fall back
 
-var ctx, engine, runnerAnimation, then, now, fpsInterval;
+var ctx, engine, runnerAnimation, then, now, fpsInterval, frameCount = 0, transform = 0;
 
 (() => {
     // expose the canvas for a short time so that the game engine can resolve the offsetWidth.
@@ -33,6 +33,7 @@ var ctx, engine, runnerAnimation, then, now, fpsInterval;
 
 // add event handlers
 window.onload = function() {
+    setupAudio();
     document.querySelector("#start_runner_btn").addEventListener("click", start_handler);
     document.querySelector("#restart_runner_btn").addEventListener("click", restart_handler);
     // process a jump
@@ -50,14 +51,20 @@ window.onload = function() {
         window.onresize = setSize();
     }
 
-    document.addEventListener('fullscreenchange', toggleFullScreen, false);
-    document.addEventListener('mozfullscreenchange', toggleFullScreen, false);
-    document.addEventListener('MSFullscreenChange', toggleFullScreen, false);
-    document.addEventListener('webkitfullscreenchange', toggleFullScreen, false);
+    // if the user has a mobile device, allow fullscreen. Otherwise it will impact the user experience, so disable it.
+    if (window.matchMedia("only screen and (max-width: 760px)").matches === true) {
+        //Conditional script here
+        document.addEventListener('fullscreenchange', toggleFullScreen, false);
+        document.addEventListener('mozfullscreenchange', toggleFullScreen, false);
+        document.addEventListener('MSFullscreenChange', toggleFullScreen, false);
+        document.addEventListener('webkitfullscreenchange', toggleFullScreen, false);
+    }
 }
 
 function start_handler() {
-    toggleFullScreen(true);
+    // if the user has a mobile device, allow fullscreen. Otherwise it will impact the user experience, so disable it.
+    if (window.matchMedia("only screen and (max-width: 760px)").matches === true) toggleFullScreen(true);
+    document.querySelector(".parallax__layer--base .background").style.backgroundImage = 'url("public/images/forefront_background.svg")';
     document.querySelector("#runner_container").style.display = "block";
     document.querySelector("#runner_before").style.display = "none";
     setSize(); //make sure canvas is sized properly.
@@ -68,9 +75,8 @@ function start_handler() {
 function setSize() {
     let original_size = [ctx.canvas.width, ctx.canvas.height];
     ctx.canvas.width = window.innerWidth;
-    fpsInterval = 30 - (ctx.canvas.width / 250); 
+    fpsInterval = Math.floor(30 - (ctx.canvas.width / 250)); 
 
-    const last_element = document.querySelectorAll("#Runner h3")[1];
     ctx.canvas.height = window.innerHeight;
     if (engine) {
         // Increase the fps for higher pixel counts to prevent ghosting.
@@ -89,12 +95,20 @@ function run() {
         then = now - (elapsed % fpsInterval);
         engine.step();
         document.querySelector("#score").innerHTML = engine.score;
+        // twice a second, translate the background to give the impression of motion.
+        if (frameCount++ % Math.floor(50/fpsInterval) === 0) {
+            // give the effect of parallax for background - back elements move more slowly than forward ones.
+            document.querySelector(".parallax__layer--base").style.transform = "translateZ(0) translate(-" + Math.floor(transform++) + "px)";
+            document.querySelector(".parallax__layer--back").style.transform = "translateZ(-1px) scale(2) translate(-" + Math.floor(transform/3) + "px)";
+        }
     }
 }
 
 function restart_handler() {
     document.querySelector("#runner_after").style.display = "none";
-    toggleFullScreen(true);
+    document.querySelector(".parallax__layer--base .background").style.backgroundImage = 'url("public/images/forefront_background.svg")';
+    // if the user has a mobile device, allow fullscreen. Otherwise it will impact the user experience, so disable it.
+    if (window.matchMedia("only screen and (max-width: 760px)").matches === true) toggleFullScreen(true);
     engine.restart();
     setSize();
 }
@@ -112,3 +126,52 @@ function toggleFullScreen(restart = false) {
       cancelFullScreen.call(doc);
     }
 }
+
+/** Define functions to play an audio file (located under public/audio/) 
+ * Background music supplied by Eva – 失望した: https://youtu.be/jVTsD4UPT-k, 
+ * License: Creative Commons Attribution 3.0 - http://bit.ly/RFP_CClicense. **/
+
+// This function should load all audio files.
+function setupAudio() {
+    let bgm = new Audio('public/audio/background_music.mp3');
+    bgm.volume = 0.4;
+    bgm.addEventListener('ended', function() {
+      this.currentTime = 0;
+      this.play();
+    }, false);
+    
+    playAudio(bgm);
+    // pause the music when the user changes tabs.
+    document.addEventListener("visibilitychange", () => {
+            try {
+              if (document.hidden){
+                  bgm.pause();
+              } else {
+                  bgm.play();
+              }
+            } catch (NoSuchAudioException) {
+              console.log("Unable to change state of audio.");
+            }
+    }, false);
+  }
+  
+function playAudio(bgm) {
+    const play = bgm.play();
+  
+    if (play) {
+      play.then(() => {
+        return;
+      }).catch(function(AudioException) {
+        console.log('Audio Failed to play due to cause: \n' + AudioException);
+        handleAudioFailure(bgm);
+      });
+    }
+  }
+  
+// retry
+function handleAudioFailure(bgm) {
+    setTimeout(() => {
+        playAudio(bgm);
+    }, 1500);  
+}
+  

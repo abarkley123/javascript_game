@@ -3,6 +3,17 @@ class TestContext {
     constructor(width, height) {
         this.canvas = new TestCanvas(width, height)
     }
+
+    createLinearGradient(x, y, width, height) {
+        return new ColorGradient(x, y, width, height);
+    }
+}
+
+class ColorGradient {
+
+    constructor(x, y, width, height) {}
+
+    addColorStop(idx, color) {}
 }
 
 class TestCanvas {

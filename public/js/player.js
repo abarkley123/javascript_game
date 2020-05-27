@@ -8,7 +8,7 @@ export class Player extends Vector2 {
             this.velocityX = 0;
             this.velocityY = 0;
             this.jumpSize = options.jumpSize;
-            this.color = "#fff";
+            this.color = "#ff4655";
             // player starts mid-air, so only 1 extra jump should be permitted.
             this.jumpsLeft = 1;
             this.onPlatform = false;
@@ -26,6 +26,9 @@ export class Player extends Vector2 {
         ctx.fillStyle = this.color;
         // avoid sub pixel rendering, so use integers instead of floats
         ctx.fillRect(Math.floor(this.x), Math.floor(this.y), Math.floor(this.width), Math.floor(this.height));
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = "#9E111C";
+        ctx.strokeRect(Math.floor(this.x), Math.floor(this.y), Math.floor(this.width), Math.floor(this.height));
     }
 
     // adjust the x and y positions to maintain the player's position on screen. 

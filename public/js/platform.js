@@ -43,7 +43,7 @@ class Spike extends Vector2 {
         super(options.x, options.y, options.width, options.height);
         this.previousX = 0;
         this.previousY = 0;
-        this.color = "#880E4F";
+        this.color = "#9E111C";
     }
 
     draw(ctx) {
