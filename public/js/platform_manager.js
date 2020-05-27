@@ -7,7 +7,7 @@ export class PlatformManager {
             this.maxDistanceBetween = Math.min(32, ctx.canvas.offsetWidth / 25)  + dist_between * 0.8;
             this.minDistanceBetween = 0; // don't force a jump
             this.maxHeightDistance = jump_height * 0.8;
-            this.colors = ["#4169E1", "#27B810"];
+            this.colors = this.create_gradients();
 
             this.platforms = []
             let numPlatforms = 3 + Math.floor(ctx.canvas.offsetWidth / 1000);
@@ -18,7 +18,8 @@ export class PlatformManager {
                     y: random(ctx.canvas.offsetHeight / 1.1, ctx.canvas.offsetHeight/ 1.1 - this.maxHeightDistance),
                     width: random(Math.min(ctx.canvas.width, 1000), Math.min(ctx.canvas.width, 2000)),
                     height: random(ctx.canvas.offsetHeight/5, ctx.canvas.offsetHeight/2.5),
-                    color: randomChoice(this.colors)
+                    color: randomChoice(this.colors),
+                    ctx
                 });
             }
 
@@ -71,5 +72,12 @@ export class PlatformManager {
         }
 
         this.maxDistanceBetween = Math.min(32, ctx.canvas.offsetWidth / 25)  + dist_between * 0.8;
+    }
+
+    create_gradients() {
+        let gradients = [];
+        gradients.push(["#4A205A", "#2D0754"]);
+        gradients.push(["#58186F", "#1B082E"])
+        return gradients;
     }
 }

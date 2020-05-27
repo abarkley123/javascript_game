@@ -17,12 +17,12 @@ export class Particle {
 
     draw(ctx) {
         ctx.fillStyle = this.color;
-        ctx.fillRect(this.x * 0.9, this.y, this.size, this.size);
+        ctx.fillRect(Math.floor(this.x * 0.875), Math.floor(this.y), Math.floor(this.size), Math.floor(this.size));
     }
 
     set(x, y, color, velocityX = -random(this.originalSize/2, this.originalSize * 4), velocityY =  random(-30, 0)) {
         this.x = x;
-        this.y = y;
+        this.y = y - this.originalSize/2;
         this.color = color;
         this.velocityX = velocityX;
         this.velocityY = velocityY;

@@ -7,13 +7,17 @@ export class Platform extends Vector2 {
         super(options.x, options.y, options.width, options.height);
         this.previousX = 0;
         this.previousY = 0;
-        this.color = options.color;
         this.spikes = [];
+        this.color = options.color[0];
+        this.grd = options.ctx.createLinearGradient(this.x, this.y, this.x, this.y + this.height);
+        this.grd.addColorStop(0, options.color[0]);
+        this.grd.addColorStop(1, options.color[1]);
     }
 
     draw(ctx) {
-        ctx.fillStyle = this.color;
-        ctx.fillRect(this.x, this.y, this.width, this.height);
+        ctx.fillStyle = this.grd;
+        // avoid sub pixel rendering, so use integers instead of floats
+        ctx.fillRect(Math.floor(this.x), Math.floor(this.y), Math.floor(this.width), Math.floor(this.height));
     }
 
     createSpikes(number) {
@@ -45,13 +49,10 @@ class Spike extends Vector2 {
     draw(ctx) {
         ctx.beginPath();
         ctx.fillStyle = this.color;
-        ctx.strokeStyle = "#000";
-        ctx.lineWidth = 1;
         ctx.moveTo(this.x, this.y);
         ctx.lineTo(this.x + this.width / 2, this.y + this.height);
         ctx.lineTo(this.x - this.width / 2, this.y + this.height);
         ctx.lineTo(this.x, this.y);
-        ctx.stroke();
         ctx.fill();
     }
 

@@ -34,6 +34,7 @@ class GameEngine {
         this.jumpCountRecord = 0;
         this.maxSpikes = 0;
         this.updated = false;
+        this.prevTransform = 0;
     }
 
     step() {
@@ -45,6 +46,8 @@ class GameEngine {
     }
 
     update() {
+        document.querySelector(".parallax__layer--base").style.transform = "translateZ(0) translate(" + this.prevTransform-- + "px)";
+        document.querySelector(".parallax__layer--back").style.transform = "translateZ(-1px) scale(2) translate(" + this.prevTransform/2 + "px)";
         // always update the player & particles, so death animation can trigger.
         this.player.update();
         for (let particle of this.particles) particle.update();
@@ -53,7 +56,7 @@ class GameEngine {
 
             this.score += Math.floor((1000/40) * (1 + (this.jumpCount > 0 ? this.jumpCount / 100 : 0)));
 
-            if (this.updated === false && this.jumpCount % 10 === 0 && this.jumpCount > 0 && this.jumpCount < 40) {
+            if (this.updated === false && this.jumpCount % 10 === 0 && this.jumpCount > 0 && this.jumpCount <= 60) {
                 this.updated = true;
                 this.accelerationTweening *= 1.05;
                 this.platformManager.minDistanceBetween += this.platformManager.maxDistanceBetween/16;

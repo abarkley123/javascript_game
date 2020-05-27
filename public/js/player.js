@@ -24,8 +24,8 @@ export class Player extends Vector2 {
 
     draw(ctx) {
         ctx.fillStyle = this.color;
-        ctx.fillRect(this.x, this.y, this.width, this.height);
-        ctx.stroke();
+        // avoid sub pixel rendering, so use integers instead of floats
+        ctx.fillRect(Math.floor(this.x), Math.floor(this.y), Math.floor(this.width), Math.floor(this.height));
     }
 
     // adjust the x and y positions to maintain the player's position on screen. 

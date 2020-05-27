@@ -22,7 +22,8 @@ var ctx, engine, runnerAnimation, then, now, fpsInterval;
     document.querySelector("#runner_container").style.display = "block";
     document.querySelector("#runner_before").style.display = "none";
 
-    ctx = document.getElementById('runner_container').getContext("2d");
+    // ctx = document.getElementById('runner_container').getContext('2d', { alpha: false });
+    ctx = document.getElementById('runner_container').getContext('2d');
     setSize(); // pre-set the size of the canvas.
     engine = new GameEngine(ctx, 1000/fpsInterval); // create the game engine object, using the resized canvas.
     // hide the canvas to present the title screen.
@@ -70,7 +71,7 @@ function setSize() {
     fpsInterval = 30 - (ctx.canvas.width / 250); 
 
     const last_element = document.querySelectorAll("#Runner h3")[1];
-    ctx.canvas.height = window.innerHeight - (last_element.offsetHeight + last_element.getBoundingClientRect().bottom);
+    ctx.canvas.height = window.innerHeight;
     if (engine) {
         // Increase the fps for higher pixel counts to prevent ghosting.
         // Higher pixel counts also necessitate faster CPUs and GPUs, so a higher framerate is more tolerable.
