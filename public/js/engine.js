@@ -121,7 +121,8 @@ class GameEngine {
         this.spawn_particles(this.player.x, this.player.y, this.player.height, obj);
         // make the restart screen visible.
         document.querySelector("#runner_after").style.display = "block";
-        document.querySelector(".parallax__layer--base .background").style.backgroundImage = 'url("public/images/forefront_background_ambient.svg")';
+        document.querySelector("#idle_background").style.display = 'block';
+        document.querySelector("#playing_background").style.display = 'none';
     }
 
     draw() {

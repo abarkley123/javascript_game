@@ -189,9 +189,11 @@ body {
 .background {
   position: absolute;
   display: block;
+  will-change: transform;
 }
 .parallax__layer--deep {
   padding: 0 150vw;
+  will-change: transform;
 }
 .parallax__layer--deep .background {
   opacity: 0.25;  
@@ -203,6 +205,7 @@ body {
   background-position: top center;  
   background-size: 100vh;
 	background-image:   url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIj8+PHN2ZyB3aWR0aD0iNTEyIiBoZWlnaHQ9IjI1NiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4gIDxnPiAgPHRpdGxlPmJhY2tncm91bmQ8L3RpdGxlPiAgPHJlY3QgZmlsbD0idHJhbnNwYXJlbnQiIGlkPSJjYW52YXNfYmFja2dyb3VuZCIgaGVpZ2h0PSIyNTgiIHdpZHRoPSI1MTQiIHk9Ii0xIiB4PSItMSIvPiAgPGcgZGlzcGxheT0ibm9uZSIgb3ZlcmZsb3c9InZpc2libGUiIHk9IjAiIHg9IjAiIGhlaWdodD0iMTAwJSIgd2lkdGg9IjEwMCUiIGlkPSJjYW52YXNHcmlkIj4gICA8cmVjdCBmaWxsPSJ1cmwoI2dyaWRwYXR0ZXJuKSIgc3Ryb2tlLXdpZHRoPSIwIiB5PSIwIiB4PSIwIiBoZWlnaHQ9IjEwMCUiIHdpZHRoPSIxMDAlIi8+ICA8L2c+IDwvZz4gPGc+ICA8dGl0bGU+TGF5ZXIgMTwvdGl0bGU+ICA8cmVjdCBzdHJva2U9IiNmZmFjMTUiIGlkPSJzdmdfMzQ3IiBoZWlnaHQ9IjguNjY2NDIyIiB3aWR0aD0iNy45OTk3NzMiIHk9IjM3LjAwMjU4MiIgeD0iNTIuMDA1Nzg3IiBzdHJva2Utd2lkdGg9IjAiIGZpbGw9IiNmZmZmZmYiLz4gIDxyZWN0IHN0cm9rZT0iI2ZmYWMxNSIgaWQ9InN2Z18zNTQiIGhlaWdodD0iOC42NjY0MjIiIHdpZHRoPSI3Ljk5OTc3MyIgeT0iMzcuMDAyNTgyIiB4PSI1Mi4wMDU3ODciIHN0cm9rZS13aWR0aD0iMCIgZmlsbD0iI2ZmZmZmZiIvPiAgPHJlY3Qgc3Ryb2tlPSIjZmZhYzE1IiBpZD0ic3ZnXzM1NSIgaGVpZ2h0PSI4LjY2NjQyMiIgd2lkdGg9IjcuOTk5NzczIiB5PSIxMjUuMTI1OTExIiB4PSIxNDMuMTI0ODE0IiBzdHJva2Utd2lkdGg9IjAiIGZpbGw9IiNmZmZmZmYiLz4gIDxyZWN0IHN0cm9rZT0iI2ZmYWMxNSIgaWQ9InN2Z18zNTYiIGhlaWdodD0iOC42NjY0MjIiIHdpZHRoPSI3Ljk5OTc3MyIgeT0iOTEuNDI0MzU0IiB4PSIxOTkuNTQzNzE3IiBzdHJva2Utd2lkdGg9IjAiIGZpbGw9IiNmZmZmZmYiLz4gIDxyZWN0IHN0cm9rZT0iI2ZmYWMxNSIgaWQ9InN2Z18zNTciIGhlaWdodD0iOC42NjY0MjIiIHdpZHRoPSI3Ljk5OTc3MyIgeT0iMTM1Ljg2MDQ4MSIgeD0iMjk3LjY1MjY5NSIgc3Ryb2tlLXdpZHRoPSIwIiBmaWxsPSIjZmZmZmZmIi8+ICA8cmVjdCBzdHJva2U9IiNmZmFjMTUiIGlkPSJzdmdfMzU4IiBoZWlnaHQ9IjguNjY2NDIyIiB3aWR0aD0iNy45OTk3NzMiIHk9IjM5Ljk5ODI3NSIgeD0iMzYyLjU1OTM5NSIgc3Ryb2tlLXdpZHRoPSIwIiBmaWxsPSIjZmZmZmZmIi8+ICA8cmVjdCBzdHJva2U9IiNmZmFjMTUiIGlkPSJzdmdfMzU5IiBoZWlnaHQ9IjguNjY2NDIyIiB3aWR0aD0iNy45OTk3NzMiIHk9IjgzLjY4NTQ3OCIgeD0iNDIzLjcyMTQ3OCIgc3Ryb2tlLXdpZHRoPSIwIiBmaWxsPSIjZmZmZmZmIi8+ICA8cmVjdCBzdHJva2U9IiNmZmFjMTUiIGlkPSJzdmdfMzYwIiBoZWlnaHQ9IjguNjY2NDIyIiB3aWR0aD0iNy45OTk3NzMiIHk9IjE4MS41NDQ4MTUiIHg9IjQzNi40NTMxNzciIHN0cm9rZS13aWR0aD0iMCIgZmlsbD0iI2ZmZmZmZiIvPiAgPHJlY3Qgc3Ryb2tlPSIjZmZhYzE1IiBpZD0ic3ZnXzM2MSIgaGVpZ2h0PSI4LjY2NjQyMiIgd2lkdGg9IjcuOTk5NzczIiB5PSIzMC44NzgxMjgiIHg9IjQ3Ny40NTMxODUiIHN0cm9rZS13aWR0aD0iMCIgZmlsbD0iI2ZmZmZmZiIvPiAgPHJlY3Qgc3Ryb2tlPSIjZmZhYzE1IiBpZD0ic3ZnXzM2MiIgaGVpZ2h0PSI4LjY2NjQyMiIgd2lkdGg9IjcuOTk5NzczIiB5PSIxMDMuMjExNDcxIiB4PSIyMi40NTMxMjQiIHN0cm9rZS13aWR0aD0iMCIgZmlsbD0iI2ZmZmZmZiIvPiAgPHJlY3Qgc3Ryb2tlPSIjZmZhYzE1IiBpZD0ic3ZnXzM2MyIgaGVpZ2h0PSI4LjY2NjQyMiIgd2lkdGg9IjcuOTk5NzczIiB5PSI0Ljg3ODEyIiB4PSIyNDUuMTE5ODI2IiBzdHJva2Utd2lkdGg9IjAiIGZpbGw9IiNmZmZmZmYiLz4gIDxyZWN0IHN0cm9rZT0iI2ZmYWMxNSIgaWQ9InN2Z18zNjQiIGhlaWdodD0iOC42NjY0MjIiIHdpZHRoPSI3Ljk5OTc3MyIgeT0iMTg4LjU0NDgyMiIgeD0iODYuMTE5Nzk1IiBzdHJva2Utd2lkdGg9IjAiIGZpbGw9IiNmZmZmZmYiLz4gPC9nPjwvc3ZnPg==);
+	will-change: transform;
 }
 .parallax__layer--back {
   padding: 0 200vw;
@@ -216,10 +219,18 @@ body {
   background-position: bottom center;  
   background-size: 250vh;
   background-image: url(../images/background_deep.svg);
+  will-change: transform;
 }
 .parallax__layer--base{
   padding: 0 300vw;
+  will-change: transform;
 }
+
+#playing_background {
+  display:none;
+  background-image: url(../images/forefront_background.svg);
+}
+
 .parallax__layer--base .background {
   top: 0;
   right: 0;
@@ -228,12 +239,7 @@ body {
   background-repeat: repeat-x;
   background-position: bottom center;  
   background-size: 150vh;  
+  transform: translateZ(0);
   background-image: url(../images/forefront_background_ambient.svg);
-  opacity: 1.0;
-  -webkit-transition:  background 1000ms ease-in 1000ms;
-  -moz-transition:  background 1000ms ease-in 1000ms;
-  -o-transition:  background 1000ms ease-in 1000ms;
-  -ms-transition: background 1000ms ease-in 1000ms;
-  transition: background 1000ms ease-in 1000ms;
-  transition: background 1000ms ease-in 1000ms;
+  will-change: transform;
 }

@@ -29,6 +29,22 @@ var ctx, engine, runnerAnimation, then, now, fpsInterval, frameCount = 0, transf
     // hide the canvas to present the title screen.
     document.querySelector("#runner_container").style.display = "none";
     document.querySelector("#runner_before").style.display = "block";
+
+    (async () => {
+        // preload images
+        var images = ["public/images/forefront_background_ambient.svg", "public/images/forefront_background.svg"];
+        for (var i = 0; i < images.length; i++) {
+            var img = new Image();
+            img.onload = function() {
+                var index = images.indexOf(this);
+                if (index !== -1) {
+                    // remove image from the array once it's loaded due to memory consumption
+                    images.splice(index, 1);
+                }
+            }
+            img.src = images[i];
+        }
+    })();
 })();
 
 // add event handlers
@@ -52,7 +68,7 @@ window.onload = function() {
     }
 
     // if the user has a mobile device, allow fullscreen. Otherwise it will impact the user experience, so disable it.
-    if (window.matchMedia("only screen and (max-width: 760px)").matches === true) {
+    if (window.matchMedia("only screen and (max-width: 768px)").matches === true || window.matchMedia("only screen and (max-height: 768px)").matches === true) {
         //Conditional script here
         document.addEventListener('fullscreenchange', toggleFullScreen, false);
         document.addEventListener('mozfullscreenchange', toggleFullScreen, false);
@@ -63,8 +79,12 @@ window.onload = function() {
 
 function start_handler() {
     // if the user has a mobile device, allow fullscreen. Otherwise it will impact the user experience, so disable it.
-    if (window.matchMedia("only screen and (max-width: 760px)").matches === true) toggleFullScreen(true);
-    document.querySelector(".parallax__layer--base .background").style.backgroundImage = 'url("public/images/forefront_background.svg")';
+    if (window.matchMedia("only screen and (max-width: 768px)").matches === true || window.matchMedia("only screen and (max-height: 768px)").matches === true) { 
+        toggleFullScreen(true);
+    }
+
+    document.querySelector("#idle_background").style.display = 'none';
+    document.querySelector("#playing_background").style.display = 'block';
     document.querySelector("#runner_container").style.display = "block";
     document.querySelector("#runner_before").style.display = "none";
     setSize(); //make sure canvas is sized properly.
@@ -98,17 +118,20 @@ function run() {
         // twice a second, translate the background to give the impression of motion.
         if (frameCount++ % Math.floor(50/fpsInterval) === 0) {
             // give the effect of parallax for background - back elements move more slowly than forward ones.
-            document.querySelector(".parallax__layer--base").style.transform = "translateZ(0) translate(-" + Math.floor(transform++) + "px)";
-            document.querySelector(".parallax__layer--back").style.transform = "translateZ(-1px) scale(2) translate(-" + Math.floor(transform/3) + "px)";
+            document.querySelector(".parallax__layer--base").style.transform = "translateZ(0) translateX(-" + Math.floor(transform++) + "px)";
+            document.querySelector(".parallax__layer--back").style.transform = "translateZ(0) translateX(-" + Math.floor(transform/3) + "px)";
         }
     }
 }
 
 function restart_handler() {
     document.querySelector("#runner_after").style.display = "none";
-    document.querySelector(".parallax__layer--base .background").style.backgroundImage = 'url("public/images/forefront_background.svg")';
+    document.querySelector("#idle_background").style.display = 'none';
+    document.querySelector("#playing_background").style.display = 'block';
     // if the user has a mobile device, allow fullscreen. Otherwise it will impact the user experience, so disable it.
-    if (window.matchMedia("only screen and (max-width: 760px)").matches === true) toggleFullScreen(true);
+    if (window.matchMedia("only screen and (max-width: 768px)").matches === true || window.matchMedia("only screen and (max-height: 768px)").matches === true) { 
+        toggleFullScreen(true);
+    }
     engine.restart();
     setSize();
 }
