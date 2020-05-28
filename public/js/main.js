@@ -50,12 +50,12 @@ var ctx, engine, runnerAnimation, then, now, fpsInterval, frameCount = 0, transf
 // add event handlers
 window.onload = function() {
     setupAudio();
-    document.querySelector("#start_runner_btn").addEventListener("click", start_handler);
-    document.querySelector("#restart_runner_btn").addEventListener("click", restart_handler);
+    document.querySelector("#start_runner_btn").addEventListener("click", startHandler);
+    document.querySelector("#restart_runner_btn").addEventListener("click", restartHandler);
     // process a jump
-    document.querySelector("#runner_container").addEventListener("click", () => engine.do_jump()); // click
+    document.querySelector("#runner_container").addEventListener("click", () => engine.processJump()); // click
     document.onkeypress = function(event) {  // spacebar
-        if (event.which == "32") engine.do_jump();
+        if (event.which == "32") engine.processJump();
     };
 
     // resize the window
@@ -77,7 +77,7 @@ window.onload = function() {
     }
 }
 
-function start_handler() {
+function startHandler() {
     // if the user has a mobile device, allow fullscreen. Otherwise it will impact the user experience, so disable it.
     if (window.matchMedia("only screen and (max-width: 768px)").matches === true || window.matchMedia("only screen and (max-height: 768px)").matches === true) { 
         toggleFullScreen(true);
@@ -101,9 +101,9 @@ function setSize() {
     if (engine) {
         // Increase the fps for higher pixel counts to prevent ghosting.
         // Higher pixel counts also necessitate faster CPUs and GPUs, so a higher framerate is more tolerable.
-        engine.adjust_for_fps(1000/fpsInterval);
+        engine.adjustForFps(1000/fpsInterval);
         // Resize each of the entities to maintain the same scale
-        engine.resize_entities(ctx, original_size);
+        engine.resizeEntities(ctx, original_size);
     }
 }
 
@@ -116,7 +116,7 @@ function run() {
         engine.step();
         document.querySelector("#score").innerHTML = engine.score;
         // twice a second, translate the background to give the impression of motion.
-        if (frameCount++ % Math.floor(50/fpsInterval) === 0) {
+        if (engine.velocityX !== 0 && frameCount++ % Math.floor(50/fpsInterval) === 0) {
             // give the effect of parallax for background - back elements move more slowly than forward ones.
             document.querySelector(".parallax__layer--base").style.transform = "translateZ(0) translateX(-" + Math.floor(transform++) + "px)";
             document.querySelector(".parallax__layer--back").style.transform = "translateZ(0) translateX(-" + Math.floor(transform/3) + "px)";
@@ -124,7 +124,7 @@ function run() {
     }
 }
 
-function restart_handler() {
+function restartHandler() {
     document.querySelector("#runner_after").style.display = "none";
     document.querySelector("#idle_background").style.display = 'none';
     document.querySelector("#playing_background").style.display = 'block';

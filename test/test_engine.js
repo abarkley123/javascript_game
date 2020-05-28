@@ -22,12 +22,11 @@ describe('Engine', function() {
         assert.strictEqual(engine.player.y, 33);
         assert.strictEqual(engine.player.width, 4);
         assert.strictEqual(engine.player.height, 4);
-        assert.strictEqual(engine.player.jumpSize, - Math.min(32, engine.ctx.canvas.offsetWidth / 25));
+        assert.strictEqual(engine.player.jumpVelocity, - Math.min(32, engine.ctx.canvas.offsetWidth / 25));
         assert.strictEqual(engine.player.onPlatform, false);
         assert.strictEqual(Math.floor(engine.platformManager.maxDistanceBetween), 164);
         assert.strictEqual(Math.floor(engine.platformManager.minDistanceBetween), 0);
         assert.strictEqual(engine.platformManager.platforms.length, 3);
-        assert.strictEqual(engine.platformManager.colliding, false);
         assert.strictEqual(engine.particles.length, 0);
         assert.strictEqual(engine.particlesIndex, -1);
         assert.strictEqual(engine.particlesMax, 10);
@@ -52,12 +51,11 @@ describe('Engine', function() {
         assert.strictEqual(engine.player.y, 33);
         assert.strictEqual(engine.player.width, 4);
         assert.strictEqual(engine.player.height, 4);
-        assert.strictEqual(engine.player.jumpSize, - Math.min(32, engine.ctx.canvas.offsetWidth / 25));
+        assert.strictEqual(engine.player.jumpVelocity, - Math.min(32, engine.ctx.canvas.offsetWidth / 25));
         assert.strictEqual(engine.player.onPlatform, false);
         assert.strictEqual(Math.floor(engine.platformManager.maxDistanceBetween), 164);
         assert.strictEqual(Math.floor(engine.platformManager.minDistanceBetween), 0);
         assert.strictEqual(engine.platformManager.platforms.length, 3);
-        assert.strictEqual(engine.platformManager.colliding, false);
         assert.strictEqual(engine.particles.length, 0);
         assert.strictEqual(engine.particlesIndex, -1);
         assert.strictEqual(engine.particlesMax, 10);
@@ -233,7 +231,7 @@ describe('Engine', function() {
         // check the player moved
         assert.strictEqual(engine.velocityX, 0); 
         assert.strictEqual(engine.player.velocityX, 0); 
-        assert.strictEqual(engine.player.velocityY, engine.player.jumpSize/2); 
+        assert.strictEqual(engine.player.velocityY, engine.player.jumpVelocity/2); 
         assert.strictEqual(engine.accelerationTweening, 0);
         assert.strictEqual(document.querySelector("#runner_after").style.display, "block");
         assert.strictEqual(document.querySelector("#idle_background").style.display, "block");

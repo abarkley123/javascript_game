@@ -3,81 +3,68 @@ import {random, randomChoice} from "./util.js";
 
 export class PlatformManager {
 
-    constructor(ctx, dist_between, jump_height) {
-            this.maxDistanceBetween = Math.min(32, ctx.canvas.offsetWidth / 25)  + dist_between * 0.8;
-            this.minDistanceBetween = 0; // don't force a jump
-            this.maxHeightDistance = jump_height * 0.8;
-            this.colors = this.create_gradients();
-
+    constructor(ctx, jumpSizes) {
             this.platforms = []
+            this.minDistanceX = 0; // don't force a jump
+            this.maxDistanceX = Math.min(32, ctx.canvas.offsetWidth / 25)  + jumpSizes[0] * 0.8;
+            this.maxDistanceY = jumpSizes[1] * 0.8;
+            
+            let colors = [["#4A205A", "#2D0754"], ["#58186F", "#1B082E"]];
             let numPlatforms = 3 + Math.floor(ctx.canvas.offsetWidth / 1000);
+            let startX = 0, canvasWidth = ctx.canvas.width, canvasHeight = ctx.canvas.height;
             for (let idx = 0; idx < numPlatforms; idx++) {
-                let last = this.platforms[this.platforms.length - 1];
-                this.platforms[this.platforms.length] = new Platform({
-                    x: this.platforms.length > 0 ? last.x + last.width + random(this.minDistanceBetween, this.maxDistanceBetween) : ctx.canvas.offsetWidth / 5,
-                    y: random(ctx.canvas.offsetHeight / 1.1, ctx.canvas.offsetHeight/ 1.1 - this.maxHeightDistance),
-                    width: random(Math.min(ctx.canvas.width, 1000), Math.min(ctx.canvas.width, 2000)),
-                    height: random(ctx.canvas.offsetHeight/5, ctx.canvas.offsetHeight/2.5),
-                    color: randomChoice(this.colors),
-                    ctx
-                });
-            }
+                let position = [startX + this.minDistanceX, random(canvasHeight/1.1, canvasHeight/ 1.1 - this.maxDistanceY)];
+                let size = [random(Math.min(canvasWidth, 1000), Math.min(canvasWidth, 2000)), canvasHeight - position[1]];
 
-            this.colliding = false;
+                this.platforms[idx] = new Platform({
+                    color: randomChoice(colors)[1],
+                    gradient: this.createColorGradient(ctx, randomChoice(colors), position, size)
+                });
+
+                startX = position[0] + size[0];
+                this.platforms[idx].initialise(position, size);
+            }
     }
 
     update(canvas, velocity, maxSpikes) {
-        for (let platform in this.platforms) {
-            // update platform and spike positions
-            this.platforms[platform].x -= velocity;
-            for (let spike of this.platforms[platform].spikes) spike.update(velocity);
+        for (let lastPlatform, i = 0; i < this.platforms.length; i++) {
+            this.platforms[i].update(velocity);
+
+            console.log(this.maxDistanceX + " " + this.maxDistanceY);
             // if any platforms have moved off the screen, reuse that object.
-            if (this.platforms[platform].x + this.platforms[platform].width < 0) {
-                let endPlatform = this.platforms[platform > 0 ? platform - 1 : this.platforms.length - 1];
+            if (this.platforms[i].outOfBounds(canvas) === true) {
+                let startX = this.platforms[lastPlatform = i > 0 ? i - 1 : this.platforms.length - 1].x + this.platforms[lastPlatform].width;
+                let position = [startX + random(this.minDistanceX, this.maxDistanceX), random(canvas.height/1.1, canvas.height/1.1 - this.maxDistanceY)];
+                let size = [random(Math.min(canvas.width, 1000), Math.min(canvas.width, 2000)), canvas.offsetHeight - position[1]];
 
-                this.platforms[platform].width = random(Math.min(canvas.width, 1000), Math.min(canvas.width, 2000));
-                this.platforms[platform].x = (endPlatform.x + endPlatform.width) + random(this.minDistanceBetween, this.maxDistanceBetween);
-                this.platforms[platform].y =  random(canvas.offsetHeight / 1.1, canvas.offsetHeight/ 1.1 - this.maxHeightDistance);
-                this.platforms[platform].height = canvas.offsetHeight - this.platforms[platform].y;
-
-                // create new spikes if at that stage.
-                if (maxSpikes >= 1) {
-                    this.platforms[platform].spikes = [];
-                    this.platforms[platform].createSpikes(random(0, maxSpikes));
-                }
-            }   
-        }
-    }
-
-    update_platform_gaps(jump_distance, jump_height) {
-        this.maxDistanceBetween = jump_distance;
-        this.maxHeightDistance = jump_height;
-    }
-
-    resize(ctx, original_sizes, dist_between) {
-        let width_ratio = ctx.canvas.width / original_sizes[0];
-        let height_ratio = ctx.canvas.height / original_sizes[1];
-
-        for (let platform of this.platforms) {
-            platform.width *= width_ratio;
-            platform.x *= width_ratio;
-            platform.height *= height_ratio;
-            platform.y *= height_ratio;
-
-            // reposition the spikes
-            for (let spike of platform.spikes) {
-                spike.x *= width_ratio;
-                spike.y = platform.y - 48;
+                this.platforms[i].initialise(position, size);  
+                this.platforms[i].createSpikes(random(0, maxSpikes));
             }
-        }
-
-        this.maxDistanceBetween = Math.min(32, ctx.canvas.offsetWidth / 25)  + dist_between * 0.8;
+        };
     }
 
-    create_gradients() {
-        let gradients = [];
-        gradients.push(["#4A205A", "#2D0754"]);
-        gradients.push(["#58186F", "#1B082E"])
-        return gradients;
+    updatePlatformGaps(jumpSizes) {
+        this.maxDistanceX = jumpSizes[0] * 0.8;
+        this.maxDistanceY = jumpSizes[1];
+    }
+
+    resize(ctx, originalSizes) {
+        let widthRatio = ctx.canvas.width / originalSizes[0];
+        let heightRatio = ctx.canvas.height / originalSizes[1];
+
+        this.platforms.forEach(platform => {
+            let position = [platform.x * widthRatio, platform.y * heightRatio];
+            let size = [platform.width * widthRatio, platform.height * heightRatio];
+            platform.initialise(position, size);
+            platform.spikes.forEach(spike => spike.setPosition(spike.x * widthRatio, platform.y - 48));
+        });
+    }
+
+    createColorGradient(ctx, colors, position, size) {
+        // Create a gradient starting from x0, y0, x1, y1.
+        let gradient = ctx.createLinearGradient(position[0], position[1], position[0], position[1] + size[1]/6);
+        gradient.addColorStop(0, colors[0]);
+        gradient.addColorStop(1, colors[1]);
+        return gradient;
     }
 }

@@ -3,36 +3,39 @@ import {random} from "./util.js";
 
 export class Platform extends Vector2 {
 
+    // default constructor
     constructor(options) {
-        super(options.x, options.y, options.width, options.height);
-        this.previousX = 0;
-        this.previousY = 0;
+        super(0, 0, 0, 0);
+        this.setup(options.color, options.gradient);
+    }
+
+    setup(color, gradient) {
         this.spikes = [];
-        this.color = options.color[0];
-        this.grd = options.ctx.createLinearGradient(this.x, this.y, this.x, this.y + this.height);
-        this.grd.addColorStop(0, options.color[0]);
-        this.grd.addColorStop(1, options.color[1]);
+        this.color = color;
+        this.grd = gradient;       
+    }
+
+    update(velocity) {
+        this.setPosition(this.x - velocity, this.y);
+        this.spikes.forEach(spike => spike.update(velocity));
     }
 
     draw(ctx) {
         ctx.fillStyle = this.grd;
         // avoid sub pixel rendering, so use integers instead of floats
         ctx.fillRect(Math.floor(this.x), Math.floor(this.y), Math.floor(this.width), Math.floor(this.height));
+        this.spikes.forEach((spike) => spike.draw(ctx));
     }
 
-    createSpikes(number) {
-        this.spikes = [];
-        try {
-            for (let i = 0; i < number; i++) {
-                this.spikes.push(new Spike({
-                    x: this.x + random(48, this.width - 48),
-                    y: this.y - (48),
-                    width: 48,
-                    height: 48
-                }));
+    createSpikes(number = 0) {
+        // reuse objects - only create where needed. 
+        for (let i = 0; i < Math.max(this.spikes.length, number); i++) {
+            if (i > number) {
+                this.spikes[i].initialise([0, 0], [0, 0]);
+            } else {
+                if (i >= this.spikes.length) this.spikes.push(new Spike({color:"#9E111C"}));  
+                this.spikes[i].initialise([this.x + random(48, this.width - 48), this.y - (48)], [48, 48]);
             }
-        } catch (UninitialisedException) {
-            console.log("Exception encountered when trying to spawn spikes:\n" + UninitialisedException);
         }
     }
 }
@@ -40,10 +43,8 @@ export class Platform extends Vector2 {
 class Spike extends Vector2 {
 
     constructor(options) {
-        super(options.x, options.y, options.width, options.height);
-        this.previousX = 0;
-        this.previousY = 0;
-        this.color = "#9E111C";
+        super(0, 0, 0, 0);
+        this.color = options.color;
     }
 
     draw(ctx) {
@@ -57,6 +58,6 @@ class Spike extends Vector2 {
     }
 
     update(velocity) {
-        this.x -= velocity;
+        this.setPosition(this.x - velocity, this.y);
     }
 }
