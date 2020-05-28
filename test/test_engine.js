@@ -213,14 +213,22 @@ describe('Engine', function() {
         let engine = new GameEngine(new TestContext(100, 99), 40);
         engine.player.y = 100;
         // create mock divs
-        var div = document.createElement('div');
+        let div = document.createElement('div');
         div.setAttribute('id', 'runner_after');
         div.style.display = "none";
-        div.setAttribute('class', 'parallax__layer--base');
-        var child_div = document.createElement('div');
-        child_div.setAttribute('class', 'background');
-        div.appendChild(child_div)
+
+        let idle_background = document.createElement('div');
+        idle_background.setAttribute('id', 'idle_background');
+        idle_background.style.display = "none";
+
+        let playing_background = document.createElement('div');
+        playing_background.setAttribute('id', 'playing_background');
+        playing_background.style.display = "block";
+
         document.body.appendChild(div);
+        document.body.appendChild(idle_background);
+        document.body.appendChild(playing_background);
+
         engine.update();
         // check the player moved
         assert.strictEqual(engine.velocityX, 0); 
@@ -228,7 +236,8 @@ describe('Engine', function() {
         assert.strictEqual(engine.player.velocityY, engine.player.jumpSize/2); 
         assert.strictEqual(engine.accelerationTweening, 0);
         assert.strictEqual(document.querySelector("#runner_after").style.display, "block");
-        assert.strictEqual(document.querySelector(".parallax__layer--base .background").style.backgroundImage, 'url(public/images/forefront_background_ambient.svg)');
+        assert.strictEqual(document.querySelector("#idle_background").style.display, "block");
+        assert.strictEqual(document.querySelector("#playing_background").style.display, "none");
     });
   });
 });
