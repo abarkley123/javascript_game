@@ -1,4 +1,5 @@
 import GameEngine from "./engine.js";
+import {AudioManager} from "./audio_manager.js";
 
 // rendering tools for cross browser support
 window.requestAnimationFrame = window.requestAnimationFrame ||
@@ -45,11 +46,13 @@ var ctx, engine, runnerAnimation, then, now, fpsInterval, frameCount = 0, transf
             img.src = images[i];
         }
     })();
+
+    let audio_manager = new AudioManager();
 })();
 
 // add event handlers
 window.onload = function() {
-    setupAudio();
+    // setupAudio();
     document.querySelector("#start_runner_btn").addEventListener("click", startHandler);
     document.querySelector("#restart_runner_btn").addEventListener("click", restartHandler);
     // process a jump
@@ -149,52 +152,3 @@ function toggleFullScreen(restart = false) {
       cancelFullScreen.call(doc);
     }
 }
-
-/** Define functions to play an audio file (located under public/audio/) 
- * Background music supplied by Eva – 失望した: https://youtu.be/jVTsD4UPT-k, 
- * License: Creative Commons Attribution 3.0 - http://bit.ly/RFP_CClicense. **/
-
-// This function should load all audio files.
-function setupAudio() {
-    let bgm = new Audio('public/audio/background_music.mp3');
-    bgm.volume = 0.4;
-    bgm.addEventListener('ended', function() {
-      this.currentTime = 0;
-      this.play();
-    }, false);
-    
-    playAudio(bgm);
-    // pause the music when the user changes tabs.
-    document.addEventListener("visibilitychange", () => {
-            try {
-              if (document.hidden){
-                  bgm.pause();
-              } else {
-                  bgm.play();
-              }
-            } catch (NoSuchAudioException) {
-              console.log("Unable to change state of audio.");
-            }
-    }, false);
-  }
-  
-function playAudio(bgm) {
-    const play = bgm.play();
-  
-    if (play) {
-      play.then(() => {
-        return;
-      }).catch(function(AudioException) {
-        console.log('Audio Failed to play due to cause: \n' + AudioException);
-        handleAudioFailure(bgm);
-      });
-    }
-  }
-  
-// retry
-function handleAudioFailure(bgm) {
-    setTimeout(() => {
-        playAudio(bgm);
-    }, 1500);  
-}
-  

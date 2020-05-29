@@ -26,11 +26,10 @@ export class PlatformManager {
             }
     }
 
-    update(canvas, velocity, maxSpikes) {
+    update(canvas, velocity, difficultyLevel) {
         for (let lastPlatform, i = 0; i < this.platforms.length; i++) {
             this.platforms[i].update(velocity);
 
-            console.log(this.maxDistanceX + " " + this.maxDistanceY);
             // if any platforms have moved off the screen, reuse that object.
             if (this.platforms[i].outOfBounds(canvas) === true) {
                 let startX = this.platforms[lastPlatform = i > 0 ? i - 1 : this.platforms.length - 1].x + this.platforms[lastPlatform].width;
@@ -38,7 +37,7 @@ export class PlatformManager {
                 let size = [random(Math.min(canvas.width, 1000), Math.min(canvas.width, 2000)), canvas.offsetHeight - position[1]];
 
                 this.platforms[i].initialise(position, size);  
-                this.platforms[i].createSpikes(random(0, maxSpikes));
+                this.platforms[i].createSpikes(random(0, Math.floor(difficultyLevel/2)));
             }
         };
     }

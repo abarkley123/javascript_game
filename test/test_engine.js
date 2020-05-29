@@ -4,7 +4,6 @@ import GameEngine from "../public/js/engine.js";
 import {Particle} from "../public/js/particle.js";
 import {Player} from "../public/js/player.js";
 import {Platform} from "../public/js/platform.js";
-import { DEFAULT_MAX_VERSION } from "tls";
 
 var TestContext = require("./context.js");
 
@@ -30,8 +29,6 @@ describe('Engine', function() {
         assert.strictEqual(engine.particles.length, 0);
         assert.strictEqual(engine.particlesIndex, -1);
         assert.strictEqual(engine.particlesMax, 10);
-        assert.strictEqual(engine.collidedPlatform, null);
-        assert.strictEqual(engine.scoreColor, "#fff");
         assert.strictEqual(engine.jumpCountRecord, 0);
         assert.strictEqual(engine.maxSpikes, 0);
         assert.strictEqual(engine.updated, false);
@@ -59,8 +56,6 @@ describe('Engine', function() {
         assert.strictEqual(engine.particles.length, 0);
         assert.strictEqual(engine.particlesIndex, -1);
         assert.strictEqual(engine.particlesMax, 10);
-        assert.strictEqual(engine.collidedPlatform, null);
-        assert.strictEqual(engine.scoreColor, "#fff");
         assert.strictEqual(engine.jumpCountRecord, 0);
         assert.strictEqual(engine.maxSpikes, 0);
         assert.strictEqual(engine.updated, false);

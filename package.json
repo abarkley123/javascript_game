@@ -5,8 +5,9 @@
   "main": "server.js",
   "scripts": {
     "test": "nyc --reporter=html mocha",
-    "start": "node server.js"
+    "start": "node --experimental-modules server.js"
   },
+  "type": "module",
   "mocha": {
     "require": [
       "esm"
@@ -42,6 +43,9 @@
     "nyc": "^15.0.1"
   },
   "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-preset-es2015": "^6.24.1",
+    "fs": "0.0.1-security",
     "jsdom": "16.2.2",
     "jsdom-global": "3.0.2"
   }

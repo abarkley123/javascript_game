@@ -14,8 +14,7 @@ export class Player extends Vector2 {
     }
 
     update() {
-        // Applying 'fallSpeed' up to a maximum i.e. terminal velocity
-        if (this.onPlatform === false && this.velocityY < 117) this.velocityY += this.fallSpeed;
+        this.velocityY = this.onPlatform === true ? 0 : this.velocityY + this.fallSpeed;
         this.setPosition(this.x, this.y + this.velocityY);
     }
 
@@ -33,11 +32,7 @@ export class Player extends Vector2 {
         let heightRatio = ctx.canvas.height / originalSizes[1];
         this.setPosition(ctx.canvas.width / 5, this.y * heightRatio);
         // set new velocity
-        if (this.onPlatform === false) {
-            this.velocityY *= heightRatio;
-        } else {
-            this.velocityY = 0;
-        }
+        this.velocityY = this.onPlatform === true ? 0 : this.velocityY *= heightRatio;
     }
 
     // adjust the jump height and fallSpeed so that the player moves consistently.
