@@ -1,7 +1,7 @@
 // setup web server
 import express from 'express';
 import path from 'path';
-import readdir from 'fs';
+import * as fs from 'fs';
 
 // Constants
 const PORT = 8080;
@@ -10,7 +10,6 @@ const HOST = '0.0.0.0';
 // App
 const app = express();
 app.use("/public", express.static(path.resolve() + "/public"));
-// app.use('/', express.static(__dirname + "/views/"));
 
 app.get('/', function(req, res) {
     res.sendFile(path.resolve() + '/views/index.html');
@@ -27,16 +26,21 @@ app.get("/audio", function(req, res) {
     }).catch(e => {return e;});
 });
 
-async function getAudioFiles(dir = "/c/Users/Andy/Desktop/Git/javascript_game/public/audio/") {
-    console.log(dir);
-    const dirents = await readdir(dir, { withFileTypes: true });
-    console.log(dirents);
-    const files = await Promise.all(dirents.map((dirent) => {
-      const res = path.resolve(dir, dirent.name);
-      return dirent.isDirectory() ? getFiles(res) : res;
-    }));
-    console.log(files);
-    return Array.prototype.concat(...files);
+async function getAudioFiles(dir = path.resolve() + "/public/audio") {
+    var results = [];
+    var list = fs.readdirSync(dir);
+    list.forEach(function(file) {
+        file = dir + '/' + file;
+        var stat = fs.statSync(file);
+        if (stat && stat.isDirectory()) { 
+            /* Recurse into a subdirectory */
+            results = results.concat(walk(file));
+        } else { 
+            /* Is a file */
+            results.push(file);
+        }
+    });
+    return results;
 }
 
 app.listen(PORT, HOST);
