@@ -23,8 +23,10 @@ describe('Engine', function() {
         assert.strictEqual(engine.player.height, 4);
         assert.strictEqual(engine.player.jumpVelocity, - Math.min(32, engine.ctx.canvas.offsetWidth / 25));
         assert.strictEqual(engine.player.onPlatform, false);
-        assert.strictEqual(Math.floor(engine.platformManager.maxDistanceBetween), 164);
-        assert.strictEqual(Math.floor(engine.platformManager.minDistanceBetween), 0);
+        let jumpSizes = engine.player.getProjectileProperties(engine.velocityX, engine.player.jumpVelocity);
+        assert.strictEqual(Math.floor(engine.platformManager.maxDistanceX), Math.min(32, engine.ctx.canvas.width / 25) + jumpSizes[0] * 0.8);
+        assert.strictEqual(Math.floor(engine.platformManager.minDistanceX), 0);
+        assert.strictEqual(Math.floor(engine.platformManager.maxDistanceY), jumpSizes[1]);
         assert.strictEqual(engine.platformManager.platforms.length, 3);
         assert.strictEqual(engine.particles.length, 0);
         assert.strictEqual(engine.particlesIndex, -1);
@@ -50,8 +52,8 @@ describe('Engine', function() {
         assert.strictEqual(engine.player.height, 4);
         assert.strictEqual(engine.player.jumpVelocity, - Math.min(32, engine.ctx.canvas.offsetWidth / 25));
         assert.strictEqual(engine.player.onPlatform, false);
-        assert.strictEqual(Math.floor(engine.platformManager.maxDistanceBetween), 164);
-        assert.strictEqual(Math.floor(engine.platformManager.minDistanceBetween), 0);
+        assert.strictEqual(Math.floor(engine.platformManager.maxDistanceX), 164);
+        assert.strictEqual(Math.floor(engine.platformManager.minDistanceX), 0);
         assert.strictEqual(engine.platformManager.platforms.length, 3);
         assert.strictEqual(engine.particles.length, 0);
         assert.strictEqual(engine.particlesIndex, -1);
@@ -142,13 +144,13 @@ describe('Engine', function() {
       let fps = 40;
       let engine = new GameEngine(new TestContext(100, 99), fps);
         engine.jumpCount = 20;
-        let original_distance = engine.platformManager.maxDistanceBetween;
+        let original_distance = engine.platformManager.maxDistanceX;
         engine.update();
         // check that acceleration was updated when jump count % 10 === 0
         assert.strictEqual(engine.updated, true);
         assert.ok(engine.accelerationTweening > (2500 * (200 / fps))/(20 * fps));
-        assert.ok(engine.platformManager.maxDistanceBetween > original_distance);
-        assert.ok(engine.platformManager.minDistanceBetween > 0);
+        assert.ok(engine.platformManager.maxDistanceX > original_distance);
+        assert.ok(engine.platformManager.minDistanceX > 0);
         assert.strictEqual(engine.maxSpikes, 1);
         assert.strictEqual(engine.particlesMax, 15);
     });
