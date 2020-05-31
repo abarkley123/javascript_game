@@ -16,7 +16,7 @@ window.cancelAnimationFrame = window.cancelAnimationFrame ||
         clearTimeout(requestID)
     } //fall back
 
-var ctx, engine, runnerAnimation, then, now, fpsInterval, frameCount = 0, transform = 0;
+var ctx, engine, runnerAnimation, then, now, fpsInterval, frameCount = 0, transform = 0, audioManager = new AudioManager;
 
 (() => {
     // expose the canvas for a short time so that the game engine can resolve the offsetWidth.
@@ -46,8 +46,8 @@ var ctx, engine, runnerAnimation, then, now, fpsInterval, frameCount = 0, transf
             img.src = images[i];
         }
     })();
-
-    let audio_manager = new AudioManager();
+    // start the background music.
+    audioManager.playAudio("backgroundMain");
 })();
 
 // add event handlers
