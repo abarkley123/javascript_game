@@ -1,11 +1,24 @@
 // setup web server
 import express from 'express';
 import path from 'path';
-import * as fs from 'fs';
+import fs from 'fs';
+import config from "./config.json";
 
 // Constants
-const PORT = 8080;
-const HOST = '0.0.0.0';
+const PORT = config[process.env['NODE_ENV']].port;
+const HOST = config[process.env['NODE_ENV']].host;
+
+// setup config for the given environment (dev or prod)
+(function setupConfig() {
+    let env = process.env['NODE_ENV'];
+    let content = config[env], path = "./public/client_config.mjs";
+    //create client config file
+    fs.writeFile(path, "export default\n" + JSON.stringify(content), (err) => {
+        if (err) throw err;
+
+        console.log("Client config successfully written for " + env + ".");
+    })
+})();
 
 //CORS middleware
 var allowCrossDomain = function(req, res, next) {
@@ -39,6 +52,7 @@ app.get("/images", function(req, res) {
 function sendFiles(res, path) {
     getFiles(path)
     .then(files => {
+        console.log("Retrieved files: " + files);
         res.status(200).send({
             success: 'true',
             message: files

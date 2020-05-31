@@ -1,3 +1,5 @@
+import config from "../client_config.mjs";
+
 export class AudioManager {
 
     constructor() {
@@ -7,7 +9,7 @@ export class AudioManager {
             .then(() => console.log("Successfully loaded audio files."))
             .catch(e => console.log("Failed to setup audio due to cause: " + e));
     }
-    
+
      /* Background music supplied by Eva – 失望した: https://youtu.be/jVTsD4UPT-k, 
      * License: Creative Commons Attribution 3.0 - http://bit.ly/RFP_CClicense. 
      * Collision sound: @Shades https://opengameart.org/content/8-bit-sound-effect-pack-vol-001 
@@ -34,7 +36,8 @@ export class AudioManager {
                 }
             }
         }
-        xhr.open('GET', 'http://localhost:8080/audio', true);
+
+        xhr.open('GET', "http://" + config.address + ":" + config.port + '/audio', true);
         xhr.send();
     }
 
