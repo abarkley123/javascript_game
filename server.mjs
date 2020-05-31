@@ -7,9 +7,20 @@ import * as fs from 'fs';
 const PORT = 8080;
 const HOST = '0.0.0.0';
 
+//CORS middleware
+var allowCrossDomain = function(req, res, next) {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Headers', '*');
+    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
+
+    next();
+}
+
 // App
 const app = express();
+app.use(allowCrossDomain);
 app.use("/public", express.static(path.resolve() + "/public"));
+
 
 app.get('/', function(req, res) {
     res.sendFile(path.resolve() + '/views/index.html');
