@@ -37,7 +37,7 @@ export class PlatformManager {
                 let size = [random(Math.min(canvas.width, 1000), Math.min(canvas.width, 2000)), canvas.offsetHeight - position[1]];
 
                 this.platforms[i].initialise(position, size);  
-                this.platforms[i].createSpikes(random(0, Math.floor(difficultyLevel/2)));
+                this.platforms[i].createSpikes(random(0, Math.floor((difficultyLevel-1)/2)));
             }
         };
     }
