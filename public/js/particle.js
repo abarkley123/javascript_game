@@ -6,7 +6,7 @@ export class Particle extends Vector2 {
     constructor(options) {
         super(0, 0, options.size, options.size);
         // for reusing the particle
-        this.originalSize = this.width; 
+        this.originalSize = options.size; 
     }
 
     update() {

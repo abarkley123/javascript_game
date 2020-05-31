@@ -22,7 +22,7 @@ class GameEngine {
             width: Math.min(32, ctx.canvas.offsetWidth / 25), height: Math.min(32, ctx.canvas.offsetWidth / 25),
             jumpVelocity: - Math.min(32, ctx.canvas.offsetWidth / 25)
         });
-        this.particleManager = new ParticleManager(ctx);
+        this.particleManager = new ParticleManager({particlesMax: 10, particleSize: 3 + this.ctx.canvas.offsetWidth / 200});
         this.platformManager = new PlatformManager(ctx, this.player.getProjectileProperties(this.velocityX, Math.abs(this.player.jumpVelocity)));
         
         this.difficultyLevel = 0;
@@ -49,10 +49,10 @@ class GameEngine {
             if (this.player.outOfBounds(this.ctx.canvas)) this.handleCollision(this.player); 
             this.score += Math.floor((1000/40) * (1 + (this.jumpCount > 0 ? this.jumpCount / 100 : 0)));
 
-            if (this.jumpCount % 10 === 0 && this.jumpCount > 0 && this.jumpCount <= 60 && Math.floor(this.jumpCount/10) === difficultyLevel) {
+            if (this.jumpCount % 10 === 0 && this.jumpCount > 0 && this.jumpCount <= 60 && Math.floor(this.jumpCount/10) === this.difficultyLevel) {
                 this.difficultyLevel++;
                 this.accelerationTweening *= 1.05;
-                this.particleManager.increaseParticleCountTo(Math.min(25, this.particlesMax + 5));
+                this.particleManager.increaseParticleCountTo(Math.min(25, this.particleManager.particlesMax + 5));
                 // update platform spacing to accomodate for increased speed.
                 this.platformManager.minDistanceBetween += this.platformManager.maxDistanceBetween/16;
                 this.platformManager.updatePlatformGaps(this.player.getProjectileProperties(this.velocityX, this.player.jumpVelocity));
@@ -67,15 +67,15 @@ class GameEngine {
     }
 
     checkForCollisions() {
-        let collider;
         for (let platform of this.platformManager.platforms) {
-            if (collider = platform.spikes.find(spike => this.player.intersects(spike)) || this.player.intersectsLeft(platform, this.velocityX)) {
+            let collider = platform.spikes.filter(spike => this.player.intersects(spike));
+            if (Boolean(collider.width) || this.player.intersectsLeft(platform, this.velocityX)) {
                 this.handleCollision(collider || platform);
             } else if (this.player.intersects(platform)) {
                 this.player.jumpsLeft = 2;
                 this.player.onPlatform = true;  
                 this.player.y = platform.y - this.player.height;
-                this.particleManager.spawnParticles(this.player.x * 1.1, platform.y * 0.975, 0, platform);
+                this.particleManager.spawnParticles(this.player.x * 1.1, this.player.y + this.player.height * 0.975, 0, platform);
                 break; // found the collider, so no point continuing (two platforms never occupy same space).           
             } 
 
@@ -119,7 +119,8 @@ class GameEngine {
             console.log("Resizing canvas from " + originalSizes + " to " + [ctx.canvas.width, ctx.canvas.height]);
             // prevent NPE
             this.particlesIndex = -1;
-            // resize player and platforms (incl spikes).
+            // resize player, particles and platforms (incl spikes).
+            this.particleManager.resize(ctx);
             this.player.resize(ctx, originalSizes);
             this.platformManager.resize(ctx, originalSizes);
             // now update the gaps (vertically and horizontally) between platforms.

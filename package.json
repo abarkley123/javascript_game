@@ -2,12 +2,11 @@
   "name": "javascript_game",
   "version": "1.0.0",
   "description": "Javascript platformer",
-  "main": "server.js",
+  "main": "server.mjs",
   "scripts": {
     "test": "nyc --reporter=html mocha",
-    "start": "node --experimental-modules server.js"
+    "start": "node --experimental-modules server.mjs"
   },
-  "type": "module",
   "mocha": {
     "require": [
       "esm"

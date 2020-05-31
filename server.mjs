@@ -17,20 +17,34 @@ app.get('/', function(req, res) {
 
 // serve audio files.
 app.get("/audio", function(req, res) {
-    getAudioFiles()
+    sendFiles(res, path.resolve() + "/public/audio");
+});
+
+// serve audio files.
+app.get("/images", function(req, res) {
+    sendFiles(res, path.resolve() + "/public/images");
+});
+
+function sendFiles(res, path) {
+    getFiles(path)
     .then(files => {
         res.status(200).send({
             success: 'true',
             message: files
         });
-    }).catch(e => {return e;});
-});
+    }).catch(e => {
+        res.status(500).send({
+            success: 'false',
+            message: str(e)
+        });
+    });
+}
 
-async function getAudioFiles(dir = path.resolve() + "/public/audio") {
+async function getFiles(dir = path.resolve() + "/public/") {
     var results = [];
     var list = fs.readdirSync(dir);
     list.forEach(function(file) {
-        file = dir + '/' + file;
+        file = dir.replace(/\\/g, "/") + '/' + file;
         var stat = fs.statSync(file);
         if (stat && stat.isDirectory()) { 
             /* Recurse into a subdirectory */

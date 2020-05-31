@@ -14,8 +14,8 @@ export class Player extends Vector2 {
     }
 
     update() {
+        this.y += this.velocityY;
         this.velocityY = this.onPlatform === true ? 0 : this.velocityY + this.fallSpeed;
-        this.setPosition(this.x, this.y + this.velocityY);
     }
 
     draw(ctx) {
@@ -32,7 +32,7 @@ export class Player extends Vector2 {
         let heightRatio = ctx.canvas.height / originalSizes[1];
         this.setPosition(ctx.canvas.width / 5, this.y * heightRatio);
         // set new velocity
-        this.velocityY = this.onPlatform === true ? 0 : this.velocityY *= heightRatio;
+        this.velocityY = this.onPlatform === true ? 0 : this.velocityY * heightRatio;
     }
 
     // adjust the jump height and fallSpeed so that the player moves consistently.
@@ -51,7 +51,7 @@ export class Player extends Vector2 {
     doJump() {
         this.jumpsLeft--;
         this.onPlatform = false;
-        this.velocityY = this.jumpsLeft === 0 ? this.jumpVelocity * 0.667 : this.jumpVelocity;            
+        this.velocityY = this.jumpsLeft === 0 ? this.jumpVelocity * 0.667 : this.jumpVelocity;   
     }
 
     // get junp distance and heights by simulating the next N frames

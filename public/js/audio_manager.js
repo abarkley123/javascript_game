@@ -1,6 +1,7 @@
 export class AudioManager {
 
     constructor() {
+        console.log("here");
         this.audioFiles = this.setupAudio();
     }
      /* Background music supplied by Eva – 失望した: https://youtu.be/jVTsD4UPT-k, 
@@ -9,6 +10,11 @@ export class AudioManager {
     // This function should load all audio files.
     setupAudio() {
         var xhr = new XMLHttpRequest();
+        xhr.onreadystatechange = () => {
+            if (xhr.readyState == XMLHttpRequest.DONE) {
+                console.log(JSON.parse(xhr.responseText)["message"]);
+            }
+        }
         xhr.open('GET', 'http://localhost:8080/audio', true);
         xhr.send();
         // this.getAudioFiles()
