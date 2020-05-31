@@ -26,7 +26,7 @@ var ctx, engine, runnerAnimation, then, now, fpsInterval, frameCount = 0, transf
     // ctx = document.getElementById('runner_container').getContext('2d', { alpha: false });
     ctx = document.getElementById('runner_container').getContext('2d');
     setSize(); // pre-set the size of the canvas.
-    engine = new GameEngine(ctx, 1000/fpsInterval); // create the game engine object, using the resized canvas.
+    engine = new GameEngine(ctx, 1000/fpsInterval, audioManager); // create the game engine object, using the resized canvas.
     // hide the canvas to present the title screen.
     document.querySelector("#runner_container").style.display = "none";
     document.querySelector("#runner_before").style.display = "block";

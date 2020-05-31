@@ -4,7 +4,8 @@ import {ParticleManager} from "./particle_manager.js";
 
 class GameEngine {
 
-    constructor(ctx, fpsInterval) {
+    constructor(ctx, fpsInterval, audioManager) {
+        this.audioManager = audioManager;
         this.setup(ctx, fpsInterval);
     }
 
@@ -26,6 +27,8 @@ class GameEngine {
         this.platformManager = new PlatformManager(ctx, this.player.getProjectileProperties(this.velocityX, Math.abs(this.player.jumpVelocity)));
         
         this.difficultyLevel = 1;
+        // make sure the background music plays
+        this.audioManager.playAudio("backgroundMain");
     }
 
     step() {
@@ -86,6 +89,7 @@ class GameEngine {
     }
 
     handleCollision(obj) {
+        this.audioManager.playAudio("collision", 0.3);
         // stop the screen moving, trigger restart screen
         this.velocityX = 0;
         this.accelerationTweening = 0;
@@ -133,6 +137,7 @@ class GameEngine {
     processJump() {
         // if the game is running and the player is elligible to jump, process it.
         if (this.stillPlaying() === true && this.player.canJump() === true) {
+            this.audioManager.playAudio((this.player.jumpsLeft === 2 ? "first" : "second") + "Jump", 0.15);
             this.player.doJump();
             // now update the score
             if (++this.jumpCount > this.jumpCountRecord) {
