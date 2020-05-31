@@ -5,7 +5,8 @@
   "main": "server.mjs",
   "scripts": {
     "test": "nyc --reporter=html mocha",
-    "start": "node --experimental-modules server.mjs"
+    "start-dev": "cross-env NODE_ENV=development node --experimental-modules server.mjs",
+    "start-prod": "cross-env NODE_ENV=production node --experimental-modules server.mjs"
   },
   "mocha": {
     "require": [
@@ -44,6 +45,7 @@
   "devDependencies": {
     "babel-cli": "^6.26.0",
     "babel-preset-es2015": "^6.24.1",
+    "cross-env": "^7.0.2",
     "fs": "0.0.1-security",
     "jsdom": "16.2.2",
     "jsdom-global": "3.0.2"
