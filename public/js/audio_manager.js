@@ -34,11 +34,11 @@ export class AudioManager {
 
                     this.setupEventListeners();
                 }).catch(err => {
-                    // this behaviour is expected during test, as node doesn't have Audio objects.
+                    // node doesn't have Audio objects
                     if (err.message !== "Audio is not defined") log(err.message, "error");
                 });
             } else {
-                throw Error("Resolving audio files failed with status code: " + response.status);
+                throw Error(response.statusText);
             }
         }).catch(err => {
             log("Error encountered when retrieving audio files: " + err.message, "error");
@@ -79,7 +79,7 @@ export class AudioManager {
                 _this.retryPlayback(file); 
             });
         } catch (NoSuchAudioException) {
-            log("Could not find audio object '" + file + "' with cause: " + NoSuchAudioException, "debug");
+            log("Could not find audio object '" + file + "' with cause: " + NoSuchAudioException, "error");
             // asynchronous AJAX request may not have finished, so retry quietly.
             _this.retryPlayback(file);
         }

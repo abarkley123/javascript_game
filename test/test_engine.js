@@ -2,7 +2,6 @@ require('jsdom-global')()
 var assert = require('assert');
 import app from "../server.mjs";
 import GameEngine from "../public/js/engine.js"; 
-import {Particle} from "../public/js/particle.js";
 import {Player} from "../public/js/player.js";
 import {Platform} from "../public/js/platform.js";
 import {AudioManager} from "../public/js/audio_manager.js";
@@ -33,14 +32,13 @@ describe('Engine', function() {
         let jumpSizes = engine.player.getProjectileProperties(engine.velocityX, engine.player.jumpVelocity);
         assert.strictEqual(Math.floor(engine.platformManager.maxDistanceX), Math.min(32, engine.ctx.canvas.width / 25) + jumpSizes[0] * 0.8);
         assert.strictEqual(Math.floor(engine.platformManager.minDistanceX), 0);
-        assert.strictEqual(Math.floor(engine.platformManager.maxDistanceY), jumpSizes[1]);
+        assert.strictEqual(Math.floor(engine.platformManager.maxDistanceY), Math.floor(jumpSizes[1] * 0.8));
         assert.strictEqual(engine.platformManager.platforms.length, 3);
-        assert.strictEqual(engine.particles.length, 0);
-        assert.strictEqual(engine.particlesIndex, -1);
-        assert.strictEqual(engine.particlesMax, 10);
+        assert.strictEqual(engine.particleManager.particles.length, 10);
+        assert.strictEqual(engine.particleManager.particlesIndex, 0);
+        assert.strictEqual(engine.particleManager.particlesMax, 10);
         assert.strictEqual(engine.jumpCountRecord, 0);
-        assert.strictEqual(engine.maxSpikes, 0);
-        assert.strictEqual(engine.updated, false);
+        assert.strictEqual(engine.difficultyLevel, 1);
     });
   });
 
@@ -59,15 +57,16 @@ describe('Engine', function() {
         assert.strictEqual(engine.player.height, 4);
         assert.strictEqual(engine.player.jumpVelocity, - Math.min(32, engine.ctx.canvas.offsetWidth / 25));
         assert.strictEqual(engine.player.onPlatform, false);
-        assert.strictEqual(Math.floor(engine.platformManager.maxDistanceX), 164);
+        let jumpSizes = engine.player.getProjectileProperties(engine.velocityX, engine.player.jumpVelocity);
+        assert.strictEqual(Math.floor(engine.platformManager.maxDistanceX), Math.min(32, engine.ctx.canvas.width / 25) + jumpSizes[0] * 0.8);
         assert.strictEqual(Math.floor(engine.platformManager.minDistanceX), 0);
+        assert.strictEqual(Math.floor(engine.platformManager.maxDistanceY), Math.floor(jumpSizes[1] * 0.8));
         assert.strictEqual(engine.platformManager.platforms.length, 3);
-        assert.strictEqual(engine.particles.length, 0);
-        assert.strictEqual(engine.particlesIndex, -1);
-        assert.strictEqual(engine.particlesMax, 10);
+        assert.strictEqual(engine.particleManager.particles.length, 10);
+        assert.strictEqual(engine.particleManager.particlesIndex, 0);
+        assert.strictEqual(engine.particleManager.particlesMax, 10);
         assert.strictEqual(engine.jumpCountRecord, 0);
-        assert.strictEqual(engine.maxSpikes, 0);
-        assert.strictEqual(engine.updated, false);
+        assert.strictEqual(engine.difficultyLevel, 1);
     });
   });
 
@@ -80,36 +79,29 @@ describe('Engine', function() {
         engine.velocityX = 1;
         engine.player.velocityY = 1;
         // create one platform for testing
-        engine.platformManager.platforms = [];
-        engine.platformManager.platforms.push(new Platform({
-          x: 100,
-          y: 100,
+        engine.platformManager.platforms[0] = new Platform({
+          x: 50,
+          y: 50,
           width: 10,
           height: 10,
           color: "#fff",
           ctx: engine.ctx
-        }));
+        });
         // create a particle so it can be updated.
-        engine.particles.push(new Particle({
-          x: 10,
-          y: 10,
-          color: "#fff",
-          size: 10
-        }));
-        engine.particles[0].set(10, 10, "#fff", -1, -4);
+        engine.particleManager.particles[0].set(10, 10, "#fff", -1, -4);
         engine.update();
         // check the acceleration wasn't updated.
-        assert.strictEqual(engine.updated, false);
+        assert.strictEqual(engine.difficultyLevel, 1);
         // check the player moved
         assert.strictEqual(engine.player.x, 20); //x doesn't change, the platforms move instead
         assert.strictEqual(Math.floor(engine.player.y), 34);
         // check the particle moved
-        assert.strictEqual(engine.particles[0].x, 9);
-        assert.strictEqual(engine.particles[0].y, 4); // update uses velocityY/4
-        assert.strictEqual(Math.floor(engine.particles[0].size), 9);
+        assert.strictEqual(engine.particleManager.particles[0].x, 9);
+        assert.strictEqual(engine.particleManager.particles[0].y, 9); // update uses velocityY/4
+        assert.strictEqual(Math.floor(engine.particleManager.particles[0].width), Math.floor(0.9 * (3 + (engine.ctx.canvas.offsetWidth / 200))));
         // check the platforms moved
-        assert.strictEqual(engine.platformManager.platforms[0].x, 99);
-        assert.strictEqual(engine.platformManager.platforms[0].y, 100);
+        assert.strictEqual(engine.platformManager.platforms[0].x, 49);
+        assert.strictEqual(engine.platformManager.platforms[0].y, 50);
         assert.strictEqual(engine.platformManager.platforms[0].width, 10);
         assert.strictEqual(engine.platformManager.platforms[0].height, 10);
     });
@@ -117,7 +109,7 @@ describe('Engine', function() {
     it('should create new platform and spikes when out of bounds.', function() {
       let fps = 40;
       let engine = new GameEngine(new TestContext(100, 99), fps, new AudioManager());
-      engine.maxSpikes = 100; // make sure a spike is created (random between 0-MAX).
+      engine.difficultyLevel = 100; // make sure a spike is created (random between 0-MAX).
       // create one platform for testing
       engine.platformManager.platforms = [];
       engine.platformManager.platforms.push(new Platform({
@@ -151,15 +143,13 @@ describe('Engine', function() {
       let fps = 40;
       let engine = new GameEngine(new TestContext(100, 99), fps, new AudioManager());
         engine.jumpCount = 20;
-        let original_distance = engine.platformManager.maxDistanceX;
+        engine.difficultyLevel = 2;
         engine.update();
         // check that acceleration was updated when jump count % 10 === 0
-        assert.strictEqual(engine.updated, true);
+        assert.strictEqual(engine.difficultyLevel, 3);
         assert.ok(engine.accelerationTweening > (2500 * (200 / fps))/(20 * fps));
-        assert.ok(engine.platformManager.maxDistanceX > original_distance);
         assert.ok(engine.platformManager.minDistanceX > 0);
-        assert.strictEqual(engine.maxSpikes, 1);
-        assert.strictEqual(engine.particlesMax, 15);
+        assert.strictEqual(engine.particleManager.particlesMax, 15);
     });
 
     it('should increase velocity using acceleration tweening.', function() {
@@ -180,30 +170,24 @@ describe('Engine', function() {
         engine.player.velocityY = 1;
         // create one platform for testing
         engine.platformManager.platforms = [];
-        engine.platformManager.platforms.push(new Platform({
+        engine.platformManager.platforms[0] = new Platform({
           x: 100,
           y: 100,
           width: 10,
           height: 10,
           color: "#fff",
           ctx: engine.ctx
-        }));
+        });
         // create a particle so it can be updated.
-        engine.particles.push(new Particle({
-          x: 10,
-          y: 10,
-          color: "#fff",
-          size: 10
-        }));
-        engine.particles[0].set(10, 10, "#fff", -1, -4);
+        engine.particleManager.particles[0].set(10, 10, "#fff", -1, -4);
         engine.update();
         // check the player still moves
         assert.strictEqual(engine.player.x, 20); 
         assert.strictEqual(Math.floor(engine.player.y), 34);
         // check the particle still moves
-        assert.strictEqual(engine.particles[0].x, 9);
-        assert.strictEqual(engine.particles[0].y, 4); 
-        assert.strictEqual(Math.floor(engine.particles[0].size), 9);
+        assert.strictEqual(engine.particleManager.particles[0].x, 9);
+        assert.strictEqual(engine.particleManager.particles[0].y, 9); 
+        assert.strictEqual(Math.floor(engine.particleManager.particles[0].width), Math.floor(0.9 * (3 + (engine.ctx.canvas.offsetWidth / 200))));
         // check the platforms didn't move
         assert.strictEqual(engine.platformManager.platforms[0].x, 100);
         assert.strictEqual(engine.platformManager.platforms[0].y, 100);
@@ -235,7 +219,6 @@ describe('Engine', function() {
         engine.update();
         // check the player moved
         assert.strictEqual(engine.velocityX, 0); 
-        assert.strictEqual(engine.player.velocityX, 0); 
         assert.strictEqual(engine.player.velocityY, engine.player.jumpVelocity/2); 
         assert.strictEqual(engine.accelerationTweening, 0);
         assert.strictEqual(document.querySelector("#runner_after").style.display, "block");
@@ -252,4 +235,5 @@ function reset_instances() {
 
 after(done => {
   server.close(done);
+  server.close();
 });

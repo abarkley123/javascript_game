@@ -5,7 +5,7 @@ export class Platform extends Vector2 {
 
     // default constructor
     constructor(options) {
-        super(0, 0, 0, 0);
+        super(options.x || 0, options.y || 0, options.width || 0, options.height || 0);
         this.setup(options.color, options.gradient);
     }
 
@@ -43,7 +43,7 @@ export class Platform extends Vector2 {
 class Spike extends Vector2 {
 
     constructor(options) {
-        super(0, 0, 0, 0);
+        super(options.x || 0, options.y || 0, options.width || 0, options.height || 0);
         this.color = options.color;
     }
 

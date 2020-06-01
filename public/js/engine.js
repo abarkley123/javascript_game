@@ -25,7 +25,7 @@ class GameEngine {
             jumpVelocity: - Math.min(32, ctx.canvas.offsetWidth / 25)
         });
         this.particleManager = new ParticleManager({particlesMax: 10, particleSize: 3 + this.ctx.canvas.offsetWidth / 200, engineSpeed: this.velocityX});
-        this.platformManager = new PlatformManager(ctx, this.player.getProjectileProperties(this.velocityX, Math.abs(this.player.jumpVelocity)));
+        this.platformManager = new PlatformManager(ctx, this.player.getProjectileProperties(this.velocityX, this.player.jumpVelocity));
         
         this.difficultyLevel = 1;
         // make sure the background music plays
@@ -54,11 +54,11 @@ class GameEngine {
             this.score += Math.floor((1000/40) * (1 + (this.jumpCount > 0 ? this.jumpCount / 100 : 0)));
 
             if (this.jumpCount % 10 === 0 && this.jumpCount > 0 && this.jumpCount <= 60 && Math.floor(this.jumpCount/10) === this.difficultyLevel) {
-                this.difficultyLevel++;
+                this.difficultyLevel = 1 + Math.floor(this.jumpCount/10);
                 this.accelerationTweening *= 1.05;
                 this.particleManager.increaseParticleCountTo(Math.min(25, this.particleManager.particlesMax + 5));
                 // update platform spacing to accomodate for increased speed.
-                this.platformManager.minDistanceBetween += this.platformManager.maxDistanceBetween/16;
+                this.platformManager.minDistanceX += Math.ceil(this.platformManager.maxDistanceX/16);
                 this.platformManager.updatePlatformGaps(this.player.getProjectileProperties(this.velocityX, this.player.jumpVelocity));
             } 
 

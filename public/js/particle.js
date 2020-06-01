@@ -23,6 +23,6 @@ export class Particle extends Vector2 {
         this.color = color;
         this.velocityX = velocityX;
         this.velocityY = velocityY;
-        this.initialise([x, y - this.originalSize/2], [this.originalSize, this.originalSize])
+        this.initialise([x, y], [this.originalSize, this.originalSize])
     }
 }
