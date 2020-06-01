@@ -1,7 +1,7 @@
 import {Player} from "./player.js";
 import {PlatformManager} from "./platform_manager.js";
 import {ParticleManager} from "./particle_manager.js";
-import log from "./logger.js";
+import log from "./logger.mjs";
 
 class GameEngine {
 

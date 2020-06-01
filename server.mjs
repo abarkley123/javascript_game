@@ -3,7 +3,7 @@ import express from 'express';
 import path from 'path';
 import fs from 'fs';
 import config from "./config.json";
-// import logger from "./public/js/logger.js";
+import log from "./public/js/logger.mjs";
 
 // Constants
 const PORT = config[process.env['NODE_ENV']].port;
@@ -16,6 +16,7 @@ const HOST = config[process.env['NODE_ENV']].host;
     //create client config file
     fs.writeFile(path, "export default\n" + JSON.stringify(content), (err) => {
         if (err) throw err;
+        log("Successfully wrote config to " + path, "info");
     })
 })();
 
@@ -51,7 +52,7 @@ app.get("/images", function(req, res) {
 function sendFiles(res, path) {
     getFiles(path)
     .then(files => {
-        // logger.log("Retrieved files: " + files, "info");
+        log("Retrieved files: " + files, "debug");
         res.status(200).send({
             success: 'true',
             message: files
@@ -82,6 +83,6 @@ async function getFiles(dir = path.resolve() + "/public/") {
 }
 
 app.listen(PORT, HOST);
-// logger.log(`Running on http://${HOST}:${PORT}`, "info");
+log(`Started server - running on http://${HOST}:${PORT}`, "debug");
 
 export default app;

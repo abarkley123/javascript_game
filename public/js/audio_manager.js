@@ -1,6 +1,6 @@
 import config from "../client_config.mjs";
 import fetch from "node-fetch";
-import log from "./logger.js";
+import log from "./logger.mjs";
 
 export class AudioManager {
 
@@ -79,7 +79,7 @@ export class AudioManager {
                 _this.retryPlayback(file); 
             });
         } catch (NoSuchAudioException) {
-            log("Could not find audio object '" + file + "' with cause: " + NoSuchAudioException, "error");
+            log("Could not find audio object '" + file + "' with cause: " + NoSuchAudioException, "info");
             // asynchronous AJAX request may not have finished, so retry quietly.
             _this.retryPlayback(file);
         }
@@ -91,6 +91,7 @@ export class AudioManager {
             // if the file was retrieved, then it can be played.
             if (audio = _this.audioFiles[file]) _this.playAudio(file);
             else if (currentInvocation < maxInvocations) _this.retryPlayback(file, currentInvocation + 1);
+            else log("Retries exhausted: could not play audio file " + file, "error");
         }, 3000);  
     }
 }
