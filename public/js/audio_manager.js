@@ -1,13 +1,16 @@
 import config from "../client_config.mjs";
+import fetch from "node-fetch";
+import log from "./logger.js";
 
 export class AudioManager {
 
     constructor() {
         this.audioFiles = {};
 
+        // TODO - consider using service workers to fulfill this.
         this.setupAudio()
-            .then(() => console.log("Successfully loaded audio files."))
-            .catch(e => console.log("Failed to setup audio due to cause: " + e));
+            .then(() => log("Successfully loaded audio files.", "info"))
+            .catch(e => log("Failed to setup audio due to cause: " + e, "error"));
     }
 
      /* Background music supplied by Eva – 失望した: https://youtu.be/jVTsD4UPT-k, 
@@ -17,28 +20,29 @@ export class AudioManager {
 
     // This function should load all audio files. 
     async setupAudio() {
-        var xhr = new XMLHttpRequest();
-        xhr.onreadystatechange = () => {
-            if (xhr.readyState == XMLHttpRequest.DONE) {
-                if (xhr.status == 200) {
-                    let files = JSON.parse(xhr.responseText)["message"];
-
-                    files.forEach(file => {
+        fetch("http://" + config.address + ":" + config.port + '/audio',{
+            method: "GET", 
+            credentials:"omit"
+        }).then(response => {
+            if (response.status === 200 && response.ok) {
+                response.json().then(data => {
+                    data["message"].forEach(file => {
                         let audio = new Audio(file.substring(file.indexOf("public")));
                         audio.volume = 0.4;
                         this.audioFiles[file.substring(file.lastIndexOf("/") + 1, file.lastIndexOf("."))] = audio;
                     });
 
                     this.setupEventListeners();
-                } else {
-                    alert("Failed to load audio files.");
-                    console.log("Resolving audio files failed due to " + JSON.parse(xhr.responseText)["message"]);
-                }
+                }).catch(err => {
+                    // this behaviour is expected during test, as node doesn't have Audio objects.
+                    if (err.message !== "Audio is not defined") log(err.message, "error");
+                });
+            } else {
+                throw Error("Resolving audio files failed with status code: " + response.status);
             }
-        }
-
-        xhr.open('GET', "http://" + config.address + ":" + config.port + '/audio', true);
-        xhr.send();
+        }).catch(err => {
+            log("Error encountered when retrieving audio files: " + err.message, "error");
+        });
     }
 
     setupEventListeners() {
@@ -51,7 +55,7 @@ export class AudioManager {
                     this.audioFiles["backgroundMain"].play();
                 }
             } catch (NoSuchAudioException) {
-                console.log("Unable to change state of audio due to: " + NoSuchAudioException);
+                logger.log("Unable to change state of audio due to: " + NoSuchAudioException, "error");
             }
         }, false);
 
@@ -71,11 +75,11 @@ export class AudioManager {
             audio.play().then(() => {
                 return;
             }).catch(function(PlaybackException) {
-                console.log('Audio failed to play due to cause: \n' + PlaybackException);
+                log('Audio failed to play due to cause: ' + PlaybackException, "error");
                 _this.retryPlayback(file); 
             });
         } catch (NoSuchAudioException) {
-            console.log("Could not find audio object '" + file + "' with cause: \n" + NoSuchAudioException);
+            log("Could not find audio object '" + file + "' with cause: " + NoSuchAudioException, "debug");
             // asynchronous AJAX request may not have finished, so retry quietly.
             _this.retryPlayback(file);
         }

@@ -1,18 +1,25 @@
 require('jsdom-global')()
 var assert = require('assert');
+import app from "../server.mjs";
 import GameEngine from "../public/js/engine.js"; 
 import {Particle} from "../public/js/particle.js";
 import {Player} from "../public/js/player.js";
 import {Platform} from "../public/js/platform.js";
+import {AudioManager} from "../public/js/audio_manager.js";
 
+let server;
 var TestContext = require("./context.js");
+
+before(done => {
+  server = app.listen(3000, done);
+});
 
 describe('Engine', function() {
   describe('constructor()', function() {
     afterEach(() => reset_instances());
     it('should successfully initialise the game engine.', function() {
         let fps = 40;
-        let engine = new GameEngine(new TestContext(100, 99), fps);
+        let engine = new GameEngine(new TestContext(100, 99), fps, new AudioManager());
         assert.strictEqual(engine.score, 0);
         assert.strictEqual(engine.jumpCount, 0);
         assert.strictEqual(engine.velocityX, 5);
@@ -41,7 +48,7 @@ describe('Engine', function() {
     after(() => reset_instances());
     it('should successfully restart the game engine.', function() {
         let fps = 40;
-        let engine = new GameEngine(new TestContext(100, 99), fps);
+        let engine = new GameEngine(new TestContext(100, 99), fps, new AudioManager());
         assert.strictEqual(engine.score, 0);
         assert.strictEqual(engine.jumpCount, 0);
         assert.strictEqual(engine.velocityX, 5);
@@ -68,7 +75,7 @@ describe('Engine', function() {
     afterEach(() => reset_instances());
     it('should successfully update player, platforms and particles.', function() {
       let fps = 40;
-      let engine = new GameEngine(new TestContext(100, 99), fps);
+      let engine = new GameEngine(new TestContext(100, 99), fps, new AudioManager());
         engine.jumpCount = 1;
         engine.velocityX = 1;
         engine.player.velocityY = 1;
@@ -109,7 +116,7 @@ describe('Engine', function() {
 
     it('should create new platform and spikes when out of bounds.', function() {
       let fps = 40;
-      let engine = new GameEngine(new TestContext(100, 99), fps);
+      let engine = new GameEngine(new TestContext(100, 99), fps, new AudioManager());
       engine.maxSpikes = 100; // make sure a spike is created (random between 0-MAX).
       // create one platform for testing
       engine.platformManager.platforms = [];
@@ -142,7 +149,7 @@ describe('Engine', function() {
 
     it('should increase difficulty based on jump count.', function() {
       let fps = 40;
-      let engine = new GameEngine(new TestContext(100, 99), fps);
+      let engine = new GameEngine(new TestContext(100, 99), fps, new AudioManager());
         engine.jumpCount = 20;
         let original_distance = engine.platformManager.maxDistanceX;
         engine.update();
@@ -157,7 +164,7 @@ describe('Engine', function() {
 
     it('should increase velocity using acceleration tweening.', function() {
       let fps = 40;
-      let engine = new GameEngine(new TestContext(100, 99), fps);
+      let engine = new GameEngine(new TestContext(100, 99), fps, new AudioManager());
       // increments by tween/2500 per frame.
         engine.accelerationTweening = 2500;
 
@@ -168,7 +175,7 @@ describe('Engine', function() {
 
     it('should not update when game stopped.', function() {
         let fps = 40;
-        let engine = new GameEngine(new TestContext(100, 99), fps);
+        let engine = new GameEngine(new TestContext(100, 99), fps, new AudioManager());
         engine.velocityX = 0;
         engine.player.velocityY = 1;
         // create one platform for testing
@@ -205,7 +212,8 @@ describe('Engine', function() {
     });
 
     it('should end game when player goes out of bounds.', function() {
-        let engine = new GameEngine(new TestContext(100, 99), 40);
+        let fps = 40;
+        let engine = new GameEngine(new TestContext(100, 99), fps, new AudioManager());
         engine.player.y = 100;
         // create mock divs
         let div = document.createElement('div');
@@ -241,3 +249,7 @@ function reset_instances() {
   Player.instance = null;
   GameEngine.instance = null; 
 }
+
+after(done => {
+  server.close(done);
+});

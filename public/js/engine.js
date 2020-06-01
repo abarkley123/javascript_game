@@ -1,6 +1,7 @@
 import {Player} from "./player.js";
 import {PlatformManager} from "./platform_manager.js";
 import {ParticleManager} from "./particle_manager.js";
+import log from "./logger.js";
 
 class GameEngine {
 
@@ -120,7 +121,7 @@ class GameEngine {
         this.ctx = ctx;
         // check to see if the canvas was actually resized.
         if (ctx.width !== originalSizes[0] || ctx.height != originalSizes[1]) {
-            console.log("Resizing canvas from " + originalSizes + " to " + [ctx.canvas.width, ctx.canvas.height]);
+            log("Resizing canvas from " + originalSizes + " to " + [ctx.canvas.width, ctx.canvas.height], "debug");
             // prevent NPE
             this.particlesIndex = -1;
             // resize player, particles and platforms (incl spikes).
@@ -130,7 +131,7 @@ class GameEngine {
             // now update the gaps (vertically and horizontally) between platforms.
             this.platformManager.updatePlatformGaps(this.player.getProjectileProperties(this.velocityX, this.player.jumpVelocity));
         } else {
-            console.log("Canvas size unchanged. Not resizing..");
+            log("Canvas size unchanged. Not resizing..", "debug");
         }
     }
 
