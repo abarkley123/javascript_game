@@ -289,6 +289,7 @@ describe('Engine', function() {
         color: "#fff",
         ctx: engine.ctx
       });
+      engine.platformManager.platforms[0].createSpikes(1);
       // create a particle so it can be updated.
       engine.particleManager.particles[0].set(10, 10, "#fff", -1, -4);
       engine.step();

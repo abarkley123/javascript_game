@@ -8,6 +8,10 @@ class TestContext {
         return new ColorGradient(x, y, width, height);
     }
 
+    beginPath() {}
+    moveTo() {}
+    lineTo() {}
+    fill() {}
     clearRect(x,y,width,height) {}
     fillRect(x,y,width,height) {}
     strokeRect(x,y,width,height) {}
