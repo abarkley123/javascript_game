@@ -307,7 +307,8 @@ describe('Engine', function() {
       assert.strictEqual(engine.platformManager.platforms[0].y, 50);
       assert.strictEqual(engine.platformManager.platforms[0].width, 10);
       assert.strictEqual(engine.platformManager.platforms[0].height, 10);
-
+      assert.strictEqual(engine.ctx.drawn, true);
+      assert.strictEqual(engine.ctx.spikesDrawn, true);
     });
 
     it('should not call update and draw when not game playing.', function() {

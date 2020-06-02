@@ -8,11 +8,15 @@ class TestContext {
         return new ColorGradient(x, y, width, height);
     }
 
-    beginPath() {}
+    beginPath() {
+        this.spikesDrawn = true;
+    }
     moveTo() {}
     lineTo() {}
     fill() {}
-    clearRect(x,y,width,height) {}
+    clearRect(x,y,width,height) {
+        this.drawn = true;
+    }
     fillRect(x,y,width,height) {}
     strokeRect(x,y,width,height) {}
 }
