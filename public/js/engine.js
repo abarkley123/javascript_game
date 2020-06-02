@@ -59,7 +59,7 @@ class GameEngine {
                 this.particleManager.increaseParticleCountTo(Math.min(25, this.particleManager.particlesMax + 5));
                 // update platform spacing to accomodate for increased speed.
                 this.platformManager.minDistanceX += Math.ceil(this.platformManager.maxDistanceX/16);
-                this.platformManager.updatePlatformGaps(this.player.getProjectileProperties(this.velocityX, this.player.jumpVelocity));
+                this.platformManager.updatePlatformGaps(this.ctx.canvas, this.player.getProjectileProperties(this.velocityX, this.player.jumpVelocity));
             } 
 
             // check for any collisions between player and environment, then update all the platforms (and spikes)
@@ -85,7 +85,7 @@ class GameEngine {
 
             this.player.onPlatform = false;
             // if the player slides off a platform, don't allow two jumps.
-            if (this.player.velocityY > 0 && this.player.jumpsLeft === 2) this.player.jumpsLeft--;
+            if ( this.player.onPlatform === false && this.player.jumpsLeft === 2) this.player.jumpsLeft--;
         }
     }
 
@@ -120,16 +120,14 @@ class GameEngine {
     resizeEntities(ctx, originalSizes) {
         this.ctx = ctx;
         // check to see if the canvas was actually resized.
-        if (ctx.width !== originalSizes[0] || ctx.height != originalSizes[1]) {
+        if (ctx.canvas.width !== originalSizes[0] || ctx.canvas.height !== originalSizes[1]) {
             log("Resizing canvas from " + originalSizes + " to " + [ctx.canvas.width, ctx.canvas.height], "debug");
-            // prevent NPE
-            this.particlesIndex = -1;
             // resize player, particles and platforms (incl spikes).
             this.player.resize(ctx, originalSizes);
             this.platformManager.resize(ctx, originalSizes);
             this.particleManager.resize(ctx, this.velocityX);
             // now update the gaps (vertically and horizontally) between platforms.
-            this.platformManager.updatePlatformGaps(this.player.getProjectileProperties(this.velocityX, this.player.jumpVelocity));
+            this.platformManager.updatePlatformGaps(this.ctx.canvas, this.player.getProjectileProperties(this.velocityX, this.player.jumpVelocity));
         } else {
             log("Canvas size unchanged. Not resizing..", "debug");
         }

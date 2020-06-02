@@ -42,9 +42,9 @@ export class PlatformManager {
         };
     }
 
-    updatePlatformGaps(jumpSizes) {
-        this.maxDistanceX = jumpSizes[0] * 0.8;
-        this.maxDistanceY = jumpSizes[1];
+    updatePlatformGaps(canvas, jumpSizes) {
+        this.maxDistanceX = Math.min(32, canvas.offsetWidth / 25)  + jumpSizes[0] * 0.8;
+        this.maxDistanceY = jumpSizes[1] * 0.8;
     }
 
     resize(ctx, originalSizes) {

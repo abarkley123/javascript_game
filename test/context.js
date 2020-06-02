@@ -7,6 +7,10 @@ class TestContext {
     createLinearGradient(x, y, width, height) {
         return new ColorGradient(x, y, width, height);
     }
+
+    clearRect(x,y,width,height) {}
+    fillRect(x,y,width,height) {}
+    strokeRect(x,y,width,height) {}
 }
 
 class ColorGradient {
@@ -19,10 +23,14 @@ class ColorGradient {
 class TestCanvas {
 
     constructor(width, height) {  
+        this.setSize(width, height);
+    }
+
+    setSize(width, height) {
         this.width = width;
         this.offsetWidth = width;
         this.height = height;
-        this.offsetHeight = height;
+        this.offsetHeight = height;  
     }
 }
 
