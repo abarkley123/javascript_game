@@ -25,8 +25,7 @@ jobs:
     - run: npm ci
     - run: npm run build --if-present
     - run: npm test
-    - run: echo ${GITHUB_REF##*/}
-    - run: echo https://htmlpreview.github.io/?https://github.com/abarkley123/javascript_game/blob/${GITHUB_REF##*/}/coverage/index.html
+    - run: echo https://htmlpreview.github.io/?https://github.com/abarkley123/javascript_game/blob/${GITHUB_REF:11}/coverage/index.html
   publish:
     runs-on: ubuntu-latest
     steps:
