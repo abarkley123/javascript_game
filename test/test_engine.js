@@ -276,15 +276,18 @@ describe('Engine', function() {
     afterEach(() => reset_instances());
     it('should call update and draw when game playing.', function() {
       let fps = 40;
-      let engine = new GameEngine(new TestContext(100, 100), fps, new AudioManager());
+      let engine = new GameEngine(new TestContext(1000, 100), fps, new AudioManager());
       engine.jumpCount = 1;
       engine.velocityX = 1;
+      engine.player.y = 10; //no collision//
+      engine.player.x = 999;
       engine.player.velocityY = 1;
       // create one platform for testing
+      engine.platformManager.platforms = [];
       engine.platformManager.platforms[0] = new Platform({
         x: 50,
         y: 50,
-        width: 10,
+        width: 100,
         height: 10,
         color: "#fff",
         ctx: engine.ctx
@@ -296,8 +299,8 @@ describe('Engine', function() {
       // check the acceleration wasn't updated.
       assert.strictEqual(engine.difficultyLevel, 1);
       // check the player moved
-      assert.strictEqual(engine.player.x, 20); //x doesn't change, the platforms move instead
-      assert.strictEqual(Math.floor(engine.player.y), 34);
+      assert.strictEqual(engine.player.x, 999); //x doesn't change, the platforms move instead
+      assert.strictEqual(Math.floor(engine.player.y), 11);
       // check the particle moved
       assert.strictEqual(engine.particleManager.particles[0].x, 9);
       assert.strictEqual(engine.particleManager.particles[0].y, 9); // update uses velocityY/4
@@ -305,7 +308,7 @@ describe('Engine', function() {
       // check the platforms moved
       assert.strictEqual(engine.platformManager.platforms[0].x, 49);
       assert.strictEqual(engine.platformManager.platforms[0].y, 50);
-      assert.strictEqual(engine.platformManager.platforms[0].width, 10);
+      assert.strictEqual(engine.platformManager.platforms[0].width, 100);
       assert.strictEqual(engine.platformManager.platforms[0].height, 10);
       assert.strictEqual(engine.ctx.drawn, true);
       assert.strictEqual(engine.ctx.spikesDrawn, true);

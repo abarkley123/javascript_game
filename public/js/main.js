@@ -1,38 +1,53 @@
 import GameEngine from "./engine.js";
 import {AudioManager} from "./audio_manager.js";
+import log from "./logger.mjs";
 
-// rendering tools for cross browser support
-window.requestAnimationFrame = window.requestAnimationFrame ||
-    window.mozRequestAnimationFrame ||
-    window.webkitRequestAnimationFrame ||
-    window.msRequestAnimationFrame ||
+// rendering tools for cross browser support. exposed for testing.
+window.requestAnimationFrame = requestAnimationFrame();
+
+export function requestAnimationFrame(clientWindow = window) {
+    clientWindow.requestAnimationFrame ||
+    clientWindow.mozRequestAnimationFrame ||
+    clientWindow.webkitRequestAnimationFrame ||
+    clientWindow.msRequestAnimationFrame ||
     function(f) {
         return setTimeout(f, 1000 / 60)
     } // simulate calling code 60 
+}
 
-window.cancelAnimationFrame = window.cancelAnimationFrame ||
-    window.mozCancelAnimationFrame ||
+window.cancelAnimationFrame = cancelAnimationFrame();
+
+export function cancelAnimationFrame(clientWindow = window) {
+    clientWindow.cancelAnimationFrame ||
+    clientWindow.mozCancelAnimationFrame ||
     function(requestID) {
         clearTimeout(requestID)
     } //fall back
-
+}
 var ctx, engine, runnerAnimation, then, now, fpsInterval, frameCount = 0, transform = 0, audioManager = new AudioManager;
 
-(() => {
-    // expose the canvas for a short time so that the game engine can resolve the offsetWidth.
-    document.querySelector("#runner_container").style.display = "block";
-    document.querySelector("#runner_before").style.display = "none";
+(() => setup(null, audioManager))();
 
-    // ctx = document.getElementById('runner_container').getContext('2d', { alpha: false });
-    ctx = document.getElementById('runner_container').getContext('2d');
-    setSize(); // pre-set the size of the canvas.
-    engine = new GameEngine(ctx, 1000/fpsInterval, audioManager); // create the game engine object, using the resized canvas.
-    // hide the canvas to present the title screen.
-    document.querySelector("#runner_container").style.display = "none";
-    document.querySelector("#runner_before").style.display = "block";
+export function setup(ctx, audioManager) {
+    // expose the canvas for a short time so that the game engine can resolve the offsetWidth.
+    let runnerContainer = document.querySelector("#runner_container");
+    let runnerBefore = document.querySelector("#runner_before");
+    // null checking for testing purposes (where DOM not defined).
+    if (runnerContainer && runnerBefore) {
+        document.querySelector("#runner_container").style.display = "block";
+        document.querySelector("#runner_before").style.display = "none";
+        ctx = ctx || document.querySelector('#runner_container').getContext('2d');
+        setSize(ctx); // pre-set the size of the canvas.
+        engine = new GameEngine(ctx, 1000/fpsInterval, audioManager); // create the game engine object, using the resized canvas.
+        // hide the canvas to present the title screen.
+        document.querySelector("#runner_container").style.display = "none";
+        document.querySelector("#runner_before").style.display = "block";
+    } else {
+        log("Could not complete setup as DOM not loaded", "error");
+    }
 
     (async () => {
-        // preload images
+            // preload images
         var images = ["public/images/forefront_background_ambient.svg", "public/images/forefront_background.svg"];
         for (var i = 0; i < images.length; i++) {
             var img = new Image();
@@ -48,15 +63,25 @@ var ctx, engine, runnerAnimation, then, now, fpsInterval, frameCount = 0, transf
     })();
     // start the background music.
     audioManager.playAudio("backgroundMain");
-})();
+}
 
 // add event handlers
-window.onload = function() {
-    // setupAudio();
-    document.querySelector("#start_runner_btn").addEventListener("click", startHandler);
-    document.querySelector("#restart_runner_btn").addEventListener("click", restartHandler);
-    // process a jump
-    document.querySelector("#runner_container").addEventListener("click", () => engine.processJump()); // click
+window.onload = setupEventListeners();
+
+export function setupEventListeners() {
+    let runnerContainer = document.querySelector("#runner_container");
+    let startRunnerButton = document.querySelector("#start_runner_btn");
+    let restartRunnerButton = document.querySelector("#restart_runner_btn");
+    // null checking for testing purposes (where DOM not defined).
+    if (runnerContainer && startRunnerButton && restartRunnerButton) {
+        document.querySelector("#start_runner_btn").addEventListener("click", startHandler);
+        document.querySelector("#restart_runner_btn").addEventListener("click", restartHandler);
+        // process a jump
+        document.querySelector("#runner_container").addEventListener("click", () => engine.processJump()); // click
+    } else {
+        log("Could not complete setup as DOM not loaded", "error");
+    }
+
     document.onkeypress = function(event) {  // spacebar
         if (event.which == "32") engine.processJump();
     };
@@ -71,7 +96,7 @@ window.onload = function() {
     }
 
     // if the user has a mobile device, allow fullscreen. Otherwise it will impact the user experience, so disable it.
-    if (window.matchMedia("only screen and (max-width: 768px)").matches === true || window.matchMedia("only screen and (max-height: 768px)").matches === true) {
+    if (window && window.matchMedia("only screen and (max-width: 768px)").matches === true || window.matchMedia("only screen and (max-height: 768px)").matches === true) {
         //Conditional script here
         document.addEventListener('fullscreenchange', toggleFullScreen, false);
         document.addEventListener('mozfullscreenchange', toggleFullScreen, false);
@@ -80,7 +105,7 @@ window.onload = function() {
     }
 }
 
-function startHandler() {
+export function startHandler() {
     // if the user has a mobile device, allow fullscreen. Otherwise it will impact the user experience, so disable it.
     if (window.matchMedia("only screen and (max-width: 768px)").matches === true || window.matchMedia("only screen and (max-height: 768px)").matches === true) { 
         toggleFullScreen(true);
@@ -95,7 +120,7 @@ function startHandler() {
     run(); //start the animation loop.
 }
 
-function setSize() {
+export function setSize(ctx = ctx) {
     let original_size = [ctx.canvas.width, ctx.canvas.height];
     ctx.canvas.width = window.innerWidth;
     fpsInterval = Math.floor(30 - (ctx.canvas.width / 250)); 
@@ -110,7 +135,7 @@ function setSize() {
     }
 }
 
-function run() {
+export function run() {
     runnerAnimation = window.requestAnimationFrame(run);
     now = Date.now();
     let elapsed = Date.now() - then;
@@ -127,7 +152,7 @@ function run() {
     }
 }
 
-function restartHandler() {
+export function restartHandler() {
     document.querySelector("#runner_after").style.display = "none";
     document.querySelector("#idle_background").style.display = 'none';
     document.querySelector("#playing_background").style.display = 'block';
@@ -140,7 +165,7 @@ function restartHandler() {
 }
 
 // fullscreen
-function toggleFullScreen(restart = false) {
+export function toggleFullScreen(restart = false) {
     var doc = window.document;
     var docEl = doc.documentElement;
   

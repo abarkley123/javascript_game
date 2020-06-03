@@ -2,6 +2,7 @@ import {Vector2} from "./vector2.js";
 
 export class Player extends Vector2 {
 
+    // consider Destructuring - https://www.smashingmagazine.com/2016/07/how-to-use-arguments-and-parameters-in-ecmascript-6/
     constructor(options) {
         super(options.x, options.y, options.width, options.height);
             this.velocityY = 0;
