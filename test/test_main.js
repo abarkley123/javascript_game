@@ -31,6 +31,13 @@ var TestContext = require("./context.js");
 
 before(done => {
     server = app.listen(3001, done);
+    Object.defineProperty(window, "matchMedia", {
+        get: () => { 
+          return { 
+            matches: true
+          }
+        }
+    });
 });
 
 import * as main from "../public/js/main.js";

@@ -78,6 +78,24 @@ export function setupEventListeners() {
         document.querySelector("#restart_runner_btn").addEventListener("click", restartHandler);
         // process a jump
         document.querySelector("#runner_container").addEventListener("click", () => engine.processJump()); // click
+
+        // resize the window
+        if (window.attachEvent) {
+            window.attachEvent('onresize', setSize);
+        } else if (window.addEventListener) {
+            window.addEventListener('resize', setSize);
+        } else {
+            window.onresize = setSize();
+        }
+
+        // if the user has a mobile device, allow fullscreen. Otherwise it will impact the user experience, so disable it.
+        if (window && window.matchMedia("only screen and (max-width: 768px)").matches === true || window.matchMedia("only screen and (max-height: 768px)").matches === true) {
+            //Conditional script here
+            document.addEventListener('fullscreenchange', toggleFullScreen, false);
+            document.addEventListener('mozfullscreenchange', toggleFullScreen, false);
+            document.addEventListener('MSFullscreenChange', toggleFullScreen, false);
+            document.addEventListener('webkitfullscreenchange', toggleFullScreen, false);
+        }
     } else {
         log("Could not complete setup as DOM not loaded", "error");
     }
@@ -85,24 +103,6 @@ export function setupEventListeners() {
     document.onkeypress = function(event) {  // spacebar
         if (event.which == "32") engine.processJump();
     };
-
-    // resize the window
-    if (window.attachEvent) {
-        window.attachEvent('onresize', setSize);
-    } else if (window.addEventListener) {
-        window.addEventListener('resize', setSize);
-    } else {
-        window.onresize = setSize();
-    }
-
-    // if the user has a mobile device, allow fullscreen. Otherwise it will impact the user experience, so disable it.
-    if (window && window.matchMedia("only screen and (max-width: 768px)").matches === true || window.matchMedia("only screen and (max-height: 768px)").matches === true) {
-        //Conditional script here
-        document.addEventListener('fullscreenchange', toggleFullScreen, false);
-        document.addEventListener('mozfullscreenchange', toggleFullScreen, false);
-        document.addEventListener('MSFullscreenChange', toggleFullScreen, false);
-        document.addEventListener('webkitfullscreenchange', toggleFullScreen, false);
-    }
 }
 
 export function startHandler() {
