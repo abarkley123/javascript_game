@@ -2,31 +2,33 @@ import GameEngine from "./engine.js";
 import {AudioManager} from "./audio_manager.js";
 import log from "./logger.mjs";
 
-// rendering tools for cross browser support. exposed for testing.
-window.requestAnimationFrame = requestAnimationFrame();
-
-export function requestAnimationFrame(clientWindow = window) {
-    clientWindow.requestAnimationFrame ||
-    clientWindow.mozRequestAnimationFrame ||
-    clientWindow.webkitRequestAnimationFrame ||
-    clientWindow.msRequestAnimationFrame ||
-    function(f) {
-        return setTimeout(f, 1000 / 60)
-    } // simulate calling code 60 
-}
-
-window.cancelAnimationFrame = cancelAnimationFrame();
-
-export function cancelAnimationFrame(clientWindow = window) {
-    clientWindow.cancelAnimationFrame ||
-    clientWindow.mozCancelAnimationFrame ||
-    function(requestID) {
-        clearTimeout(requestID)
-    } //fall back
-}
 var ctx, engine, runnerAnimation, then, now, fpsInterval, frameCount = 0, transform = 0, audioManager = new AudioManager;
 
-(() => setup(audioManager))();
+// IIFE to setup DOM and polyfill for animation frame that has cross browser support.
+// Polyfill source - https://gist.github.com/paulirish/1579671.
+(function() {
+    var lastTime = 0;
+    var vendors = ['ms', 'moz', 'webkit', 'o'];
+    for(var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
+        window.requestAnimationFrame = window[vendors[x]+'RequestAnimationFrame'];
+        window.cancelAnimationFrame = window[vendors[x]+'CancelAnimationFrame'] 
+                                   || window[vendors[x]+'CancelRequestAnimationFrame'];
+    }
+ 
+    if (!window.requestAnimationFrame)
+        window.requestAnimationFrame = function(callback, element) {
+            var currTime = new Date().getTime();
+            var timeToCall = Math.max(0, 16 - (currTime - lastTime));
+            var id = window.setTimeout(function() { callback(currTime + timeToCall); }, 
+              timeToCall);
+            lastTime = currTime + timeToCall;
+            return id;
+        };
+ 
+    if (!window.cancelAnimationFrame) window.cancelAnimationFrame = (id) => clearTimeout(id);
+    
+    setup(audioManager);
+}());
 
 export function setup(audioManager, context) {
     // expose the canvas for a short time so that the game engine can resolve the offsetWidth.
@@ -120,7 +122,8 @@ export function startHandler() {
     run(); //start the animation loop.
 }
 
-export function setSize(context = ctx) {
+export function setSize(context) {
+    context = ctx || context; //testing
     let original_size = [context.canvas.width, context.canvas.height];
     context.canvas.width = window.innerWidth;
     fpsInterval = Math.floor(30 - (context.canvas.width / 250)); 
@@ -172,9 +175,9 @@ export function toggleFullScreen(restart = false) {
     let requestFullScreen = docEl.requestFullscreen || docEl.mozRequestFullScreen || docEl.webkitRequestFullScreen || docEl.msRequestFullscreen;
     let cancelFullScreen = doc.exitFullscreen || doc.mozCancelFullScreen || doc.webkitExitFullscreen || doc.msExitFullscreen;
     let isNotFullscreen = !doc.fullscreenElement && !doc.mozFullScreenElement && !doc.webkitFullscreenElement && !doc.msFullscreenElement;
-    if (restart === true && requestFullScreen && isNotFullscreen === true) {
+    if (restart === true && isNotFullscreen === true && requestFullScreen) {
       requestFullScreen.call(docEl)
-    } else if (restart === false && cancelFullScreen) {
+    } else if (cancelFullScreen && restart === false) {
       cancelFullScreen.call(doc);
     }
 }

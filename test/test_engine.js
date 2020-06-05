@@ -4,7 +4,7 @@ import app from "../server.mjs";
 import GameEngine from "../public/js/engine.js"; 
 import {Player} from "../public/js/player.js";
 import {Platform} from "../public/js/platform.js";
-import {AudioManager} from "../public/js/audio_manager.js";
+import {TestAudioManager} from "./test_audio_manager.js";
 
 let server;
 var TestContext = require("./context.js");
@@ -18,7 +18,7 @@ describe('Engine', function() {
     afterEach(() => reset_instances());
     it('should successfully initialise the game engine.', function() {
         let fps = 40;
-        let engine = new GameEngine(new TestContext(100, 99), fps, new AudioManager());
+        let engine = new GameEngine(new TestContext(100, 99), fps, new TestAudioManager());
         assert.strictEqual(engine.score, 0);
         assert.strictEqual(engine.jumpCount, 0);
         assert.strictEqual(engine.velocityX, 5);
@@ -46,7 +46,7 @@ describe('Engine', function() {
     after(() => reset_instances());
     it('should successfully restart the game engine.', function() {
         let fps = 40;
-        let engine = new GameEngine(new TestContext(100, 99), fps, new AudioManager());
+        let engine = new GameEngine(new TestContext(100, 99), fps, new TestAudioManager());
         engine.score = 1;
         engine.jumpCount = 1;
         engine.velocityX = 1;
@@ -80,7 +80,7 @@ describe('Engine', function() {
     afterEach(() => reset_instances());
     it('should successfully update player, platforms and particles.', function() {
       let fps = 40;
-      let engine = new GameEngine(new TestContext(100, 99), fps, new AudioManager());
+      let engine = new GameEngine(new TestContext(100, 99), fps, new TestAudioManager());
         engine.jumpCount = 1;
         engine.velocityX = 1;
         engine.player.velocityY = 1;
@@ -114,7 +114,7 @@ describe('Engine', function() {
 
     it('should create new platform and spikes when out of bounds.', function() {
       let fps = 40;
-      let engine = new GameEngine(new TestContext(100, 99), fps, new AudioManager());
+      let engine = new GameEngine(new TestContext(100, 99), fps, new TestAudioManager());
       engine.difficultyLevel = 100; // make sure a spike is created (random between 0-MAX).
       // create one platform for testing
       engine.platformManager.platforms = [];
@@ -147,7 +147,7 @@ describe('Engine', function() {
 
     it('should increase difficulty based on jump count.', function() {
       let fps = 40;
-      let engine = new GameEngine(new TestContext(100, 99), fps, new AudioManager());
+      let engine = new GameEngine(new TestContext(100, 99), fps, new TestAudioManager());
         engine.jumpCount = 20;
         engine.difficultyLevel = 2;
         engine.update();
@@ -160,7 +160,7 @@ describe('Engine', function() {
 
     it('should increase velocity using acceleration tweening.', function() {
       let fps = 40;
-      let engine = new GameEngine(new TestContext(100, 99), fps, new AudioManager());
+      let engine = new GameEngine(new TestContext(100, 99), fps, new TestAudioManager());
       // increments by tween/2500 per frame.
         engine.accelerationTweening = 2500;
 
@@ -171,7 +171,7 @@ describe('Engine', function() {
 
     it('should not update when game stopped.', function() {
         let fps = 40;
-        let engine = new GameEngine(new TestContext(100, 99), fps, new AudioManager());
+        let engine = new GameEngine(new TestContext(100, 99), fps, new TestAudioManager());
         engine.velocityX = 0;
         engine.player.velocityY = 1;
         // create one platform for testing
@@ -203,7 +203,7 @@ describe('Engine', function() {
 
     it('should end game when player goes out of bounds.', function() {
         let fps = 40;
-        let engine = new GameEngine(new TestContext(100, 99), fps, new AudioManager());
+        let engine = new GameEngine(new TestContext(100, 99), fps, new TestAudioManager());
         engine.player.y = 100;
         // create mock divs
         let div = document.createElement('div');
@@ -240,7 +240,7 @@ describe('Engine', function() {
     afterEach(() => reset_instances());
     it('should resize entities when canvas size changes.', function() {
       let fps = 40;
-      let engine = new GameEngine(new TestContext(100, 100), fps, new AudioManager());
+      let engine = new GameEngine(new TestContext(100, 100), fps, new TestAudioManager());
       engine.ctx.canvas.setSize(200, 200);
       engine.resizeEntities(engine.ctx, [100, 100]);
       assert.strictEqual(engine.player.x, 40);
@@ -257,7 +257,7 @@ describe('Engine', function() {
 
     it('should not resize entities when canvas size doesnt change.', function() {
       let fps = 40;
-      let engine = new GameEngine(new TestContext(100, 100), fps, new AudioManager());
+      let engine = new GameEngine(new TestContext(100, 100), fps, new TestAudioManager());
       engine.resizeEntities(engine.ctx, [100, 100]);
       assert.strictEqual(engine.player.x, 20);
       assert.strictEqual(Math.floor(engine.player.y), 33);
@@ -276,7 +276,7 @@ describe('Engine', function() {
     afterEach(() => reset_instances());
     it('should call update and draw when game playing.', function() {
       let fps = 40;
-      let engine = new GameEngine(new TestContext(1000, 100), fps, new AudioManager());
+      let engine = new GameEngine(new TestContext(1000, 100), fps, new TestAudioManager());
       engine.jumpCount = 1;
       engine.velocityX = 1;
       engine.player.y = 10; //no collision//
@@ -316,7 +316,7 @@ describe('Engine', function() {
 
     it('should not call update and draw when not game playing.', function() {
       let fps = 40;
-      let engine = new GameEngine(new TestContext(100, 100), fps, new AudioManager());
+      let engine = new GameEngine(new TestContext(100, 100), fps, new TestAudioManager());
       engine.velocityX = 0;
       engine.step();
       assert.strictEqual(engine.score, 0);
@@ -347,7 +347,7 @@ describe('Engine', function() {
     afterEach(() => reset_instances());
     it('should process jump when game playing and player can jump.', function() {
       let fps = 40;
-      let engine = new GameEngine(new TestContext(100, 100), fps, new AudioManager());
+      let engine = new GameEngine(new TestContext(100, 100), fps, new TestAudioManager());
       engine.player.jumpsLeft = 2;
       let div = document.createElement('div');
       div.setAttribute('id', 'runner_multiplier');
@@ -362,7 +362,7 @@ describe('Engine', function() {
     });
     it('should not process jump when game playing and player cant jump.', function() {
       let fps = 40;
-      let engine = new GameEngine(new TestContext(100, 100), fps, new AudioManager());
+      let engine = new GameEngine(new TestContext(100, 100), fps, new TestAudioManager());
       engine.velocityX = 0;
       engine.player.jumpsLeft = 2;
       let div = document.createElement('div');
@@ -379,7 +379,7 @@ describe('Engine', function() {
     });
     it('should not process jump when not game playing and player can jump.', function() {
       let fps = 40;
-      let engine = new GameEngine(new TestContext(100, 100), fps, new AudioManager());
+      let engine = new GameEngine(new TestContext(100, 100), fps, new TestAudioManager());
       engine.player.jumpsLeft = 0;
       let div = document.createElement('div');
       div.setAttribute('id', 'runner_multiplier');
@@ -399,7 +399,7 @@ describe('Engine', function() {
     afterEach(() => reset_instances());
     it('should end game when player intersects left with platform.', function() {
       let fps = 40;
-      let engine = new GameEngine(new TestContext(100, 100), fps, new AudioManager());
+      let engine = new GameEngine(new TestContext(100, 100), fps, new TestAudioManager());
       engine.platformManager.platforms[0].x = engine.player.x;
       engine.platformManager.platforms[0].y = engine.player.y;
       let div = document.createElement('div');
@@ -431,7 +431,7 @@ describe('Engine', function() {
     });
     it('should update position when player intersects with top with platform.', function() {
       let fps = 40;
-      let engine = new GameEngine(new TestContext(100, 100), fps, new AudioManager());
+      let engine = new GameEngine(new TestContext(100, 100), fps, new TestAudioManager());
       engine.platformManager.platforms[0].x = engine.player.x - 2 * engine.velocityX;
       engine.platformManager.platforms[0].y = engine.player.y;
       engine.checkForCollisions();
@@ -444,7 +444,7 @@ describe('Engine', function() {
     });
     it('should only allow one jump when player slides off platform.', function() {
       let fps = 40;
-      let engine = new GameEngine(new TestContext(100, 100), fps, new AudioManager());
+      let engine = new GameEngine(new TestContext(100, 100), fps, new TestAudioManager());
       engine.player.onPlatform = false;
       engine.player.jumpsLeft = 2;
       engine.checkForCollisions();

@@ -1,5 +1,4 @@
 import config from "../client_config.mjs";
-import fetch from "node-fetch";
 import log from "./logger.mjs";
 
 export class AudioManager {

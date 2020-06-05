@@ -2,11 +2,11 @@ require('jsdom-global')()
 var assert = require('assert');
 import app from "../server.mjs";
 import GameEngine from "../public/js/engine.js"; 
-import {AudioManager} from "../public/js/audio_manager.js";
+import {TestAudioManager} from "./test_audio_manager.js";
 
 let server;
 var TestContext = require("./context.js");
-let runnerContainer, runnerBefore, runnerAfter, idleBackground, playingBackground, startRunnerButton, restartRunnerButton;
+let runnerContainer, runnerBefore, runnerAfter, idleBackground, playingBackground, startRunnerButton, restartRunnerButton, runnerMultiplier;
 
 before(done => {
     server = app.listen(3001, done);
@@ -44,25 +44,10 @@ import * as main from "../public/js/main.js";
 
 
 describe('Main', function() {
-    describe('animationFrame()', function() {
-        it('should bind window animation frame to a frame.', function() {
-            let clientWindow = new Window();
-            Object.defineProperty(clientWindow, 'requestAnimationFrame', { get: clientWindow.requestAnimationFrame });
-            main.requestAnimationFrame(clientWindow);
-            assert.strictEqual(true, clientWindow.requestedFrame);
-        });
-
-        it('should cancel window animation frame.', function() {
-            let clientWindow = new Window();
-            Object.defineProperty(clientWindow, 'cancelAnimationFrame', { get: clientWindow.cancelAnimationFrame });
-            main.cancelAnimationFrame(clientWindow);
-            assert.strictEqual(true, clientWindow.cancelledFrame);
-        });
-    });
     describe('setup()', function() {
         it('should set visibility of DOM elements', function() {
             let ctx = new TestContext(100, 100);
-            main.setup(new AudioManager(), ctx);
+            main.setup(new TestAudioManager(), ctx);
             
             assert.strictEqual(document.querySelector("#runner_container").style.display, "none");
             assert.strictEqual(document.querySelector("#runner_before").style.display, "block");
@@ -70,10 +55,10 @@ describe('Main', function() {
             assert.strictEqual(ctx.canvas.height, window.innerHeight);
         });
     });
-    describe('restart()', function() {
+    describe('restartHandler()', function() {
         it('should restart engine', function() {
             let fps = 40;
-            let engine = new GameEngine(new TestContext(100, 100), fps, new AudioManager());
+            let engine = new GameEngine(new TestContext(100, 100), fps, new TestAudioManager());
             engine.score = 1;
             engine.jumpCount = 1;
             engine.velocityX = 1;
@@ -110,27 +95,48 @@ describe('Main', function() {
             assert.strictEqual(document.querySelector("#playing_background").style.display, "block");
         });
     });
+    describe('startHandler()', function() {
+        it('should start game', function() {
+            let fps = 40;
+            let engine = new GameEngine(new TestContext(100, 100), fps, new TestAudioManager());
+
+            window.requestAnimationFrame = window.requestAnimationFrame || function () {return true;}
+
+            main.setup(engine.audioManager, engine.ctx);
+            main.startHandler();
+
+            assert.strictEqual(engine.score, 0);
+            assert.strictEqual(engine.jumpCount, 0);
+            assert.strictEqual(engine.velocityX, 5);
+            assert.strictEqual(engine.accelerationTweening, (2500 * (200 / fps))/(20 * fps));
+            assert.strictEqual(engine.player.x, 20);
+            assert.strictEqual(Math.floor(engine.player.y), 33);
+            assert.strictEqual(engine.player.width, 4);
+            assert.strictEqual(engine.player.height, 4);
+            assert.strictEqual(engine.player.jumpVelocity, - Math.min(32, engine.ctx.canvas.offsetWidth / 25));
+            assert.strictEqual(engine.player.onPlatform, false);
+            
+            assert.strictEqual(document.querySelector("#idle_background").style.display, 'none');
+            assert.strictEqual(document.querySelector("#playing_background").style.display, 'block');
+            assert.strictEqual(document.querySelector("#runner_container").style.display, "block");
+            assert.strictEqual( document.querySelector("#runner_before").style.display, "none");
+        });
+    });
+    describe('setupEventListeners()', function() {
+        it('should set up event listeners', function() {
+            let div = document.createElement('div');
+            div.setAttribute('id', 'runner_multiplier');
+            document.body.appendChild(div);
+            main.setup(new TestAudioManager(), new TestContext(100, 100));
+            main.setupEventListeners();
+            
+            document.querySelector("#runner_container").click();
+            // check that event listener was successfully attached
+            assert.strictEqual(document.querySelector("#runner_multiplier").innerHTML, "1.01");
+            document.body.removeChild(div);
+        });
+    });
 });
-
-class Window {
-    
-    constructor() {
-        this.requestedFrame = false;
-        this.cancelledFrame = false;
-        this.innerHeight = 200;
-        this.innerWidth = 200;
-        this.matches = false;
-    }
-
-    requestAnimationFrame() {
-        this.requestedFrame = true; 
-    };
-
-    cancelAnimationFrame() {
-        this.cancelledFrame = true;
-    }
-}
-
 
 after(done => {
     server.close(done);
