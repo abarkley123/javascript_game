@@ -28,14 +28,9 @@ export class Vector2 {
 
     intersectsLeft(obj, velocity) {   
         // the only way this is true is if there is an interaction between the side of the platform and the player
-        return this.boundedByX(obj, velocity) && (this.y > obj.y + 2 * this.velocityY);
+        return this.x + this.width >= obj.x && this.x < obj.x + velocity && (this.y > obj.y + 2 * this.velocityY);
     }
-
-    boundedByX(obj, velocity) {
-        // return obj.x <= this.x + this.width && obj.x + velocity + this.width > this.x + this.width; 
-        return this.x + this.width >= obj.x && this.x < obj.x + velocity;
-    }
-
+    
     outOfBounds(canvas) {
         return this.x + this.width < 0 || this.y > canvas.height;
     }
