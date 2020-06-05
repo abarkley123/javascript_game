@@ -26,9 +26,9 @@ export function cancelAnimationFrame(clientWindow = window) {
 }
 var ctx, engine, runnerAnimation, then, now, fpsInterval, frameCount = 0, transform = 0, audioManager = new AudioManager;
 
-(() => setup(null, audioManager))();
+(() => setup(audioManager))();
 
-export function setup(ctx, audioManager) {
+export function setup(audioManager, context) {
     // expose the canvas for a short time so that the game engine can resolve the offsetWidth.
     let runnerContainer = document.querySelector("#runner_container");
     let runnerBefore = document.querySelector("#runner_before");
@@ -36,7 +36,7 @@ export function setup(ctx, audioManager) {
     if (runnerContainer && runnerBefore) {
         document.querySelector("#runner_container").style.display = "block";
         document.querySelector("#runner_before").style.display = "none";
-        ctx = ctx || document.querySelector('#runner_container').getContext('2d');
+        ctx = context || document.querySelector('#runner_container').getContext('2d');
         setSize(ctx); // pre-set the size of the canvas.
         engine = new GameEngine(ctx, 1000/fpsInterval, audioManager); // create the game engine object, using the resized canvas.
         // hide the canvas to present the title screen.
@@ -120,18 +120,18 @@ export function startHandler() {
     run(); //start the animation loop.
 }
 
-export function setSize(ctx = ctx) {
-    let original_size = [ctx.canvas.width, ctx.canvas.height];
-    ctx.canvas.width = window.innerWidth;
-    fpsInterval = Math.floor(30 - (ctx.canvas.width / 250)); 
+export function setSize(context = ctx) {
+    let original_size = [context.canvas.width, context.canvas.height];
+    context.canvas.width = window.innerWidth;
+    fpsInterval = Math.floor(30 - (context.canvas.width / 250)); 
 
-    ctx.canvas.height = window.innerHeight;
+    context.canvas.height = window.innerHeight;
     if (engine) {
         // Increase the fps for higher pixel counts to prevent ghosting.
         // Higher pixel counts also necessitate faster CPUs and GPUs, so a higher framerate is more tolerable.
         engine.adjustForFps(1000/fpsInterval);
         // Resize each of the entities to maintain the same scale
-        engine.resizeEntities(ctx, original_size);
+        engine.resizeEntities(context, original_size);
     }
 }
 
@@ -152,7 +152,7 @@ export function run() {
     }
 }
 
-export function restartHandler() {
+export function restartHandler(engine = engine) {
     document.querySelector("#runner_after").style.display = "none";
     document.querySelector("#idle_background").style.display = 'none';
     document.querySelector("#playing_background").style.display = 'block';
@@ -166,14 +166,15 @@ export function restartHandler() {
 
 // fullscreen
 export function toggleFullScreen(restart = false) {
-    var doc = window.document;
-    var docEl = doc.documentElement;
+    const doc = window.document;
+    const docEl = doc.documentElement;
   
-    var requestFullScreen = docEl.requestFullscreen || docEl.mozRequestFullScreen || docEl.webkitRequestFullScreen || docEl.msRequestFullscreen;
-    var cancelFullScreen = doc.exitFullscreen || doc.mozCancelFullScreen || doc.webkitExitFullscreen || doc.msExitFullscreen;
-    if (restart === true && !doc.fullscreenElement && !doc.mozFullScreenElement && !doc.webkitFullscreenElement && !doc.msFullscreenElement) {
+    let requestFullScreen = docEl.requestFullscreen || docEl.mozRequestFullScreen || docEl.webkitRequestFullScreen || docEl.msRequestFullscreen;
+    let cancelFullScreen = doc.exitFullscreen || doc.mozCancelFullScreen || doc.webkitExitFullscreen || doc.msExitFullscreen;
+    let isNotFullscreen = !doc.fullscreenElement && !doc.mozFullScreenElement && !doc.webkitFullscreenElement && !doc.msFullscreenElement;
+    if (restart === true && requestFullScreen && isNotFullscreen === true) {
       requestFullScreen.call(docEl)
-    } else if (restart === false) {
+    } else if (restart === false && cancelFullScreen) {
       cancelFullScreen.call(doc);
     }
 }
