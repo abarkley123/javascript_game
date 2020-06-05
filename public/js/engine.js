@@ -79,7 +79,7 @@ class GameEngine {
                 this.player.jumpsLeft = 2;
                 this.player.onPlatform = true;  
                 this.player.y = platform.y - this.player.height;
-                this.particleManager.spawnParticles(this.player.x * 1.1, this.player.y + this.player.height * 0.975, 0, platform);
+                this.particleManager.spawnParticles(this.player.x * 1.1, this.player.y + this.player.height * 0.9, 0, platform);
                 break; // found the collider, so no point continuing (two platforms never occupy same space).           
             } 
 
@@ -97,7 +97,7 @@ class GameEngine {
         // reset the player variables.
         this.player.x = obj.x - 48;
         this.player.velocityY = this.player.jumpVelocity/2;
-        this.particleManager.spawnParticles(this.player.x + this.player.width, this.player.y + this.player.height, this.player.height, obj);
+        this.particleManager.spawnParticles(this.player.x + this.player.width, this.player.y + this.player.height * 0.9, this.player.height, obj);
         // make the restart screen visible.
         document.querySelector("#runner_after").style.display = "block";
         document.querySelector("#idle_background").style.display = 'block';

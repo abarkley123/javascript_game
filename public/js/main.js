@@ -123,7 +123,7 @@ export function startHandler() {
 }
 
 export function setSize(context) {
-    context = ctx || context; //testing
+    context = context || ctx; //testing
     let original_size = [context.canvas.width, context.canvas.height];
     context.canvas.width = window.innerWidth;
     fpsInterval = Math.floor(30 - (context.canvas.width / 250)); 
@@ -155,15 +155,16 @@ export function run() {
     }
 }
 
-export function restartHandler(engine = engine) {
+export function restartHandler(gameEngine) {
+    gameEngine = gameEngine || engine;
     document.querySelector("#runner_after").style.display = "none";
     document.querySelector("#idle_background").style.display = 'none';
     document.querySelector("#playing_background").style.display = 'block';
     // if the user has a mobile device, allow fullscreen. Otherwise it will impact the user experience, so disable it.
-    if (window.matchMedia("only screen and (max-width: 768px)").matches === true || window.matchMedia("only screen and (max-height: 768px)").matches === true) { 
+    if (window.matchMedia("only screen and (max-width: 768px)").matches === true || window.matchMedia("only screen and (max-height: 768px)").matches === true) 
         toggleFullScreen(true);
-    }
-    engine.restart();
+    
+    gameEngine.restart();
     setSize();
 }
 

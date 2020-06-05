@@ -132,6 +132,8 @@ describe('Engine', function() {
       // check the platforms moved
       assert.notStrictEqual(engine.platformManager.platforms[0].x, -11);
       assert.notStrictEqual(engine.platformManager.platforms[0].y, 100);
+      // wait till some spikes are sourced.
+      while (engine.platformManager.platforms[0].spikes.length === 0) engine.update();
       assert.strictEqual(engine.platformManager.platforms[0].spikes[0].color, "#9E111C");
       assert.ok(engine.platformManager.platforms[0].spikes[0].x >= 48);
       assert.ok(engine.platformManager.platforms[0].spikes[0].x <= engine.platformManager.platforms[0].x + engine.platformManager.platforms[0].width - 48);
@@ -400,8 +402,8 @@ describe('Engine', function() {
     it('should end game when player intersects left with platform.', function() {
       let fps = 40;
       let engine = new GameEngine(new TestContext(100, 100), fps, new TestAudioManager());
-      engine.platformManager.platforms[0].x = engine.player.x;
-      engine.platformManager.platforms[0].y = engine.player.y;
+      engine.platformManager.platforms[0].x = engine.player.x + engine.player.width - 5;
+      engine.platformManager.platforms[0].y = engine.player.y - 1;
       let div = document.createElement('div');
       div.setAttribute('id', 'runner_after');
       div.style.display = "none";

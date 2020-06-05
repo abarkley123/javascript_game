@@ -12,10 +12,10 @@ const HOST = config[process.env['NODE_ENV']].host;
 // setup config for the given environment (dev or prod)
 (() => {
     let env = process.env['NODE_ENV'];
-    let content = config[env], path = "./public/client_config.mjs";
+    let content = JSON.stringify(config[env]), path = "./public/client_config.mjs";
     //create client config file
     if (process.env['NODE_ENV'] !== "test") {
-        fs.writeFile(path, "export default\n" + JSON.stringify(content), (err) => {
+        fs.writeFile(path, "export default\n" + content, (err) => {
             if (err) throw err;
             log("Successfully wrote config to " + path + "\n" + content, "info");
         })

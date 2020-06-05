@@ -22,15 +22,18 @@ export class Vector2 {
     
     intersects(obj) {
         return obj.x <= this.x + this.width 
-            && obj.y <= this.y + this.height 
-            && obj.x + obj.width > this.x 
-            && obj.y + obj.height >= this.y;
+            && obj.y <= this.y + this.height
+            && obj.x + obj.width > this.x;
     }
 
-    intersectsLeft(obj, velocity) {
+    intersectsLeft(obj, velocity) {   
         // the only way this is true is if there is an interaction between the side of the platform and the player
-        return obj.x + 1.5 * velocity > this.x + this.width  && obj.x < this.x + this.width 
-            && this.y + this.height > obj.y + 1.5 * this.velocityY;
+        return this.boundedByX(obj, velocity) && (this.y > obj.y + 2 * this.velocityY);
+    }
+
+    boundedByX(obj, velocity) {
+        // return obj.x <= this.x + this.width && obj.x + velocity + this.width > this.x + this.width; 
+        return this.x + this.width >= obj.x && this.x < obj.x + velocity;
     }
 
     outOfBounds(canvas) {

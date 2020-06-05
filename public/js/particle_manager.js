@@ -6,7 +6,7 @@ export class ParticleManager {
     constructor(options) {
         this.particles = [];
         this.particlesIndex = 0;
-        this.engineSpeed = options.velocityX;
+        this.engineSpeed = options.engineSpeed;
         this.particlesMax = options.particlesMax;
         this.particleSize = options.particleSize;
         //preload all the particle objects, so they can be reused.
@@ -15,10 +15,9 @@ export class ParticleManager {
 
     increaseParticleCountTo(number = 0) {
         this.particlesMax = Math.max(number, this.particlesMax);
-
-        for (let i = this.particles.length; i < number; i++) {
+        // only create new objects if absolutely necessary - reuse otherwise.
+        for (let i = this.particles.length; i < number; i++) 
             this.particles[i] = new Particle({size: this.particleSize});
-        }
     }
 
     update() {

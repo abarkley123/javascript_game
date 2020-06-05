@@ -1,7 +1,7 @@
 import config from "../client_config.mjs";
 
 // Constants
-const LEVEL = config.port;
+const LEVEL = config.logLevel;
 
 export default function log(message, level) {
     if (shouldLogMessage(level) === true) {
