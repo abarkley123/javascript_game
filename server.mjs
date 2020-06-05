@@ -14,10 +14,10 @@ const HOST = config[process.env['NODE_ENV']].host;
     let env = process.env['NODE_ENV'];
     let content = JSON.stringify(config[env]), path = "./public/client_config.mjs";
     //create client config file
-    if (process.env['NODE_ENV'] !== "test") {
+    if (env !== "test") {
         fs.writeFile(path, "export default\n" + content, (err) => {
             if (err) throw err;
-            log("Successfully wrote config to " + path + "\n" + content, "info");
+            log(`Successfully wrote ${env} config to ` + path + "\n" + content, "info");
         })
     }
 })();
@@ -46,7 +46,7 @@ app.get("/audio", function(req, res) {
     sendFiles(res, path.resolve() + "/public/audio");
 });
 
-// serve audio files.
+// serve image files.
 app.get("/images", function(req, res) {
     sendFiles(res, path.resolve() + "/public/images");
 });
