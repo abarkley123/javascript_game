@@ -2,7 +2,7 @@ require('jsdom-global')()
 var assert = require('assert');
 import app from "../server.mjs";
 import GameEngine from "../public/js/engine.js"; 
-import {TestAudioManager} from "./test_audio_manager.js";
+import {TestAudioManager} from "./stub_audio_manager.js";
 
 let server;
 var TestContext = require("./context.js");
