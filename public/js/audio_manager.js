@@ -32,10 +32,7 @@ export class AudioManager {
                     });
 
                     this.setupEventListeners();
-                }).catch(err => {
-                    // node doesn't have Audio objects
-                    if (err.message !== "Audio is not defined") log(err.message, "error");
-                });
+                }).catch(err => log(err.message, "error"));
             } else {
                 throw Error(response.statusText);
             }

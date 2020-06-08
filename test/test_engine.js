@@ -463,5 +463,4 @@ function reset_instances() {
 
 after(done => {
   server.close(done);
-  server.close();
 });

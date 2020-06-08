@@ -9,7 +9,7 @@ export class TestAudioManager extends AudioManager {
     constructor() {
         super();
         this.audioFiles = {};
-
+        this.filePaths = []; 
         // TODO - consider using service workers to fulfill this.
         this.setupAudio()
             .then(() => log("Successfully loaded audio files.", "info"))
@@ -30,6 +30,8 @@ export class TestAudioManager extends AudioManager {
             if (response.status === 200 && response.ok) {
                 response.json().then(data => {
                     data["message"].forEach(file => {
+
+                        this.filePaths.push(file);
                         let audio = new Audio(file.substring(file.indexOf("public")));
                         audio.volume = 0.4;
                         this.audioFiles[file.substring(file.lastIndexOf("/") + 1, file.lastIndexOf("."))] = audio;

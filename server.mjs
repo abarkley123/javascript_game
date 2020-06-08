@@ -14,12 +14,10 @@ const HOST = config[process.env['NODE_ENV']].host;
     let env = process.env['NODE_ENV'];
     let content = JSON.stringify(config[env]), path = "./public/client_config.mjs";
     //create client config file
-    if (env !== "test") {
-        fs.writeFile(path, "export default\n" + content, (err) => {
-            if (err) throw err;
-            log(`Successfully wrote ${env} config to ` + path + "\n" + content, "info");
-        })
-    }
+    fs.writeFile(path, "export default\n" + content, (err) => {
+        if (err) throw err;
+        log(`Successfully wrote ${env} config to ` + path + "\n" + content, "info");
+    });
 })();
 
 //CORS middleware
