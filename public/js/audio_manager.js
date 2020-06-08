@@ -22,23 +22,29 @@ export class AudioManager {
         fetch("http://" + config.address + ":" + config.port + '/audio',{
             method: "GET", 
             credentials:"omit"
-        }).then(response => {
-            if (response.status === 200 && response.ok) {
-                response.json().then(data => {
-                    data["message"].forEach(file => {
-                        let audio = new Audio(file.substring(file.indexOf("public")));
-                        audio.volume = 0.4;
-                        this.audioFiles[file.substring(file.lastIndexOf("/") + 1, file.lastIndexOf("."))] = audio;
-                    });
-
-                    this.setupEventListeners();
-                }).catch(err => log(err.message, "error"));
-            } else {
-                throw Error(response.statusText);
-            }
-        }).catch(err => {
+        }).then(response => this.handleResponse(response)).catch(err => {
             log("Error encountered when retrieving audio files: " + err.message, "error");
         });
+    }
+
+    handleResponse(response) {
+        if (response.status === 200 && response.ok) {
+            response.json().then(data => {
+                data["message"].forEach(file => {
+                    let audio, path = file.substring(file.indexOf("public"));
+                    try {
+                        audio = new Audio(path);
+                        audio.volume = 0.4;
+                    } catch (InstantiationException) {
+                        audio = path;
+                        log("Could not create audio object. Defaulting to file path..", "error");
+                    }
+                    this.audioFiles[file.substring(file.lastIndexOf("/") + 1, file.lastIndexOf("."))] = audio;
+                });
+
+                this.setupEventListeners();
+            }).catch(err => log(err.message, "error"));
+        } else throw Error(response.statusText);
     }
 
     setupEventListeners() {

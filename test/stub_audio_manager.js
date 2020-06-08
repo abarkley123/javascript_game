@@ -15,27 +15,13 @@ export class TestAudioManager extends AudioManager {
      * Collision sound: @Shades https://opengameart.org/content/8-bit-sound-effect-pack-vol-001 
      * Jump sounds: @Damaged Panda https://opengameart.org/content/100-plus-game-sound-effects-wavoggm4a **/
 
-    // This function should load all audio files. 
+    // This function should load all audio files using node fetch.
     async setupAudio() {
         fetch("http://" + config.address + ":" + config.port + '/audio', {
             method: "GET", 
             credentials:"omit"
-        }).then(response => {
-            if (response.status === 200 && response.ok) {
-                response.json().then(data => {
-                    data["message"].forEach(file => {
-                        let audio = file.substring(file.indexOf("public"));
-                        this.audioFiles[file.substring(file.lastIndexOf("/") + 1, file.lastIndexOf("."))] = audio;
-                    });
-                }).catch(err => {
-                    // node doesn't have Audio objects
-                    log(err.message, "error");
-                });
-            } else {
-                throw Error(response.statusText);
-            }
-        }).catch(err => {
-            log("Error encountered when retrieving audio files: " + err.message, "error");
+        }).then(response => this.handleResponse(response)).catch(err => {
+            log("Error encountered when retrieving audio files: " + err.message, "test");
         });
     }
 }

@@ -1,3 +1,4 @@
+require('jsdom-global')()
 var assert = require('assert');
 import {TestAudioManager} from "./stub_audio_manager.js";
 import app from "../server.mjs";
@@ -19,8 +20,11 @@ describe('AudioManager', function() {
   describe('constructor()', function() {
     it('should successfully initialise the audio manager.', mochaAsync(async() => {
         await manager.setupAudio();
-        // check background music was set
+        // check audio files were set
         assert.strictEqual("public/audio/backgroundMain.mp3", manager.audioFiles["backgroundMain"]);
+        assert.strictEqual('public/audio/collision.wav', manager.audioFiles["collision"]);
+        assert.strictEqual('public/audio/firstJump.m4a', manager.audioFiles["firstJump"]);
+        assert.strictEqual('public/audio/secondJump.m4a', manager.audioFiles["secondJump"]);
     }));
   });
 });

@@ -27,6 +27,7 @@ function getLogLevel(level) {
         case "debug": return 3;
         case "info": return 2;
         case "error": return 1;
+        case "test": return 0;
         default: return 1;
     }
 }
