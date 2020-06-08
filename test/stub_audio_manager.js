@@ -8,12 +8,6 @@ export class TestAudioManager extends AudioManager {
 
     constructor() {
         super();
-        this.audioFiles = {};
-        this.filePaths = []; 
-        // TODO - consider using service workers to fulfill this.
-        this.setupAudio()
-            .then(() => log("Successfully loaded audio files.", "info"))
-            .catch(e => log("Failed to setup audio due to cause: " + e, "error"));
     }
 
     /* Background music supplied by Eva – 失望した: https://youtu.be/jVTsD4UPT-k, 
@@ -23,24 +17,19 @@ export class TestAudioManager extends AudioManager {
 
     // This function should load all audio files. 
     async setupAudio() {
-        fetch("http://" + config.address + ":" + config.port + '/audio',{
+        fetch("http://" + config.address + ":" + config.port + '/audio', {
             method: "GET", 
             credentials:"omit"
         }).then(response => {
             if (response.status === 200 && response.ok) {
                 response.json().then(data => {
                     data["message"].forEach(file => {
-
-                        this.filePaths.push(file);
-                        let audio = new Audio(file.substring(file.indexOf("public")));
-                        audio.volume = 0.4;
+                        let audio = file.substring(file.indexOf("public"));
                         this.audioFiles[file.substring(file.lastIndexOf("/") + 1, file.lastIndexOf("."))] = audio;
                     });
-
-                    this.setupEventListeners();
                 }).catch(err => {
                     // node doesn't have Audio objects
-                    if (err.message !== "Audio is not defined") log(err.message, "error");
+                    log(err.message, "error");
                 });
             } else {
                 throw Error(response.statusText);
