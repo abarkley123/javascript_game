@@ -48,38 +48,31 @@ export class AudioManager {
     }
 
     setupEventListeners() {
-        // pause brackground music when the user leaves the tab. other audio files are short lived so don't require this.
-        document.addEventListener("visibilitychange", () => {
-            try {
-                if (document.hidden) {
-                    this.audioFiles["backgroundMain"].pause();
-                } else  {
-                    this.audioFiles["backgroundMain"].play();
-                }
-            } catch (NoSuchAudioException) {
-                logger.log("Unable to change state of audio due to: " + NoSuchAudioException, "error");
-            }
-        }, false);
-
         // loop the background music
-        this.audioFiles["backgroundMain"].addEventListener('ended', function() {
-            this.currentTime = 0;
-            this.play();
-          }, false);
+        this.audioFiles["backgroundMain"].addEventListener('ended', this.playAudio("backgroundMain"), false);
+
+        // pause brackground music when the user leaves the tab. other audio files are short lived so don't require this.
+        document.addEventListener("visibilitychange", this.handleTabChange("backgroundMain"), false);
     }
     
+    handleTabChange(file) {
+        let audio = this.audioFiles[file];
+
+        try {
+            if (document.hidden) audio.pause();
+            else audio.play();
+        } catch (NoSuchAudioException) {
+            log("Unable to change state of audio due to: " + NoSuchAudioException, "error");
+        }
+    }
+
     playAudio(file, volume = 0.4) {
         let audio = this.audioFiles[file], _this = this;
     
         try {
             audio.volume = volume;
-            if (!audio.paused) return;
-            audio.play().then(() => {
-                return;
-            }).catch(function(PlaybackException) {
-                log('Audio failed to play due to cause: ' + PlaybackException, "error");
-                _this.retryPlayback(file); 
-            });
+            audio.currentTime = 0;
+            if (audio.paused === true) audio.play();
         } catch (NoSuchAudioException) {
             log("Could not find audio object '" + file + "' with cause: " + NoSuchAudioException, "info");
             // asynchronous AJAX request may not have finished, so retry quietly.
@@ -88,12 +81,14 @@ export class AudioManager {
     }
     
     retryPlayback(file, currentInvocation = 0) {
-        let audio, maxInvocations = 10, _this = this;
-        setTimeout(() => {
-            // if the file was retrieved, then it can be played.
-            if (audio = _this.audioFiles[file]) _this.playAudio(file);
-            else if (currentInvocation < maxInvocations) _this.retryPlayback(file, currentInvocation + 1);
-            else log("Retries exhausted: could not play audio file " + file, "error");
-        }, 3000);  
+        setTimeout(this.retryAudioPlayback, 3000, file, currentInvocation);  
+    }
+    
+    retryAudioPlayback(file, currentInvocation) {
+        let maxInvocations = 10, audio = this.audioFiles[file];
+        // if the file was retrieved, then it can be played.
+        if (audio) this.playAudio(file);
+        else if (currentInvocation < maxInvocations) this.retryAudioPlayback(file, currentInvocation + 1);
+        else log("Retries exhausted: could not play audio file " + file, "error");
     }
 }
