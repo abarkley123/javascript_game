@@ -1,7 +1,5 @@
-require('jsdom-global')()
 var assert = require('assert');
 import {Particle} from "../public/js/particle.js";
-import { ok } from "assert";
 var TestContext = require("./context.js");
 
 describe('Particle', function() {

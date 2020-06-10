@@ -6,9 +6,7 @@ export class ParticleManager {
     constructor(options) {
         this.particles = [];
         this.particlesIndex = 0;
-        this.engineSpeed = options.engineSpeed;
-        this.particlesMax = options.particlesMax;
-        this.particleSize = options.particleSize;
+        Object.assign(this, options);
         //preload all the particle objects, so they can be reused.
         this.increaseParticleCountTo(this.particlesMax);
     }
@@ -30,7 +28,7 @@ export class ParticleManager {
     }
 
     spawnParticles(positionX, positionY, tolerance, collider) {
-        for (let i = 0; i < 5; i++) {
+        for (let i = 0; i < Math.min(5, this.particlesMax); i++) {
             positionY = tolerance === 0 ? positionY : random(positionY, positionY + tolerance);
             const velocityX = -(random(this.particleSize/2, this.particleSize * 2) + random(this.engineSpeed, 4 * this.engineSpeed)/5);
             // set x, y and velocity (reusing a particle object).
