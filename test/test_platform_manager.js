@@ -15,7 +15,7 @@ describe('PlatformManager', function() {
           for (let i = 0; i < platformManager.platforms.length; i++) {
               let p = platformManager.platforms[i], height = ctx.canvas.height, width = ctx.canvas.width;
               assert.ok(p.x >= platformManager.minDistanceX);
-              assert.ok(p.y >= (height/1.1 - platformManager.maxDistanceY) && p.y <= (height/1.1));
+              assert.ok(p.y >= Math.floor((height/1.1 - platformManager.maxDistanceY)) && Math.floor(p.y <= (height/1.1)));
               assert.ok(p.width >= width / 2 && p.width <= width * 2);
               assert.ok(p.colorGradient !== null);
               assert.ok(p.color !== null);
@@ -50,8 +50,8 @@ describe('PlatformManager', function() {
             for (let i = 0; i < p.length; i++) {
                 let startX = platformManager.platforms[lastPlatforms[i]].x + platformManager.platforms[lastPlatforms[i]].width;
                 
-                assert.ok(p[i].x >= startX + platformManager.minDistanceX && p[i].x <= startX + platformManager.maxDistanceX);
-                assert.ok(p[i].y >= (height/1.1 - platformManager.maxDistanceY) && p[i].y <= (height/1.1));
+                assert.ok(p[i].x >= Math.floor(startX + platformManager.minDistanceX) && p[i].x <= Math.floor(startX + platformManager.maxDistanceX));
+                assert.ok(p[i].y >= Math.floor(height/1.1 - platformManager.maxDistanceY) && p[i].y <= Math.floor((height/1.1)));
                 assert.ok(p[i].width >= width / 2 && p[i].width <= width * 2);
                 assert.strictEqual(height - p[i].y, p[i].height);
             }
