@@ -40,21 +40,30 @@ describe('PlatformManager', function() {
         it('should update platform position when offscreen.', function() {
             let ctx = new TestContext(1000, 1000), jumpSizes = [10, 10];
             let platformManager = new PlatformManager(ctx, jumpSizes);
+
             // test both to check that the platforms position regardless of position in array
             let p = [platformManager.platforms[0], platformManager.platforms[1]];
-            p[0].x = - (p[0].width + 1); //offscreen
-            p[1].x = - (p[1].width + 1); //offscreen
+            p[0].x = -(p[0].width + 1); //offscreen
+
+            let height = ctx.canvas.height, width = ctx.canvas.width, len = platformManager.platforms.length;
+            let startX = platformManager.platforms[len - 1].x + platformManager.platforms[len - 1].width;
+
+            // now update     
             platformManager.update(ctx.canvas, 10, 0);
-            let height = ctx.canvas.height, width = ctx.canvas.width;
-            let lastPlatforms = [platformManager.platforms.length - 1, 0];
-            for (let i = 0; i < p.length; i++) {
-                let startX = platformManager.platforms[lastPlatforms[i]].x + platformManager.platforms[lastPlatforms[i]].width;
                 
-                assert.ok(p[i].x >= Math.floor(startX + platformManager.minDistanceX) && p[i].x <= Math.ceil(startX + platformManager.maxDistanceX));
-                assert.ok(p[i].y >= Math.floor(height/1.1 - platformManager.maxDistanceY) && p[i].y <= Math.floor((height/1.1)));
-                assert.ok(p[i].width >= width / 2 && p[i].width <= width * 2);
-                assert.strictEqual(height - p[i].y, p[i].height);
-            }
+            assert.ok(p[0].x >= startX + platformManager.minDistanceX && p[0].x <= startX + platformManager.maxDistanceX);
+            assert.ok(p[0].y >= Math.floor(height/1.1 - platformManager.maxDistanceY) && p[0].y <= Math.floor((height/1.1)));
+            assert.ok(p[0].width >= width / 2 && p[0].width <= width * 2);
+            assert.strictEqual(height - p[0].y, p[0].height);
+            // force this platform offscreen.
+            p[1].x = -(p[1].width + 1); //offscreen
+            // update again
+            platformManager.update(ctx.canvas, 10, 0);
+            startX = platformManager.platforms[0].x + platformManager.platforms[0].width;
+            assert.ok(p[1].x >= startX + platformManager.minDistanceX && p[1].x <= startX + platformManager.maxDistanceX);
+            assert.ok(p[1].y >= Math.floor(height/1.1 - platformManager.maxDistanceY) && p[1].y <= Math.floor((height/1.1)));
+            assert.ok(p[1].width >= width / 2 && p[1].width <= width * 2);
+            assert.strictEqual(height - p[1].y, p[1].height);
         });
       });
     describe('updatePlatformGaps()', function() {
