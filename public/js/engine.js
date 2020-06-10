@@ -37,7 +37,7 @@ class GameEngine {
         if (this.stillPlaying() === true || this.player.outOfBounds(this.ctx.canvas) === false) {
             this.update();
             this.draw();
-        }
+        } else this.velocityX = 0;
     }
 
     stillPlaying() {
@@ -65,8 +65,9 @@ class GameEngine {
             // check for any collisions between player and environment, then update all the platforms (and spikes)
             this.checkForCollisions();
             this.platformManager.update(this.ctx.canvas, this.velocityX, this.difficultyLevel);
-            // accelerate, but only up to a point
+            // accelerate, but slow down once speeds get excessive.
             if (this.jumpCount < 60) this.velocityX += this.accelerationTweening / 2500;
+            else this.velocityX += this.accelerationTweening / 5000;
         }
     }
 
@@ -139,10 +140,11 @@ class GameEngine {
             this.audioManager.playAudio((this.player.jumpsLeft === 2 ? "first" : "second") + "Jump", 0.15);
             this.player.doJump();
             // now update the score
+            console.log(this.jumpCount + " " + this.jumpCountRecord);
             if (++this.jumpCount > this.jumpCountRecord) {
                 this.jumpCountRecord = this.jumpCount;
                 document.querySelector("#runner_multiplier").innerHTML = ((this.jumpCount + 100) / 100).toFixed(2);
-            }
+            } else log(`Jump ${this.jumpCount} did not exceed record of ${this.jumpCountRecord}.`, "debug");
         }
     }
 
@@ -158,7 +160,7 @@ class GameEngine {
             this.accelerationTweening = (2500 * (200 / newFps))/(20 * newFps);
             // Adjust player jump height and gravity to maintain proportions.
             if (this.player) this.player.adjustForFps(this.ctx, newFps);
-        }
+        } else log("Not justing game assets as the game in not in progress", "debug");
     }
 }
 

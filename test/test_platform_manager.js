@@ -50,7 +50,7 @@ describe('PlatformManager', function() {
             for (let i = 0; i < p.length; i++) {
                 let startX = platformManager.platforms[lastPlatforms[i]].x + platformManager.platforms[lastPlatforms[i]].width;
                 
-                assert.ok(p[i].x >= Math.floor(startX + platformManager.minDistanceX) && p[i].x <= Math.floor(startX + platformManager.maxDistanceX));
+                assert.ok(p[i].x >= Math.floor(startX + platformManager.minDistanceX) && p[i].x <= Math.ceil(startX + platformManager.maxDistanceX));
                 assert.ok(p[i].y >= Math.floor(height/1.1 - platformManager.maxDistanceY) && p[i].y <= Math.floor((height/1.1)));
                 assert.ok(p[i].width >= width / 2 && p[i].width <= width * 2);
                 assert.strictEqual(height - p[i].y, p[i].height);

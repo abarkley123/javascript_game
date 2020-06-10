@@ -160,6 +160,16 @@ describe('Engine', function() {
         assert.strictEqual(engine.particleManager.particlesMax, 15);
     });
 
+    it('should not increase difficulty at high jump counts.', function() {
+      let fps = 40;
+      let engine = new GameEngine(new TestContext(100, 99), fps, new TestAudioManager());
+        engine.jumpCount = 70;
+        engine.difficultyLevel = 7;
+        engine.update();
+        // check that acceleration was not updated when jump count % 10 === 0
+        assert.strictEqual(engine.difficultyLevel, 7);
+    });
+
     it('should increase velocity using acceleration tweening.', function() {
       let fps = 40;
       let engine = new GameEngine(new TestContext(100, 99), fps, new TestAudioManager());
@@ -320,12 +330,17 @@ describe('Engine', function() {
       let fps = 40;
       let engine = new GameEngine(new TestContext(100, 100), fps, new TestAudioManager());
       engine.velocityX = 0;
+      engine.player.x = -1000;
+      // check that the game isn't running
+      engine.adjustForFps(100);
+      assert.strictEqual(0, engine.velocityX);
+      // now attempt to update
       engine.step();
       assert.strictEqual(engine.score, 0);
       assert.strictEqual(engine.jumpCount, 0);
       assert.strictEqual(engine.velocityX, 0);
       assert.strictEqual(engine.accelerationTweening, (2500 * (200 / fps))/(20 * fps));
-      assert.strictEqual(engine.player.x, 20);
+      assert.strictEqual(engine.player.x, -1000);
       assert.strictEqual(Math.floor(engine.player.y), 33);
       assert.strictEqual(engine.player.width, 4);
       assert.strictEqual(engine.player.height, 4);
@@ -341,7 +356,6 @@ describe('Engine', function() {
       assert.strictEqual(engine.particleManager.particlesMax, 10);
       assert.strictEqual(engine.jumpCountRecord, 0);
       assert.strictEqual(engine.difficultyLevel, 1);
-
     });
   });
 
@@ -361,6 +375,17 @@ describe('Engine', function() {
       assert.strictEqual(engine.jumpCountRecord, 1);
       assert.strictEqual(document.querySelector("#runner_multiplier").innerHTML, "1.01");
       document.body.removeChild(div);
+    });
+    it('should process jump but not highscore when jump count isnt higher.', function() {
+      let fps = 40;
+      let engine = new GameEngine(new TestContext(100, 100), fps, new TestAudioManager());
+      engine.jumpCountRecord = 100;
+      engine.jumpCount = 0;
+      engine.player.jumpsLeft = 2;
+      engine.processJump();
+      assert.strictEqual(engine.jumpCount, 1);
+      assert.strictEqual(engine.player.velocityY, engine.player.jumpVelocity);
+      assert.strictEqual(engine.jumpCountRecord, 100);
     });
     it('should not process jump when game playing and player cant jump.', function() {
       let fps = 40;
