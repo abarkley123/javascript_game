@@ -140,7 +140,6 @@ class GameEngine {
             this.audioManager.playAudio((this.player.jumpsLeft === 2 ? "first" : "second") + "Jump", 0.15);
             this.player.doJump();
             // now update the score
-            console.log(this.jumpCount + " " + this.jumpCountRecord);
             if (++this.jumpCount > this.jumpCountRecord) {
                 this.jumpCountRecord = this.jumpCount;
                 document.querySelector("#runner_multiplier").innerHTML = ((this.jumpCount + 100) / 100).toFixed(2);
