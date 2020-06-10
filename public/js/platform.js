@@ -12,7 +12,7 @@ export class Platform extends Vector2 {
     setup(color, gradient) {
         this.spikes = [];
         this.color = color;
-        this.grd = gradient;       
+        this.colorGradient = gradient;       
     }
 
     update(velocity) {
@@ -21,7 +21,7 @@ export class Platform extends Vector2 {
     }
 
     draw(ctx) {
-        ctx.fillStyle = this.grd;
+        ctx.fillStyle = this.colorGradient;
         // avoid sub pixel rendering, so use integers instead of floats
         ctx.fillRect(Math.floor(this.x), Math.floor(this.y), Math.floor(this.width), Math.floor(this.height));
         this.spikes.forEach((spike) => spike.draw(ctx));

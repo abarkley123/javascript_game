@@ -14,7 +14,7 @@ export class PlatformManager {
             let startX = 0, canvasWidth = ctx.canvas.width, canvasHeight = ctx.canvas.height;
             for (let idx = 0; idx < numPlatforms; idx++) {
                 let position = [startX + this.minDistanceX, random(canvasHeight/1.1, canvasHeight/ 1.1 - this.maxDistanceY)];
-                let size = [random(Math.min(canvasWidth, 1000), Math.min(canvasWidth, 2000)), canvasHeight - position[1]];
+                let size = [random(Math.min(canvasWidth / 2, 1000), Math.min(canvasWidth * 2, 2000)), canvasHeight - position[1]];
 
                 this.platforms[idx] = new Platform({
                     color: randomChoice(colors)[1],
