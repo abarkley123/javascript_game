@@ -17,7 +17,9 @@ class TestContext {
     clearRect(x,y,width,height) {
         this.drawn = true;
     }
-    fillRect(x,y,width,height) {}
+    fillRect(x,y,width,height) {
+        this.drawn = true;
+    }
     strokeRect(x,y,width,height) {}
 }
 
