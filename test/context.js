@@ -13,7 +13,9 @@ class TestContext {
     }
     moveTo() {}
     lineTo() {}
-    fill() {}
+    fill() {
+        this.drawn = true;
+    }
     clearRect(x,y,width,height) {
         this.drawn = true;
     }

@@ -4,14 +4,14 @@ import {random} from "./util.js";
 export class Platform extends Vector2 {
 
     // default constructor
-    constructor(options) {
+    constructor(options = {}) {
         super(options.x || 0, options.y || 0, options.width || 0, options.height || 0);
         this.setup(options.color, options.gradient);
     }
 
     setup(color, gradient) {
         this.spikes = [];
-        this.color = color;
+        this.color = color || "#2D0754";
         this.colorGradient = gradient;       
     }
 
@@ -21,7 +21,7 @@ export class Platform extends Vector2 {
     }
 
     draw(ctx) {
-        ctx.fillStyle = this.colorGradient;
+        ctx.fillStyle = this.colorGradient || this.color;
         // avoid sub pixel rendering, so use integers instead of floats
         ctx.fillRect(Math.floor(this.x), Math.floor(this.y), Math.floor(this.width), Math.floor(this.height));
         this.spikes.forEach((spike) => spike.draw(ctx));
@@ -30,8 +30,8 @@ export class Platform extends Vector2 {
     createSpikes(number = 0) {
         // reuse objects - only create where needed. 
         for (let i = 0; i < Math.max(this.spikes.length, number); i++) {
-            if (i > number) {
-                this.spikes[i].initialise([0, 0], [0, 0]);
+            if (i >= number) {
+                this.spikes[i].initialise([-48, -48], [0, 0]); //keep the object but don't use
             } else {
                 if (i >= this.spikes.length) this.spikes.push(new Spike({color:"#9E111C"}));  
                 this.spikes[i].initialise([this.x + random(48, this.width - 48), this.y - (48)], [48, 48]);
