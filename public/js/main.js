@@ -2,35 +2,13 @@ import GameEngine from "./engine.js";
 import {AudioManager} from "./audio_manager.js";
 import log from "./logger.mjs";
 
-var ctx, engine, runnerAnimation, then, now, fpsInterval, frameCount = 0, transform = 0, audioManager = new AudioManager;
+var ctx, engine, runnerAnimation, then, now, fpsInterval, frameCount = 0, transform = 0, lastTime = 0, audioManager = new AudioManager;
 
-// IIFE to setup DOM and polyfill for animation frame that has cross browser support.
-// Polyfill source - https://gist.github.com/paulirish/1579671.
-(function() {
-    var lastTime = 0;
-    var vendors = ['ms', 'moz', 'webkit', 'o'];
-    for(var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
-        window.requestAnimationFrame = window[vendors[x]+'RequestAnimationFrame'];
-        window.cancelAnimationFrame = window[vendors[x]+'CancelAnimationFrame'] 
-                                   || window[vendors[x]+'CancelRequestAnimationFrame'];
-    }
- 
-    if (!window.requestAnimationFrame)
-        window.requestAnimationFrame = function(callback, element) {
-            var currTime = new Date().getTime();
-            var timeToCall = Math.max(0, 16 - (currTime - lastTime));
-            var id = window.setTimeout(function() { callback(currTime + timeToCall); }, 
-              timeToCall);
-            lastTime = currTime + timeToCall;
-            return id;
-        };
- 
-    if (!window.cancelAnimationFrame) window.cancelAnimationFrame = (id) => clearTimeout(id);
-    
-    setup(audioManager);
-}());
+// add event handlers
+window.onload = setup(audioManager);
 
 export function setup(audioManager, context) {
+    setupAnimationFrame();
     // expose the canvas for a short time so that the game engine can resolve the offsetWidth.
     let runnerContainer = document.querySelector("#runner_container");
     let runnerBefore = document.querySelector("#runner_before");
@@ -53,22 +31,30 @@ export function setup(audioManager, context) {
         var images = ["public/images/forefront_background_ambient.svg", "public/images/forefront_background.svg"];
         for (var i = 0; i < images.length; i++) {
             var img = new Image();
-            img.onload = function() {
-                var index = images.indexOf(this);
-                if (index !== -1) {
-                    // remove image from the array once it's loaded due to memory consumption
-                    images.splice(index, 1);
-                }
-            }
+            img.onload = removeImage(images, img);
             img.src = images[i];
         }
     })();
     // start the background music.
     audioManager.playAudio("backgroundMain");
+    // setup event listeners
+    setupEventListeners();
 }
 
-// add event handlers
-window.onload = setupEventListeners();
+function setupAnimationFrame() {
+    var vendors = ['ms', 'moz', 'webkit', 'o'];
+    for(var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
+        window.requestAnimationFrame = window[vendors[x] + 'RequestAnimationFrame'];
+        window.cancelAnimationFrame = window[vendors[x] + 'CancelAnimationFrame'] || window[vendors[x] + 'CancelRequestAnimationFrame'];
+    }
+}
+
+export function removeImage(images, index) {
+    if (index !== -1 && index < images.length) {
+        // remove image from the array once it's loaded due to memory consumption
+        images.splice(index, 1);
+    } else log("Couldn't find cached image in array", "debug");
+}
 
 export function setupEventListeners() {
     let runnerContainer = document.querySelector("#runner_container");
@@ -102,9 +88,11 @@ export function setupEventListeners() {
         log("Could not complete setup as DOM not loaded", "error");
     }
 
-    document.onkeypress = function(event) {  // spacebar
-        if (event.which == "32") engine.processJump();
-    };
+    document.onkeypress = keyboardEvent;
+}
+
+export function keyboardEvent(event) {  // spacebar
+    if (event.which == "32") engine.processJump();
 }
 
 export function startHandler() {
@@ -135,7 +123,7 @@ export function setSize(context) {
         engine.adjustForFps(1000/fpsInterval);
         // Resize each of the entities to maintain the same scale
         engine.resizeEntities(context, original_size);
-    }
+    } else log("Engine not instantiated - not resizing.", "debug");
 }
 
 export function run() {
@@ -143,16 +131,20 @@ export function run() {
     now = Date.now();
     let elapsed = Date.now() - then;
     if (elapsed > fpsInterval) {
+        loop();
         then = now - (elapsed % fpsInterval);
-        engine.step();
-        document.querySelector("#score").innerHTML = engine.score;
-        // twice a second, translate the background to give the impression of motion.
-        if (engine.velocityX !== 0 && frameCount++ % Math.floor(50/fpsInterval) === 0) {
-            // give the effect of parallax for background - back elements move more slowly than forward ones.
-            document.querySelector(".parallax__layer--base").style.transform = "translateZ(0) translateX(-" + Math.floor(transform++) + "px)";
-            document.querySelector(".parallax__layer--back").style.transform = "translateZ(0) translateX(-" + Math.floor(transform/3) + "px)";
-        }
     }
+}
+
+export function loop() {
+    engine.step();
+    document.querySelector("#score").innerHTML = engine.score;
+    // twice a second, translate the background to give the impression of motion.
+    if (engine.velocityX !== 0 && frameCount++ % Math.floor(50/fpsInterval) === 0) {
+        // give the effect of parallax for background - back elements move more slowly than forward ones.
+        document.querySelector(".parallax__layer--base").style.transform = "translateZ(0) translateX(-" + Math.floor(transform++) + "px)";
+        document.querySelector(".parallax__layer--back").style.transform = "translateZ(0) translateX(-" + Math.floor(transform/3) + "px)";
+    } 
 }
 
 export function restartHandler(gameEngine) {
@@ -163,7 +155,8 @@ export function restartHandler(gameEngine) {
     // if the user has a mobile device, allow fullscreen. Otherwise it will impact the user experience, so disable it.
     if (window.matchMedia("only screen and (max-width: 768px)").matches === true || window.matchMedia("only screen and (max-height: 768px)").matches === true) 
         toggleFullScreen(true);
-    
+    else log("Not entering fullscreen due to: screen sufficiently sized for playable experience.", "debug");
+
     gameEngine.restart();
     setSize();
 }
@@ -180,5 +173,5 @@ export function toggleFullScreen(restart = false) {
       requestFullScreen.call(docEl)
     } else if (cancelFullScreen && restart === false) {
       cancelFullScreen.call(doc);
-    }
+    } else log("Could not enter fullscreen mode.", "debug");
 }

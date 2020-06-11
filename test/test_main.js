@@ -41,12 +41,40 @@ before(done => {
 });
 
 import * as main from "../public/js/main.js";
+import { triggerAsyncId } from "async_hooks";
 
 
 describe('Main', function() {
     describe('setup()', function() {
         it('should set visibility of DOM elements', function() {
             let ctx = new TestContext(100, 100);
+            window.matchMedia = window.matchMedia || function() {
+                return {
+                    matches : false,
+                    addListener : function() {},
+                    removeListener: function() {}
+                };
+            };
+            window.attachEvent = window.attachEvent || function(event, fn) {
+                return true;
+            };
+            main.setup(new TestAudioManager(), ctx);
+            
+            assert.strictEqual(document.querySelector("#runner_container").style.display, "none");
+            assert.strictEqual(document.querySelector("#runner_before").style.display, "block");
+            assert.strictEqual(ctx.canvas.width, window.innerWidth);
+            assert.strictEqual(ctx.canvas.height, window.innerHeight);
+        });
+        it('should attempt to set fullscreen', function() {
+            let ctx = new TestContext(100, 100);
+            window.matchMedia = function() {
+                return {
+                    matches : true,
+                    addListener : function() {},
+                    removeListener: function() {}
+                };
+            };
+            window.attachEvent = undefined;
             main.setup(new TestAudioManager(), ctx);
             
             assert.strictEqual(document.querySelector("#runner_container").style.display, "none");
@@ -136,8 +164,64 @@ describe('Main', function() {
             document.body.removeChild(div);
         });
     });
-});
+    describe('removeImage()', function() {
+        it('should remove element from array', function() {
+            var images = ["public/images/forefront_background_ambient.svg", "public/images/forefront_background.svg"];
+            let img = new Image();
+            img.src = images[0];
+            main.removeImage(images, 0);
+            assert.strictEqual(1, images.length);
+            main.removeImage(images, 1);
+            assert.strictEqual(1, images.length);
+        });
+    });
+    describe('loop()', function() {
+        it('should perform engine step', function() {
+            let div  = document.createElement('div');
+            div.setAttribute('id', 'score');
+            let base  = document.createElement('div');
+            let back  = document.createElement('div');
+            base.classList.add("parallax__layer--base");
+            back.classList.add("parallax__layer--back");
+            document.body.appendChild(div);
+            document.body.appendChild(base);
+            document.body.appendChild(back);
+            let ctx = new TestContext(100, 100);
+            window.matchMedia = function() {
+                return {
+                    matches : true,
+                    addListener : function() {},
+                    removeListener: function() {}
+                };
+            };
+            
+            main.setup(new TestAudioManager(), ctx);
+            main.loop();
+            assert.ok(document.querySelector(".parallax__layer--base").style.transform.length > 0);
+            assert.ok(document.querySelector(".parallax__layer--back").style.transform.length > 0);
 
+            document.body.removeChild(div);
+            document.body.removeChild(base);
+            document.body.removeChild(back);
+        });
+    });
+    describe('keyboardEvent()', function() {
+        it('should accept keyboard input without error', function() {
+            let div = document.createElement('div');
+            div.setAttribute('id', 'runner_multiplier');
+            div.innerHTML = "1.00";
+            document.body.appendChild(div);
+
+            main.keyboardEvent({which:"32"});
+            main.keyboardEvent({which:"64"});
+            main.keyboardEvent({which:32});
+            main.keyboardEvent({which:undefined});
+            // "32" triggers a jump
+            assert.strictEqual(document.querySelector("#runner_multiplier").innerHTML, "1.01");
+            document.body.removeChild(div);
+        });
+    });
+});
 after(done => {
     server.close(done);
     document.body.removeChild(runnerContainer);
