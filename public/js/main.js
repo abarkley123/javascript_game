@@ -2,7 +2,7 @@ import GameEngine from "./engine.js";
 import {AudioManager} from "./audio_manager.js";
 import log from "./logger.mjs";
 
-var ctx, engine, runnerAnimation, then, now, fpsInterval, frameCount = 0, transform = 0, lastTime = 0, audioManager = new AudioManager;
+var ctx, engine, runnerAnimation, then, now, fpsInterval, frameCount = 0, transform = 0, audioManager = new AudioManager;
 
 // add event handlers
 window.onload = setup(audioManager);
@@ -31,7 +31,7 @@ export function setup(audioManager, context) {
         var images = ["public/images/forefront_background_ambient.svg", "public/images/forefront_background.svg"];
         for (var i = 0; i < images.length; i++) {
             var img = new Image();
-            img.onload = removeImage(images, img);
+            img.onload = removeImage(images, i);
             img.src = images[i];
         }
     })();

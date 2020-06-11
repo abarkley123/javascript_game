@@ -1,6 +1,5 @@
 var assert = require('assert');
 import {Platform} from "../public/js/platform.js";
-import { Test } from "mocha";
 var TestContext = require("./context.js");
 
 describe('Platform', function() {
