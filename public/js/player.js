@@ -55,7 +55,7 @@ export class Player extends Vector2 {
         this.velocityY = this.jumpsLeft === 0 ? this.jumpVelocity * 0.667 : this.jumpVelocity;   
     }
 
-    // get junp distance and heights by simulating the next N frames
+    // get jump distance and heights by simulating the next N frames
     getProjectileProperties(velocityX, velocityY) {
         let tmpX = this.x, tmpY = this.y - 1, tmpVelY = velocityY, peakY = this.y;
 

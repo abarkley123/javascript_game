@@ -1,8 +1,7 @@
 export class Vector2 {
 
     constructor(x, y, width, height) {
-        this.setPosition(x, y);
-        this.setSize(width, height);
+        this.initialise([x,y], [width, height]);
     }
 
     setPosition(x, y) {
@@ -28,7 +27,7 @@ export class Vector2 {
 
     intersectsLeft(obj, velocity) {   
         // the only way this is true is if there is an interaction between the side of the platform and the player
-        return this.x + this.width >= obj.x && this.x < obj.x + velocity && (this.y > obj.y + 2 * this.velocityY);
+        return this.x + this.width >= obj.x && this.x < obj.x + velocity && this.y > obj.y + 2 * this.velocityY;
     }
     
     outOfBounds(canvas) {
