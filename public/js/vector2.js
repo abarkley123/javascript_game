@@ -1,37 +1,36 @@
 export class Vector2 {
 
     constructor(x, y, width, height) {
-        this.x = x;
-        this.y = y;
-        this.width = width;
-        this.height = height;
-        this.previousX = 0;
-        this.previousY = 0;
+        this.initialise([x,y], [width, height]);
     }
 
     setPosition(x, y) {
-        this.previousX = this.x;
-        this.previousY = this.y;
         this.x = x;
         this.y = y;
     }
 
-    setX(x) {
-        this.previousX = this.x;
-        this.x = x;
+    setSize(width, height) {
+        this.width = width;
+        this.height = height;
     }
 
-    setY(y) {
-        this.previousY = this.y;
-        this.y = y;
+    initialise(position, size) {
+        this.setSize(size[0], size[1]);
+        this.setPosition(position[0], position[1]);
     }
-
+    
     intersects(obj) {
-        return obj.x <= this.x + this.width && obj.y <= this.y + this.height && obj.x + obj.width > this.x && obj.y + obj.height >= this.y
+        return obj.x <= this.x + this.width 
+            && obj.y <= this.y + this.height
+            && obj.x + obj.width > this.x;
     }
 
-    intersectsLeft(obj, velocity) {
+    intersectsLeft(obj, velocity) {   
         // the only way this is true is if there is an interaction between the side of the platform and the player
-        return obj.x + 1.5 * velocity > this.x + this.width && this.y + this.height > obj.y + 1.5 * this.velocityY
+        return this.x + this.width >= obj.x && this.x < obj.x + velocity && this.y > obj.y + 2 * this.velocityY;
+    }
+    
+    outOfBounds(canvas) {
+        return this.x + this.width < 0 || this.y > canvas.height;
     }
 }

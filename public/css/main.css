@@ -7,7 +7,7 @@ html, body {
     text-align: center; 
     height:100vh; 
     width:100vw; 
-    position: relative;
+    position: absolute;
 }
 
 #Runner canvas {
@@ -29,6 +29,7 @@ html, body {
 
 #score_div {
     width: 100%;
+    padding-top: 1%;
     display:inline-block;
 }
 
@@ -41,8 +42,8 @@ html, body {
 /* Div that houses the start and restart screen. */
 .runner_overlay {
     width: 100%; 
-    background: #000; 
-    z-index: 1;
+    background: transparent;
+    z-index: 2;
     position: absolute;
     top: 50%;
     left: 50%;
@@ -53,24 +54,57 @@ html, body {
     margin: 0.1em;
 }
 
+/* define the css for a button with hover characteristics */
+/* inspired by: https://www.w3schools.com/css/tryit.asp?filename=trycss_buttons_animate1 */
 .main_button {
-    border: none;
-    background-color: #000;
-    color: white;
-    padding: 8px 8px;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 2rem;
-    border-radius: 2px;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: #ff4655;
+  border: none;
+  color: #FFFFFF;
+  text-align: center;
+  font-size: inherit;
+  padding: 2.5%;
+  transition: all 0.5s;
+  cursor: pointer;
+  margin: 2.5%;
 }
 
-.main_button:hover {
-    border: 1px solid #880E3F;
-    border-radius: 2px;
-    padding: 7px 7px;
+.main_button span {
+  cursor: pointer;
+  display: inline-block;
+  position: relative;
+  transition: 0.5s;
 }
 
+.main_button span:after {
+  content: '\00bb';
+  position: absolute;
+  opacity: 0;
+  top: 0;
+  right: -20px;
+  transition: 0.5s;
+}
+
+.main_button:hover span {
+  padding-right: 25px;
+}
+
+.main_button:hover span:after {
+  opacity: 1;
+  right: 0;
+}
+
+/* prevent text highlight */
+#score_div h3 {
+  -webkit-touch-callout: none; /* iOS Safari */
+  -webkit-user-select: none; /* Safari */
+   -khtml-user-select: none; /* Konqueror HTML */
+     -moz-user-select: none; /* Old versions of Firefox */
+      -ms-user-select: none; /* Internet Explorer/Edge */
+          user-select: none; /* Non-prefixed version, currently
+                                supported by Chrome, Edge, Opera and Firefox */
+}
 /* prevent double click */
 canvas {
     touch-action: manipulation;
@@ -103,4 +137,138 @@ canvas {
   #Runner div, h3 {
     font-size: 1.25rem !important;
   }
+}
+
+
+
+/* BACKGROUND PARALLAX */
+
+* {
+  margin:0;
+  padding:0;
+}
+body, html {
+  height: 100%;
+  font-family: 'VT323', sans-serif;
+} 
+
+
+/* Parallax base styles
+  --------------------------------------------- */
+
+.parallax {
+  height: 100%;
+  width: 100%;
+  overflow-x: hidden;
+  overflow-y: hidden;
+  -webkit-perspective: 1px;
+  perspective: 1px;
+  position: absolute;
+}
+
+.parallax__layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+.parallax__layer--base {
+  transform: translateZ(0);
+}
+
+.parallax__layer--back {
+  transform: translateZ(-1px) scale(2);
+}
+
+.parallax__layer--deep {
+  transform: translateZ(-2px) scale(3);
+}
+
+/* add some padding to force scrollbars */
+.parallax__layer { 
+  pointer-events: none;
+}
+
+/* Art */
+body {
+  background: linear-gradient(#070B34 0%, #141852 20%, #2B2F77 40%,#483475 60%, #6B4984 80%, #855988 100%);
+}
+
+.background {
+  position: absolute;
+  display: block;
+  will-change: transform;
+}
+.parallax__layer--deep {
+  padding: 0 150vw;
+  will-change: transform;
+}
+.parallax__layer--deep .background {
+  opacity: 0.25;  
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;  
+  background-repeat: repeat-x;
+  background-position: top center;  
+  background-size: 100vh;
+	background-image:   url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIj8+PHN2ZyB3aWR0aD0iNTEyIiBoZWlnaHQ9IjI1NiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4gIDxnPiAgPHRpdGxlPmJhY2tncm91bmQ8L3RpdGxlPiAgPHJlY3QgZmlsbD0idHJhbnNwYXJlbnQiIGlkPSJjYW52YXNfYmFja2dyb3VuZCIgaGVpZ2h0PSIyNTgiIHdpZHRoPSI1MTQiIHk9Ii0xIiB4PSItMSIvPiAgPGcgZGlzcGxheT0ibm9uZSIgb3ZlcmZsb3c9InZpc2libGUiIHk9IjAiIHg9IjAiIGhlaWdodD0iMTAwJSIgd2lkdGg9IjEwMCUiIGlkPSJjYW52YXNHcmlkIj4gICA8cmVjdCBmaWxsPSJ1cmwoI2dyaWRwYXR0ZXJuKSIgc3Ryb2tlLXdpZHRoPSIwIiB5PSIwIiB4PSIwIiBoZWlnaHQ9IjEwMCUiIHdpZHRoPSIxMDAlIi8+ICA8L2c+IDwvZz4gPGc+ICA8dGl0bGU+TGF5ZXIgMTwvdGl0bGU+ICA8cmVjdCBzdHJva2U9IiNmZmFjMTUiIGlkPSJzdmdfMzQ3IiBoZWlnaHQ9IjguNjY2NDIyIiB3aWR0aD0iNy45OTk3NzMiIHk9IjM3LjAwMjU4MiIgeD0iNTIuMDA1Nzg3IiBzdHJva2Utd2lkdGg9IjAiIGZpbGw9IiNmZmZmZmYiLz4gIDxyZWN0IHN0cm9rZT0iI2ZmYWMxNSIgaWQ9InN2Z18zNTQiIGhlaWdodD0iOC42NjY0MjIiIHdpZHRoPSI3Ljk5OTc3MyIgeT0iMzcuMDAyNTgyIiB4PSI1Mi4wMDU3ODciIHN0cm9rZS13aWR0aD0iMCIgZmlsbD0iI2ZmZmZmZiIvPiAgPHJlY3Qgc3Ryb2tlPSIjZmZhYzE1IiBpZD0ic3ZnXzM1NSIgaGVpZ2h0PSI4LjY2NjQyMiIgd2lkdGg9IjcuOTk5NzczIiB5PSIxMjUuMTI1OTExIiB4PSIxNDMuMTI0ODE0IiBzdHJva2Utd2lkdGg9IjAiIGZpbGw9IiNmZmZmZmYiLz4gIDxyZWN0IHN0cm9rZT0iI2ZmYWMxNSIgaWQ9InN2Z18zNTYiIGhlaWdodD0iOC42NjY0MjIiIHdpZHRoPSI3Ljk5OTc3MyIgeT0iOTEuNDI0MzU0IiB4PSIxOTkuNTQzNzE3IiBzdHJva2Utd2lkdGg9IjAiIGZpbGw9IiNmZmZmZmYiLz4gIDxyZWN0IHN0cm9rZT0iI2ZmYWMxNSIgaWQ9InN2Z18zNTciIGhlaWdodD0iOC42NjY0MjIiIHdpZHRoPSI3Ljk5OTc3MyIgeT0iMTM1Ljg2MDQ4MSIgeD0iMjk3LjY1MjY5NSIgc3Ryb2tlLXdpZHRoPSIwIiBmaWxsPSIjZmZmZmZmIi8+ICA8cmVjdCBzdHJva2U9IiNmZmFjMTUiIGlkPSJzdmdfMzU4IiBoZWlnaHQ9IjguNjY2NDIyIiB3aWR0aD0iNy45OTk3NzMiIHk9IjM5Ljk5ODI3NSIgeD0iMzYyLjU1OTM5NSIgc3Ryb2tlLXdpZHRoPSIwIiBmaWxsPSIjZmZmZmZmIi8+ICA8cmVjdCBzdHJva2U9IiNmZmFjMTUiIGlkPSJzdmdfMzU5IiBoZWlnaHQ9IjguNjY2NDIyIiB3aWR0aD0iNy45OTk3NzMiIHk9IjgzLjY4NTQ3OCIgeD0iNDIzLjcyMTQ3OCIgc3Ryb2tlLXdpZHRoPSIwIiBmaWxsPSIjZmZmZmZmIi8+ICA8cmVjdCBzdHJva2U9IiNmZmFjMTUiIGlkPSJzdmdfMzYwIiBoZWlnaHQ9IjguNjY2NDIyIiB3aWR0aD0iNy45OTk3NzMiIHk9IjE4MS41NDQ4MTUiIHg9IjQzNi40NTMxNzciIHN0cm9rZS13aWR0aD0iMCIgZmlsbD0iI2ZmZmZmZiIvPiAgPHJlY3Qgc3Ryb2tlPSIjZmZhYzE1IiBpZD0ic3ZnXzM2MSIgaGVpZ2h0PSI4LjY2NjQyMiIgd2lkdGg9IjcuOTk5NzczIiB5PSIzMC44NzgxMjgiIHg9IjQ3Ny40NTMxODUiIHN0cm9rZS13aWR0aD0iMCIgZmlsbD0iI2ZmZmZmZiIvPiAgPHJlY3Qgc3Ryb2tlPSIjZmZhYzE1IiBpZD0ic3ZnXzM2MiIgaGVpZ2h0PSI4LjY2NjQyMiIgd2lkdGg9IjcuOTk5NzczIiB5PSIxMDMuMjExNDcxIiB4PSIyMi40NTMxMjQiIHN0cm9rZS13aWR0aD0iMCIgZmlsbD0iI2ZmZmZmZiIvPiAgPHJlY3Qgc3Ryb2tlPSIjZmZhYzE1IiBpZD0ic3ZnXzM2MyIgaGVpZ2h0PSI4LjY2NjQyMiIgd2lkdGg9IjcuOTk5NzczIiB5PSI0Ljg3ODEyIiB4PSIyNDUuMTE5ODI2IiBzdHJva2Utd2lkdGg9IjAiIGZpbGw9IiNmZmZmZmYiLz4gIDxyZWN0IHN0cm9rZT0iI2ZmYWMxNSIgaWQ9InN2Z18zNjQiIGhlaWdodD0iOC42NjY0MjIiIHdpZHRoPSI3Ljk5OTc3MyIgeT0iMTg4LjU0NDgyMiIgeD0iODYuMTE5Nzk1IiBzdHJva2Utd2lkdGg9IjAiIGZpbGw9IiNmZmZmZmYiLz4gPC9nPjwvc3ZnPg==);
+}
+
+.parallax__layer--icon {
+  padding: 0 150vw;
+}
+
+.parallax__layer--icon .background {
+  opacity: 0.5;  
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;  
+  background-size: 30vh;
+  background-repeat: no-repeat;
+  background-image:   url(../images/jupiter.png);
+}
+
+.parallax__layer--back {
+  padding: 0 200vw;
+}
+
+.parallax__layer--back .background {
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;  
+  background-repeat: repeat-x;
+  background-position: bottom center;  
+  background-size: 250vh;
+  background-image: url(../images/background_deep.svg);
+  /*  use the GPU for CSS transitions  */
+  will-change: transform;
+}
+.parallax__layer--base{
+  padding: 0 300vw;
+  /*  use the GPU for CSS transitions  */
+  will-change: transform;
+}
+
+#playing_background {
+  display:none;
+  background-image: url(../images/forefront_background.svg);
+}
+
+.parallax__layer--base .background {
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background-repeat: repeat-x;
+  background-position: bottom center;  
+  background-size: 150vh;  
+  transform: translateZ(0);
+  background-image: url(../images/forefront_background_ambient.svg);
+  /*  use the GPU for CSS transitions  */
+  will-change: transform;
 }
