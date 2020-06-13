@@ -49,10 +49,10 @@ export class AudioManager {
 
     setupEventListeners() {
         // loop the background music
-        this.audioFiles["backgroundMain"].addEventListener('ended', this.playAudio("backgroundMain"), false);
+        this.audioFiles["backgroundMain"].addEventListener('ended', () => this.playAudio("backgroundMain"), false);
 
         // pause brackground music when the user leaves the tab. other audio files are short lived so don't require this.
-        document.addEventListener("visibilitychange", this.handleTabChange("backgroundMain"), false);
+        document.addEventListener("visibilitychange", () => this.handleTabChange("backgroundMain"), false);
     }
     
     handleTabChange(file) {
@@ -60,28 +60,31 @@ export class AudioManager {
 
         try {
             if (document.hidden) audio.pause();
-            else audio.play();
+            else this.playAudio(file, audio.volume, audio.currentTime);
         } catch (NoSuchAudioException) {
             log("Unable to change state of audio due to: " + NoSuchAudioException, "error");
         }
     }
 
-    playAudio(file, volume = 0.4) {
+    playAudio(file, volume = 0.4, currentTime = 0) {
         let audio = this.audioFiles[file], _this = this;
     
-        try {
+        if (audio && audio.paused === true) {
             audio.volume = volume;
-            audio.currentTime = 0;
-            if (audio.paused === true) audio.play();
-        } catch (NoSuchAudioException) {
-            log("Could not find audio object '" + file + "' with cause: " + NoSuchAudioException, "info");
-            // asynchronous AJAX request may not have finished, so retry quietly.
+            audio.currentTime = currentTime;
+            audio.play().catch(err => { 
+                log(`Could not play audio object '${file}' with cause: ${err}.`, "info");
+                _this.retryPlayback(file);
+            });
+        } else if (!audio) {
+            log(`Could not find audio file - ${file}`, "info");
             _this.retryPlayback(file);
         }
     }
     
-    retryPlayback(file, currentInvocation = 0) {
-        setTimeout(this.retryAudioPlayback, 3000, file, currentInvocation);  
+    retryPlayback(file) {
+        // Get correct 'this' context - https://stackoverflow.com/questions/2130241/pass-correct-this-context-to-settimeout-callback
+        setTimeout(() => this.retryAudioPlayback(file, 0), 3000); 
     }
     
     retryAudioPlayback(file, currentInvocation) {

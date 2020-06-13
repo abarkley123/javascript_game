@@ -73,7 +73,7 @@ export function setupEventListeners() {
         } else if (window.addEventListener) {
             window.addEventListener('resize', setSize);
         } else {
-            window.onresize = setSize();
+            window.onresize = setSize(ctx);
         }
 
         // if the user has a mobile device, allow fullscreen. Otherwise it will impact the user experience, so disable it.
@@ -105,13 +105,13 @@ export function startHandler() {
     document.querySelector("#playing_background").style.display = 'block';
     document.querySelector("#runner_container").style.display = "block";
     document.querySelector("#runner_before").style.display = "none";
-    setSize(); //make sure canvas is sized properly.
+    setSize(ctx); //make sure canvas is sized properly.
     then = Date.now();
     run(); //start the animation loop.
 }
 
 export function setSize(context) {
-    context = context || ctx; //testing
+    if (!context.width) context = ctx; // for testing
     let original_size = [context.canvas.width, context.canvas.height];
     context.canvas.width = window.innerWidth;
     fpsInterval = Math.floor(30 - (context.canvas.width / 250)); 
@@ -148,7 +148,7 @@ export function loop() {
 }
 
 export function restartHandler(gameEngine) {
-    gameEngine = gameEngine || engine;
+    if (!gameEngine.score) gameEngine = engine; // for testing
     document.querySelector("#runner_after").style.display = "none";
     document.querySelector("#idle_background").style.display = 'none';
     document.querySelector("#playing_background").style.display = 'block';
@@ -158,7 +158,7 @@ export function restartHandler(gameEngine) {
     else log("Not entering fullscreen due to: screen sufficiently sized for playable experience.", "debug");
 
     gameEngine.restart();
-    setSize();
+    setSize(ctx);
 }
 
 // fullscreen

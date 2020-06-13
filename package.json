@@ -5,8 +5,8 @@
   "main": "server.mjs",
   "scripts": {
     "test": "cross-env NODE_ENV=test nyc --reporter=html mocha --exit",
-    "start-dev": "cross-env NODE_ENV=development node --experimental-modules server.mjs",
-    "start-prod": "cross-env NODE_ENV=production node --experimental-modules server.mjs",
+    "start-dev": "cross-env NODE_ENV=development node --experimental-modules --experimental-json-modules server.mjs",
+    "start-prod": "cross-env NODE_ENV=production node --experimental-modules --experimental-json-modules server.mjs",
     "start": "npm run start-dev"
   },
   "mocha": {
