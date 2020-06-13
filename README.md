@@ -13,9 +13,9 @@ Since this game is web-based, that means getting started is simple. Clone/fork/d
 #### To run the application 
 ```
 cd path/to/project
-[//]: # Install dependencies
+// Install dependencies
 npm install
-[//]: # Expose server on port 8080
+// Expose server on port 8080
 npm start
 ```
 Then, navigate to `localhost:8080` or to the *public IP address*. This address is found following: https://www.avast.com/c-how-to-find-ip-address. The public IP address e.g. `192.218.222.101`, will allow any user on your local network to play the game.
@@ -25,16 +25,16 @@ Then, navigate to `localhost:8080` or to the *public IP address*. This address i
 ```
 cd path/to/project
 
-[//]: # (Build image locally)
+// (Build image locally)
 docker build -t your_image_name .
 
-[//]: # Or pull image from docker registry (if forked & authenticated)
+// Or pull image from docker registry (if forked & authenticated)
 docker pull docker.pkg.github.com/abarkley123/canvas_platformer/master:latest
 
-[//]: # Run the container
+// Run the container
 docker run -p 8080:8080 your_image_name 
 
-[//]: # Stop and remove the container
+// Stop and remove the container
 docker stop CONTAINER_ID | xargs docker rm
 ```
 
@@ -44,13 +44,13 @@ docker stop CONTAINER_ID | xargs docker rm
 ```
 cd path/to/project
 
-[//]: # (Test all files)
+// (Test all files)
 npm test
 
-[//]: # (Test a given file)
+// (Test a given file)
 npm test test/file_name_here.js
 
-[//]: # (Access the coverage report in the browser)
+// (Access the coverage report in the browser)
 file:///path/to/project/coverage/index.html
 ```
 
