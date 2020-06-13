@@ -25,10 +25,11 @@ Then, navigate to `localhost:8080` or to the *public IP address*. This address i
 ```
 cd path/to/project
 
-// (Build image locally)
+// Build image locally
 docker build -t your_image_name .
 
 // Or pull image from docker registry (if forked & authenticated)
+// See https://help.github.com/en/packages/using-github-packages-with-your-projects-ecosystem/configuring-docker-for-use-with-github-packages
 docker pull docker.pkg.github.com/abarkley123/canvas_platformer/master:latest
 
 // Run the container
@@ -44,13 +45,13 @@ docker stop CONTAINER_ID | xargs docker rm
 ```
 cd path/to/project
 
-// (Test all files)
+// Test all files
 npm test
 
-// (Test a given file)
+// Test a given file
 npm test test/file_name_here.js
 
-// (Access the coverage report in the browser)
+// Access the coverage report in the browser
 file:///path/to/project/coverage/index.html
 ```
 
