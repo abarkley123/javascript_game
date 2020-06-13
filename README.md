@@ -94,3 +94,6 @@ This project is licensed under the MIT license - https://github.com/abarkley123/
 
 * Guidance for ES6 node support: https://hackernoon.com/import-export-default-require-commandjs-javascript-nodejs-es6-vs-cheatsheet-different-tutorial-example-5a321738b50f
 * Platforming concept expanded from: https://github.com/abarkley123/Miracle-Quest/blob/master/js/main/runner.js
+* Background music supplied by Eva – 失望した: https://youtu.be/jVTsD4UPT-k (creative commons) 
+* Collision sounds by Shades https://opengameart.org/content/8-bit-sound-effect-pack-vol-001 
+* Jump sounds by Damaged Panda https://opengameart.org/content/100-plus-game-sound-effects-wavoggm4a 
